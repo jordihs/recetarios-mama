@@ -22,6 +22,7 @@ frontend/.idea/
 
 # --- Packaging output ---
 dist/
+*.zip
 
 # --- Local dev data ---
 .devdata/

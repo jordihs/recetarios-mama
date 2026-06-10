@@ -1,0 +1,55 @@
+name: Release
+
+# Pushing a version tag (v1.0.1, v2.0.0, ...) builds the Windows app,
+# zips it, and publishes a GitHub release with the zip attached.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install backend (with dev deps and PyInstaller)
+        working-directory: backend
+        run: pip install -e .[dev] pyinstaller
+
+      - name: Backend tests
+        working-directory: backend
+        run: pytest
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Frontend dependencies
+        working-directory: frontend
+        run: flutter pub get
+
+      - name: Frontend tests
+        working-directory: frontend
+        run: flutter test
+
+      - name: Build Windows package
+        run: .\build\build-windows.ps1 -FlutterBin flutter
+
+      - name: Create release zip
+        run: >
+          Compress-Archive -Path dist\recetarios-mama
+          -DestinationPath "recetarios-mama-${{ github.ref_name }}-windows-x64.zip"
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: recetarios-mama-${{ github.ref_name }}-windows-x64.zip
+          generate_release_notes: true
