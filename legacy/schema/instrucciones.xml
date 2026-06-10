@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml-stylesheet type="text/xsl" href="recetas.xsl"?>
+<RECETARIO>
+	<TITULO>Instrucciones</TITULO>
+	<INTRODUCCION>
+  	<PARRAFO>
+  		Guia de referencia para el XML de recetario. 
+		</PARRAFO>	
+	</INTRODUCCION>
+	<CAPITULO nombre="Etiquetas" >
+	<INTRODUCCION>
+  	<PARRAFO>
+  		Una etiqueta es un marcador que se abre y cierra como:
+		</PARRAFO>	
+		<CODE>&lt;ETIQUETA&gt; contenido &lt;/ETIQUETA&gt;</CODE>
+  	<PARRAFO>
+  		Las etiquetas pueden contener atributos, datos que añaden información sobre el contenido de la etiqueta: 
+		</PARRAFO>	
+		<CODE>&lt;ETIQUETA atributo="valor" &gt; contenido &lt;/ETIQUETA&gt;</CODE>
+  	<PARRAFO>
+  		Para cerrar las etiquetas, hay que usar un cierre que es como abrir pero con una barra al principio: 
+		</PARRAFO>	
+		<CODE>&lt;/ETIQUETA&gt;</CODE>
+  	<PARRAFO>
+  		Las etiquetas se pueden anidar (meter unas dentro de otras), pero teniendo en cuenta que una etiqueta 
+  		anidada debe cerrarse ANTES del cierre de la etiqueta que la contiene, o el documento se escaralla:
+		</PARRAFO>	
+		<CODE>BIEN:&lt;ETIQUETA atributo="valor" &gt; &lt;ANIDADA&gt; contenido &lt;/ANIDADA&gt;&lt;/ETIQUETA&gt;</CODE>
+		<CODE>MAL:&lt;ETIQUETA atributo="valor" &gt; &lt;ANIDADA&gt; contenido &lt;/ETIQUETA&gt; &lt;/ANIDADA&gt;</CODE>
+  	<PARRAFO>
+  		Una etiqueta puede abreviarse si no tiene contenido, cerrandola en el momento en que se abre:  
+		</PARRAFO>	
+		<CODE>&lt;ETIQUETA atributo="valor" /&gt; </CODE>
+	</INTRODUCCION>
+	</CAPITULO>
+	<CAPITULO nombre="La etiqueta RECETARIO" >
+		<INTRODUCCION>
+	  	<PARRAFO>
+	  		La etiqueta recetario solo aparece una vez, y contiene a todas las demás etiquetas. Dentro de esta etiqueta
+	  		podemos introducir:    		
+			</PARRAFO>	
+	  	<PARRAFO>
+	  		-Una etiqueta TITULO (el título del recetario) 		
+			</PARRAFO>
+	  	<PARRAFO>
+	  		-Una etiqueta INTRODUCCION (introduccion al recetario). Más sobre esta etiqueta después.  		
+			</PARRAFO>	
+	  	<PARRAFO>
+	  		-Una o varias etiquetas CAPITULO. Más sobre esta etiqueta después.  		
+			</PARRAFO>	
+	  	<PARRAFO>
+	  		-Una o varias etiquetas RECETA. Más sobre esta etiqueta después.  		
+			</PARRAFO>			
+			<CODE>&lt;RECETARIO&gt; ... &lt;/RECETARIO&gt;</CODE>
+		</INTRODUCCION>
+  	
+	</CAPITULO>
+	<CAPITULO nombre="La etiqueta INTRODUCCION" >
+		<INTRODUCCION>
+	  	<PARRAFO>
+	  		Esta etiqueta puede usarse en varios lugares: Como introducción al propio recetario y también dentro de cada capítulo. 
+	  		Es la que permite más libertad de formato pero también por ello la más compleja. Las etiquetas descritas a 
+	  		continuacion se pueden poner dentro de una introducción en cualquier orden y numero.  
+			</PARRAFO>	
+		</INTRODUCCION>
+		<CAPITULO nombre="La etiqueta TITULO" >
+			<INTRODUCCION>
+		  	<PARRAFO>
+		  		Con esta etiqueta se inserta un titulo. 
+				</PARRAFO>	
+				<CODE>&lt;TITULO&gt; Titulo dentro de una introduccion &lt;/TITULO&gt;</CODE>
+		  	<PARRAFO>
+		  		Demostración: 
+				</PARRAFO>	
+				<TITULO>Titulo dentro de una introduccion</TITULO>
+			</INTRODUCCION>
+		</CAPITULO>
+		<CAPITULO nombre="La etiqueta PARRAFO" >
+			<INTRODUCCION>
+		  	<PARRAFO>
+		  		Esta simple etiqueta sirve para escribir párrafos de texto. Este mismo texto es un parrafo. 
+				</PARRAFO>	
+				<CODE>&lt;PARRAFO&gt; Texto que aparece en un bloque independiente... &lt;/PARRAFO&gt;</CODE>
+			</INTRODUCCION>
+		</CAPITULO>
+		<CAPITULO nombre="La etiqueta IMAGEN" >
+			<INTRODUCCION>
+		  	<PARRAFO>
+		  		Esta etiqueta permite introducir una imagen. El diseño actual pone la imagen a la derecha de los párrafos
+		  		que hay a continuación. Tiene un atributo "src" que determina el nombre de la imagen en el disco duro, relativa
+		  		al documento XML: Si 'setas.xml' (o el recetario que estés preparando) está en una carpeta ('mis documentos/mama'
+		  		 por ejemplo), y ahí mismo hay otra carpeta 'imgs' con fotos, puedes insertar las fotos con esta etiqueta
+				</PARRAFO>	
+				<CODE>&lt;IMAGEN src="imgss/amanitacesarea.jpg"&gt;Pie de foto&lt;/IMAGEN&gt;<br/>
+&lt;PARRAFO&gt;
+	La imagen aparecerá a la derecha de este párrafo con el texto 'Pie de foto' al pie. 
+&lt;/PARRAFO&gt;	
+				</CODE>
+				<PARRAFO>Demostración:</PARRAFO>
+				<IMAGEN src="imgss/amanitacesarea.jpg">Pie de foto</IMAGEN>
+		  	<PARRAFO>
+		  		La imagen aparecerá a la derecha de este párrafo con el texto 'Pie de foto' al pie. 
+				</PARRAFO>	
+			</INTRODUCCION>
+		</CAPITULO>
+		<CAPITULO nombre="La etiqueta IMAGENES" >
+			<INTRODUCCION>
+		  	<PARRAFO>
+		  		Esta etiqueta sirve para mostrar una o varias fotos, pero en lugar de colocarlas a la izquierda del 
+		  		párrafo siguiente, la foto o fotos aparece a la izquierda y sin texto alrededor. 
+				</PARRAFO>	
+				<CODE>&lt;IMAGENES&gt;
+ &lt;IMAGEN src="imgss/amanitacesarea.jpg"&gt;Pie de foto&lt;/IMAGEN&gt;
+ &lt;IMAGEN src="imgss/amanitacesarea.jpg"&gt;Pie de foto&lt;/IMAGEN&gt;
+&lt;/IMAGENES&gt;
+&lt;PARRAFO&gt;
+	Las imagenes aparecerán encima de este parrafo, a la izquierda. 
+&lt;/PARRAFO&gt;	
+				</CODE>
+				<PARRAFO>Demostración:</PARRAFO>
+				<IMAGENES>
+				<IMAGEN src="imgss/amanitacesarea.jpg">Pie de foto</IMAGEN>
+				<IMAGEN src="imgss/amanitacesarea.jpg">Pie de foto</IMAGEN>
+				</IMAGENES>
+		  	<PARRAFO>
+		  		Las imagenes aparecerán encima de este parrafo, a la izquierda.
+				</PARRAFO>	
+			</INTRODUCCION>
+			
+		</CAPITULO>
+		
+		<CAPITULO nombre="La etiqueta TABLA" >
+			<INTRODUCCION>
+		  	<PARRAFO>
+		  		Sirve lógicamente para crear una tabla. Es un poco compleja porque hay que definir la cabecera 
+		  		y el contenido por separado, usando las etiquetas CABECERA y FILA. Esta etiqueta tiene un atributo "titulo"
+		  		(&lt;TABLA titulo="descripcion de la tabla" &gt;) que permite ponerle opcionalmente un letrero a la tabla. 
+				</PARRAFO>	
+			</INTRODUCCION>
+			<CAPITULO nombre="La etiqueta CELDA"> 		   		 
+				<INTRODUCCION>
+			  	<PARRAFO>	
+			  		Las celdas se definen siempre igual, con la etiqueta FILA. Las que pongamos dentro de la etiqueta CABECERA serán las celdas 
+			  		de la cabecera de la tabla. Las que vayan dentro de etiquetas FILA, irán dentro de una fila en la tabla. 
+			  		Por ello es importante que tanto la cabecera como las filas contengan siempre el mismo numero de celdas, 
+			  		de lo contrario la tabla se descojona.   	
+			  		Una celda puede contener texto o una imagen con pie de foto. Si tiene foto, hay que definir la ruta de la 
+			  		misma usando el atributo 'imagen' (&lt;CELDA imagen="imgs/unafoto.jpg"&gt;), y en este caso el texto que
+			  		ponemos dentro sale como pie de foto. 
+					</PARRAFO>	
+					<CODE>&lt;TABLA titulo="Tabla de tiempos"&gt;
+	&lt;CABECERA&gt;
+		&lt;CELDA&gt;Nombre de la especie&lt;/CELDA&gt;
+		&lt;CELDA&gt;Tiempo de escaldado&lt;/CELDA&gt;
+		&lt;CELDA&gt;Tiempo de cocción&lt;/CELDA&gt;
+	&lt;/CABECERA&gt;
+	&lt;FILA&gt;
+		&lt;CELDA&gt;Tiempo de cocción&lt;/CELDA&gt;
+		&lt;CELDA&gt;5 minutos&lt;/CELDA&gt;
+		&lt;CELDA imagen="imgs/champinon.jpg"&gt;Agáricus campestre o champiñón&lt;/CELDA&gt;
+	&lt;/FILA&gt;
+&lt;/TABLA&gt;</CODE>
+				<PARRAFO>Demostración:</PARRAFO>
+				<TABLA titulo="Tabla de tiempos">
+				<CABECERA>
+					<CELDA>Nombre de la especie</CELDA>
+					<CELDA>Tiempo de escaldado</CELDA>
+					<CELDA>Tiempo de cocción</CELDA>
+				</CABECERA>
+				<FILA>
+					<CELDA>Tiempo de cocción</CELDA>
+					<CELDA>5 minutos</CELDA>
+					<CELDA imagen="imgs/champinon.jpg">Agáricus campestre o champiñón</CELDA>
+				</FILA>
+			</TABLA>
+				</INTRODUCCION>
+			</CAPITULO>
+		</CAPITULO>
+		
+		<CAPITULO nombre="La etiqueta RECETA" >
+			<INTRODUCCION>
+		  	<PARRAFO>
+		  		Con esta etiqueta creas las recetas. Tiene un atributo "imagen" para ponerle una foto a la receta
+		  		(&lt;RECETA imagen="imgs/seta.jpg"&gt;).  Dentro puedes poner las siguientes etiquetas: 
+		  	</PARRAFO>	
+		  	<PARRAFO>
+		  		- Una etiqueta TITULO
+		  	</PARRAFO>	
+		  	<PARRAFO>
+		  		- Una etiqueta INGREDIENTES
+		  	</PARRAFO>
+		  	<PARRAFO>
+		  		- Una etiqueta PREPARACION
+		  	</PARRAFO>	
+		  	<PARRAFO>
+		  		- Una etiqueta NOTA
+		  	</PARRAFO>	
+			</INTRODUCCION>
+			<CAPITULO nombre="La etiqueta INGREDIENTES" >
+				<INTRODUCCION>
+		  		<PARRAFO>
+		  			Esta etiqueta sirve para definir los ingredientes para la receta. Tiene un atributo "personas" que es la 
+		  			medida para la que están pensados los ingredientes (&lt;INGREDIENTES personas="6"&gt;). 
+		  			Dentro de la etiqueta INGREDIENTES debes introducir una o varias etiquetas GRUPO, dentro de las cuales 
+		  			van los ingredientes, cada uno en una etiqueta INGREDIENTE. La etiqueta GRUPO, a su vez, tiene un atributo
+		  			"titulo" que sirve para poner un encabezamiento al grupo de ingredientes. 
+		  		</PARRAFO>
+		  		<CODE>&lt;INGREDIENTES personas="6"&gt;
+	&lt;GRUPO&gt;
+		&lt;INGREDIENTE&gt;200 gramos de repollo cortado en juliana&lt;/INGREDIENTE&gt;
+		&lt;INGREDIENTE&gt;200 gramos de zanahoria cortada en juliana&lt;/INGREDIENTE&gt;
+	&lt;/GRUPO&gt;
+	&lt;GRUPO titulo="Para el aliño"&gt;
+		&lt;INGREDIENTE&gt;Aceite de oliva, de 0,4 grados&lt;/INGREDIENTE&gt;
+		&lt;INGREDIENTE&gt;Vinagre de estragón&lt;/INGREDIENTE&gt;
+		&lt;INGREDIENTE&gt;Sal y pimienta&lt;/INGREDIENTE&gt;
+	&lt;/GRUPO&gt;
+&lt;/INGREDIENTES&gt;
+		  		</CODE>
+		  		<PARRAFO>Demostracion:</PARRAFO>
+				</INTRODUCCION>
+				<RECETA><TITULO>Demostración de ingredientes </TITULO>
+					<INGREDIENTES personas="6"><GRUPO>
+					<INGREDIENTE>200 gramos de repollo cortado en juliana</INGREDIENTE>
+					<INGREDIENTE>200 gramos de zanahoria cortada en juliana</INGREDIENTE>
+				</GRUPO>
+				<GRUPO titulo="Para el aliño">
+					<INGREDIENTE>Aceite de oliva, de 0,4 grados</INGREDIENTE>
+					<INGREDIENTE>Vinagre de estragón</INGREDIENTE>
+					<INGREDIENTE>Sal y pimienta</INGREDIENTE>
+				</GRUPO></INGREDIENTES>
+				</RECETA>
+			</CAPITULO>		
+			<CAPITULO nombre="La etiqueta PREPARACION" >
+				<INTRODUCCION>
+			  	<PARRAFO>
+			  		En esta etiqueta pones la preparación de la receta. Funciona igual que una etiqueta PARRAFO
+					</PARRAFO>	
+					<CODE>&lt;PREPARACION&gt; Preparacion de la receta....&lt;/PREPARACION&gt;</CODE>
+				</INTRODUCCION>
+			</CAPITULO>
+			<CAPITULO nombre="La etiqueta NOTA" >
+				<INTRODUCCION>
+			  	<PARRAFO>
+			  		En esta etiqueta Puedes poner una nota que saldrá al pie de la receta. Funciona igual que una etiqueta PARRAFO
+					</PARRAFO>	
+					<CODE>&lt;NOTA&gt; Una notita....&lt;/NOTA&gt;</CODE>
+					<PARRAFO>Demostracion:</PARRAFO>
+				</INTRODUCCION>
+				<RECETA><TITULO>Demostración de preparacion y parrafo </TITULO>
+					<INGREDIENTES><GRUPO><INGREDIENTE>200 gramos de repollo cortado en juliana</INGREDIENTE></GRUPO></INGREDIENTES>
+					<PREPARACION> Preparacion de la receta....</PREPARACION>
+					<NOTA>Una notita....</NOTA>
+				</RECETA>
+			</CAPITULO>
+		</CAPITULO>
+		
+		<CAPITULO nombre="La etiqueta CAPITULO" >
+			<INTRODUCCION>
+		  	<PARRAFO>
+		  		Esta etiqueta sirve para organizar el recetario con divisiones lógicas. Tiene un atributo "nombre" que sirve
+		  		para nombrar el capítulo. Cada capítulo se ve reflejado en el índice.</PARRAFO>	
+		  		<PARRAFO> Dentro de la etiqueta podemos introducir mas 
+		  		etiquetas CAPITULO para crear subcapítulos. En el índice esto se refleja en que los subcapitulos aparecen
+		  		más a la derecha que el capitulo que los contiene. 	
+				</PARRAFO>	
+				<PARRAFO>
+		  		Además de otros capítulos, podemos incluir una etiqueta INTRODUCCION (con todos los elementos que se han 
+		  		descrito), y tantas recetas como queramos. 
+		  		</PARRAFO>	
+			</INTRODUCCION>
+		</CAPITULO>
+  	
+	</CAPITULO>
+	
+</RECETARIO> 

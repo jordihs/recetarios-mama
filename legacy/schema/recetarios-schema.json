@@ -1,0 +1,181 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Esquema de Recetario",
+  "type": "object",
+  "required": ["RECETARIO"],
+  "properties": {
+    "RECETARIO": {
+      "type": "object",
+      "required": ["TITULO", "CAPITULO"],
+      "properties": {
+        "TITULO": { "type": "string" },
+        "INTRODUCCION": { "$ref": "#/definitions/TipoIntroduccion" },
+        "CAPITULO": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/TipoCapitulo" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "TipoIntroduccion": {
+      "type": "object",
+      "properties": {
+        "TITULO": { "type": "string" },
+        "PARRAFO": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "array", "items": { "type": "string" } }
+          ]
+        },
+        "IMAGEN": { "$ref": "#/definitions/TipoImagen" },
+        "IMAGENES": {
+          "type": "object",
+          "properties": {
+            "IMAGEN": {
+              "oneOf": [
+                { "$ref": "#/definitions/TipoImagen" },
+                { "type": "array", "items": { "$ref": "#/definitions/TipoImagen" } }
+              ]
+            }
+          }
+        },
+        "TABLA": {
+          "oneOf": [
+            { "$ref": "#/definitions/TipoTabla" },
+            { "type": "array", "items": { "$ref": "#/definitions/TipoTabla" } }
+          ]
+        }
+      }
+    },
+    "TipoTabla": {
+      "type": "object",
+      "required": ["CABECERA", "FILA"],
+      "properties": {
+        "@attributes": {
+          "type": "object",
+          "properties": {
+            "titulo": { "type": "string" }
+          }
+        },
+        "CABECERA": { "$ref": "#/definitions/TipoFilaCelda" },
+        "FILA": {
+          "oneOf": [
+            { "$ref": "#/definitions/TipoFilaCelda" },
+            { "type": "array", "items": { "$ref": "#/definitions/TipoFilaCelda" } }
+          ]
+        }
+      }
+    },
+    "TipoFilaCelda": {
+      "type": "object",
+      "required": ["CELDA"],
+      "properties": {
+        "CELDA": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/TipoCelda" }
+        }
+      }
+    },
+    "TipoCelda": {
+      "type": "object",
+      "properties": {
+        "@attributes": {
+          "type": "object",
+          "properties": {
+            "imagen": { "type": "string" }
+          }
+        },
+        "#text": { "type": "string" }
+      }
+    },
+    "TipoCapitulo": {
+      "type": "object",
+      "required": ["@attributes"],
+      "properties": {
+        "@attributes": {
+          "type": "object",
+          "required": ["nombre"],
+          "properties": {
+            "nombre": { "type": "string" }
+          }
+        },
+        "INTRODUCCION": { "$ref": "#/definitions/TipoIntroduccion" },
+        "CAPITULO": {
+          "oneOf": [
+            { "$ref": "#/definitions/TipoCapitulo" },
+            { "type": "array", "items": { "$ref": "#/definitions/TipoCapitulo" } }
+          ]
+        },
+        "RECETA": {
+          "oneOf": [
+            { "$ref": "#/definitions/TipoReceta" },
+            { "type": "array", "items": { "$ref": "#/definitions/TipoReceta" } }
+          ]
+        }
+      }
+    },
+    "TipoReceta": {
+      "type": "object",
+      "required": ["TITULO", "INGREDIENTES", "PREPARACION"],
+      "properties": {
+        "@attributes": {
+          "type": "object",
+          "properties": {
+            "imagen": { "type": "string" }
+          }
+        },
+        "TITULO": { "type": "string" },
+        "INGREDIENTES": {
+          "type": "object",
+          "required": ["GRUPO"],
+          "properties": {
+            "@attributes": {
+              "type": "object",
+              "properties": {
+                "personas": { "type": "string" }
+              }
+            },
+            "GRUPO": {
+              "oneOf": [
+                { "$ref": "#/definitions/TipoGrupoIngredientes" },
+                { "type": "array", "items": { "$ref": "#/definitions/TipoGrupoIngredientes" } }
+              ]
+            }
+          }
+        },
+        "PREPARACION": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "array", "items": { "type": "string" } }
+          ]
+        },
+        "NOTA": { "type": "string" }
+      }
+    },
+    "TipoGrupoIngredientes": {
+      "type": "object",
+      "required": ["INGREDIENTE"],
+      "properties": {
+        "INGREDIENTE": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "TipoImagen": {
+      "type": "object",
+      "required": ["@attributes"],
+      "properties": {
+        "@attributes": {
+          "type": "object",
+          "required": ["src"],
+          "properties": {
+            "src": { "type": "string" }
+          }
+        },
+        "#text": { "type": "string" }
+      }
+    }
+  }
+}

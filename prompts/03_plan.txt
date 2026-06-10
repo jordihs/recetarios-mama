@@ -1,0 +1,1 @@
+/speckit.plan Generate the GUI using Flutter with a Python backend. Aim to generate a windows app but leave open options to generate other executables (android apk, linux executable) using the build tool. 
