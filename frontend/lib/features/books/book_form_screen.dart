@@ -107,6 +107,9 @@ class _BookFormScreenState extends ConsumerState<BookFormScreen> {
       );
     }
     ref.invalidate(bookListProvider);
+    if (widget.bookId != null) {
+      ref.invalidate(bookDetailProvider(widget.bookId!));
+    }
     if (mounted) context.pop();
   }
 

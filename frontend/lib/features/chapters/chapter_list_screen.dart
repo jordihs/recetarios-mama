@@ -7,6 +7,7 @@ import 'package:recetarios/data/chapters_repository.dart';
 import 'package:recetarios/data/models.dart';
 import 'package:recetarios/features/books/book_list_screen.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
+import 'package:recetarios/widgets/block_renderer.dart';
 import 'package:recetarios/widgets/item_card.dart';
 
 final chaptersRepositoryProvider =
@@ -24,27 +25,54 @@ final chapterDetailProvider = FutureProvider.family<ChapterDetail, String>(
 );
 
 /// Chapter browser: top level of a book (chapterId == null) or a chapter's
-/// subchapters + recipes (chapterId != null). Recipes section plugs in at US3.
+/// subchapters + recipes (chapterId != null).
+///
+/// The parent item's full presentation content (book or chapter introduction)
+/// is rendered above the listings, with an edit action in the AppBar — the
+/// recipe view is the only place that does not show its parent's description.
 class ChapterListScreen extends ConsumerWidget {
   const ChapterListScreen({super.key, required this.bookId, this.chapterId, this.recipesSection});
 
   final String bookId;
   final String? chapterId;
 
-  /// Injected by US3: builds the recipe section for a chapter.
+  /// Injected by the recipes feature: builds the recipe section for a chapter.
   final Widget? recipesSection;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
     final chapters = ref.watch(chapterListProvider((bookId: bookId, parentId: chapterId)));
-    final titleAsync = chapterId == null
-        ? ref.watch(bookListProvider).whenData(
-            (books) => books.firstWhere((b) => b.id == bookId, orElse: () => ItemSummary(id: bookId, title: '')).title)
-        : ref.watch(chapterDetailProvider(chapterId!)).whenData((c) => c.title);
+
+    final String parentTitle;
+    final List<ContentBlock> parentPresentation;
+    final String editRoute;
+    final String editTooltip;
+    if (chapterId == null) {
+      final book = ref.watch(bookDetailProvider(bookId));
+      parentTitle = book.value?.title ?? '';
+      parentPresentation = book.value?.presentation ?? const [];
+      editRoute = '/books/$bookId/edit';
+      editTooltip = l10n.editBook;
+    } else {
+      final chapter = ref.watch(chapterDetailProvider(chapterId!));
+      parentTitle = chapter.value?.title ?? '';
+      parentPresentation = chapter.value?.presentation ?? const [];
+      editRoute = '/books/$bookId/chapters/$chapterId/edit';
+      editTooltip = l10n.editChapter;
+    }
 
     return Scaffold(
-      appBar: AppBar(title: Text(titleAsync.value ?? '')),
+      appBar: AppBar(
+        title: Text(parentTitle),
+        actions: [
+          IconButton(
+            tooltip: editTooltip,
+            icon: const Icon(Icons.edit),
+            onPressed: () => context.push(editRoute),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           final query = chapterId == null ? '' : '?parent=$chapterId';
@@ -57,18 +85,24 @@ class ChapterListScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(child: Text('$error')),
         data: (items) {
-          if (items.isEmpty && recipesSection == null) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Text(l10n.noChapters, textAlign: TextAlign.center),
-              ),
-            );
-          }
           final api = ref.watch(apiClientProvider);
           return CustomScrollView(
             slivers: [
-              if (items.isNotEmpty)
+              // Full introduction of the parent book/chapter (FR-006 companion:
+              // lists show the truncated description; this is the full content).
+              if (parentPresentation.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 860),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                        child: BlockRenderer(blocks: parentPresentation, api: api),
+                      ),
+                    ),
+                  ),
+                ),
+              if (items.isNotEmpty) ...[
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -78,9 +112,17 @@ class ChapterListScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
-              if (items.isNotEmpty)
                 SliverToBoxAdapter(
-                  child: _ChapterGrid(items: items, bookId: bookId, parentId: chapterId, api: api),
+                  child: _ChapterGrid(
+                      items: items, bookId: bookId, parentId: chapterId, api: api),
+                ),
+              ] else if (recipesSection == null)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Center(
+                        child: Text(l10n.noChapters, textAlign: TextAlign.center)),
+                  ),
                 ),
               if (recipesSection != null) SliverToBoxAdapter(child: recipesSection),
             ],
@@ -118,7 +160,8 @@ class _ChapterGrid extends ConsumerWidget {
               description: items[i].description,
               imageUrl: items[i].image == null ? null : api.imageUrl(items[i].image!),
               onTap: () => context.push('/books/$bookId/chapters/${items[i].id}'),
-              trailing: _ChapterMenu(item: items[i], index: i, items: items, bookId: bookId, parentId: parentId),
+              trailing: _ChapterMenu(
+                  item: items[i], index: i, items: items, bookId: bookId, parentId: parentId),
             ),
         ],
       );

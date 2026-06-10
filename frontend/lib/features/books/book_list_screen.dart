@@ -18,6 +18,10 @@ final booksRepositoryProvider =
 final bookListProvider =
     FutureProvider<List<ItemSummary>>((ref) => ref.watch(booksRepositoryProvider).list());
 
+final bookDetailProvider = FutureProvider.family<BookDetail, String>(
+  (ref, id) => ref.watch(booksRepositoryProvider).get(id),
+);
+
 class BookListScreen extends ConsumerWidget {
   const BookListScreen({super.key});
 
