@@ -1,0 +1,3 @@
+/speckit.constitution Create principles focused on code quality, testing standards, user experience
+   consistency, and performance requirements. Include governance for how these
+   principles should guide technical decisions and implementation choices.

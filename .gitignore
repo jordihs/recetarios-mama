@@ -1,0 +1,40 @@
+# --- Python (backend) ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+backend/dist/
+backend/build/
+
+# --- Flutter / Dart (frontend) ---
+frontend/.dart_tool/
+frontend/build/
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies
+frontend/windows/flutter/ephemeral/
+frontend/linux/flutter/ephemeral/
+frontend/android/.gradle/
+frontend/android/local.properties
+frontend/.idea/
+
+# --- Packaging output ---
+dist/
+
+# --- Local dev data ---
+.devdata/
+
+# --- Environment / secrets ---
+.env
+.env.*
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/
+*.log

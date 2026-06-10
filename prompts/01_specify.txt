@@ -1,0 +1,21 @@
+/speckit.specify A desktop and mobile application that will allow to create, import, view, update and delete cooking recipes. 
+The application GUI will be progressive, allowing display on any reasonable screen size and proportions within PC and mobile worlds. 
+The recipes will be organized in books and chapters, all of which may have a text and image presentation content. 
+The application will allow the user to export each book as a PDF document for print. This PDF will include a cover page, an index, chapter introduction pages and all the recipes from the book, where each recipe always begins in a new page. 
+Recipes will consist of a title, a list of ingredients and a preparation guide that may include text and images, allowing certain layout options such as a grid. 
+The application will allow to import recipe data from a previously existing JSON format, where a JSON document will represent a whole book with chapters. 
+Legacy data is stored under project root in a directory named 'legacy'. There is a JSON schema detailing the data format at [root]/legacy/schema. In this directory there is also an XML sample document with an analog format, which contains self explanatory data in spanish. 
+The legacy data images are at [root]/legacy/imgs, and the legacy documents at [root]/legacy have image links relative to the root, so all images are defined as paths that start by ./imgs or similar. 
+The importing of this old format will adapt the contents to the new format of the application. 
+Data for the application will be stored locally and it should be possible to export it into a single file containing all the books, chapters and recipes in a way that the application will be able to import. 
+The application will not handle user login. Once opened, it will display all available books, showing the book title, with the image if present, and the initial book description (which, if too long, may be shortened by an ellipsis '...'). 
+The book selection list will include a button to add a new book, which will bring the user to a book creation form. 
+Once the user selects a book, the chapter list will display, where chapters will show the same information as the books in the previous screen (title, image if present, initial description). 
+The chapter selection list will include a button to add a new chapter, which will bring the user to a chapter creation form. 
+Once an existing chapter is selected, a recipe list will display. Initially, recipes will display in a similar way to the books and chapters, with title, image and description. But the application will display a button to allow the user to show only the titles for ease of browsing. This button will be a toggle type control, to switch between the display modes. 
+Once a recipe is selected, it will be displayed with the introductory text and images first, then the ingredients list and finally the preparation guide. 
+The recipe view will display in view mode initially, but a button will enable the user to toggle into edit mode, where it will be possible to modify any element of the recipe. When in edit mode, 'save' and 'discard changes' button will display to allow the user to either save the work or discard it. 
+When editing a recipe, each section will have the appropiate input types for each section, i.e. a rich text editor for introduction and preparation guide that allows image insertion and positioning, and a list editor for the ingredients list. 
+The recipe view will also show a print button. This button will present the user with a choice to include or skip the introduction and or the images. According to this choice, and unless the operation is cancelled, the application will generate a PDF file containing the recipe that may or may not include images and introduction according to the previous choice. 
+Once generated, the application will save the PDF file in a user selectable folder (which will default to the user folder as a preset that may be configured persistently by the user in a configuration menu). Then the application will signal the operating system to open the resulting PDF file. 
+The application will be presented in the spanish language and text data will be always stored in the UTF-8 format. However, all of the project documentation and coding will use english exclusively. 
