@@ -1,6 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Esquema de Recetario",
+  "title": "Esquema de Recetario v2",
+  "description": "Versión 2 del esquema. Introduce el array CONTENIDO en TipoIntroduccion para preservar el orden original de títulos, párrafos, imágenes y tablas tal como aparecen en el documento fuente.",
   "type": "object",
   "required": ["RECETARIO"],
   "properties": {
@@ -20,37 +21,86 @@
   "definitions": {
     "TipoIntroduccion": {
       "type": "object",
+      "description": "Bloque introductorio de un capítulo o del recetario. El campo CONTENIDO preserva el orden original de los elementos (títulos, párrafos, imágenes sueltas, galerías de imágenes y tablas). Las imágenes de cabecera que preceden a todo el texto se pueden incluir también en CONTENIDO con tipo 'IMAGEN' o 'IMAGENES'.",
       "properties": {
-        "TITULO": { "type": "string" },
-        "PARRAFO": {
-          "oneOf": [
-            { "type": "string" },
-            { "type": "array", "items": { "type": "string" } }
-          ]
-        },
-        "IMAGEN": { "$ref": "#/definitions/TipoImagen" },
-        "IMAGENES": {
-          "type": "object",
-          "properties": {
-            "IMAGEN": {
-              "oneOf": [
-                { "$ref": "#/definitions/TipoImagen" },
-                { "type": "array", "items": { "$ref": "#/definitions/TipoImagen" } }
-              ]
-            }
-          }
-        },
-        "TABLA": {
-          "oneOf": [
-            { "$ref": "#/definitions/TipoTabla" },
-            { "type": "array", "items": { "$ref": "#/definitions/TipoTabla" } }
-          ]
+        "CONTENIDO": {
+          "type": "array",
+          "description": "Secuencia ordenada de bloques de contenido tal como aparecen en el documento original.",
+          "items": { "$ref": "#/definitions/TipoBloque" }
         }
+      }
+    },
+    "TipoBloque": {
+      "description": "Un bloque de contenido dentro de una introducción. El campo 'tipo' discrimina el tipo de bloque.",
+      "oneOf": [
+        { "$ref": "#/definitions/TipoBloqueImagen" },
+        { "$ref": "#/definitions/TipoBloqueImagenes" },
+        { "$ref": "#/definitions/TipoBloqueTabla" },
+        { "$ref": "#/definitions/TipoBloqueParrafo" },
+        { "$ref": "#/definitions/TipoBloqueTitulo" },
+        { "$ref": "#/definitions/TipoBloqueNota" }
+      ]
+    },
+    "TipoBloqueNota": {
+      "type": "object",
+      "required": ["tipo", "texto"],
+      "additionalProperties": false,
+      "properties": {
+        "tipo": { "type": "string", "enum": ["NOTA"] },
+        "texto": { "type": "string" }
+      }
+    },
+    "TipoBloqueTitulo": {
+      "type": "object",
+      "required": ["tipo", "texto"],
+      "additionalProperties": false,
+      "properties": {
+        "tipo": { "type": "string", "enum": ["TITULO"] },
+        "texto": { "type": "string" }
+      }
+    },
+    "TipoBloqueParrafo": {
+      "type": "object",
+      "required": ["tipo", "texto"],
+      "additionalProperties": false,
+      "properties": {
+        "tipo": { "type": "string", "enum": ["PARRAFO"] },
+        "texto": { "type": "string" }
+      }
+    },
+    "TipoBloqueImagen": {
+      "type": "object",
+      "required": ["tipo", "imagen"],
+      "additionalProperties": false,
+      "properties": {
+        "tipo": { "type": "string", "enum": ["IMAGEN"] },
+        "imagen": { "$ref": "#/definitions/TipoImagen" }
+      }
+    },
+    "TipoBloqueImagenes": {
+      "type": "object",
+      "required": ["tipo", "imagenes"],
+      "additionalProperties": false,
+      "properties": {
+        "tipo": { "type": "string", "enum": ["IMAGENES"] },
+        "imagenes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/TipoImagen" }
+        }
+      }
+    },
+    "TipoBloqueTabla": {
+      "type": "object",
+      "required": ["tipo", "tabla"],
+      "additionalProperties": false,
+      "properties": {
+        "tipo": { "type": "string", "enum": ["TABLA"] },
+        "tabla": { "$ref": "#/definitions/TipoTabla" }
       }
     },
     "TipoTabla": {
       "type": "object",
-      "required": ["CABECERA", "FILA"],
+      "required": ["FILA"],
       "properties": {
         "@attributes": {
           "type": "object",
@@ -117,7 +167,8 @@
     },
     "TipoReceta": {
       "type": "object",
-      "required": ["TITULO", "INGREDIENTES", "PREPARACION"],
+      "required": ["TITULO"],
+      "description": "INGREDIENTES y PREPARACION son opcionales porque el corpus original contiene recetas incompletas que carecen de ellos.",
       "properties": {
         "@attributes": {
           "type": "object",
@@ -150,16 +201,29 @@
             { "type": "array", "items": { "type": "string" } }
           ]
         },
-        "NOTA": { "type": "string" }
+        "NOTA": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "array", "items": { "type": "string" } }
+          ]
+        }
       }
     },
     "TipoGrupoIngredientes": {
       "type": "object",
       "required": ["INGREDIENTE"],
       "properties": {
+        "@attributes": {
+          "type": "object",
+          "properties": {
+            "titulo": { "type": "string" }
+          }
+        },
         "INGREDIENTE": {
-          "type": "array",
-          "items": { "type": "string" }
+          "oneOf": [
+            { "type": "string" },
+            { "type": "array", "items": { "type": "string" } }
+          ]
         }
       }
     },

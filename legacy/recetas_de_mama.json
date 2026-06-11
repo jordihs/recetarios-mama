@@ -2,17 +2,29 @@
     "RECETARIO": {
         "TITULO": "LAS RECETAS DE MAMA",
         "INTRODUCCION": {
-            "IMAGENES": {
-                "IMAGEN": {
-                    "@attributes": {
-                        "src": "imgs/cmama/paella 003_r.jpg"
-                    }
+            "CONTENIDO": [
+                {
+                    "tipo": "IMAGENES",
+                    "imagenes": [
+                        {
+                            "@attributes": {
+                                "src": "imgs/cmama/paella 003_r.jpg"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "tipo": "PARRAFO",
+                    "texto": "Esta es una recopilación de recetas de casa, pero no sólo de la nuestra."
+                },
+                {
+                    "tipo": "PARRAFO",
+                    "texto": "Espero que os sirva de orientación en momentos de duda."
+                },
+                {
+                    "tipo": "PARRAFO",
+                    "texto": "MÂª Ángeles Sellés Puig. Bruixamaria"
                 }
-            },
-            "PARRAFO": [
-                "Esta es una recopilación de recetas de casa, pero no sólo de la nuestra.",
-                "Espero que os sirva de orientación en momentos de duda.",
-                "MÂª Ángeles Sellés Puig. Bruixamaria"
             ]
         },
         "CAPITULO": [
@@ -21,33 +33,88 @@
                     "nombre": "ARROCES"
                 },
                 "INTRODUCCION": {
-                    "IMAGEN": {
-                        "@attributes": {
-                            "src": "imgs/cmama/arroz caldoso_r.jpg"
+                    "CONTENIDO": [
+                        {
+                            "tipo": "IMAGEN",
+                            "imagen": {
+                                "@attributes": {
+                                    "src": "imgs/cmama/arroz caldoso_r.jpg"
+                                },
+                                "#text": "Arroz caldoso"
+                            }
                         },
-                        "#text": "Arroz caldoso"
-                    },
-                    "TITULO": [
-                        "EL ARROZ",
-                        "Variedades de arroz",
-                        "Blanco de grano largo:",
-                        "Blanco de grano medio",
-                        "Grano redondo:",
-                        "Arroz glutinoso:",
-                        "Arroz aromático:",
-                        "Formas de cocinar el arroz"
-                    ],
-                    "PARRAFO": [
-                        "El arroz es el fruto de la planta de arroz (Oryza sativa)",
-                        "El cultivo del arroz comenzó hace casi 10.000 años, en regiones húmedas de Asia tropical y subtropical. Posiblemente sea la India el país donde se cultivó por primera vez el arroz, debido a que en ella abundaban los arroces silvestres. Pero el desarrollo del cultivo tuvo lugar en China, desde sus tierras bajas a sus tierras altas.",
-                        "Fueron los árabes quienes en el siglo VIII introdujeron el arroz en la península ibérica. Además extendieron e intensificaron el regadío que permitía obtener un gran rendimiento a la tierra y producir más cereales. Más tarde los aragoneses llevaron este cultivo a la Italia meridional, de donde se fué extendiendo su cultivo hacia el norte.",
-                        "Existen en el mundo más de dos mil variedades de arroz, pero sólo se cultivan unas cuantas.",
-                        "Es un grano largo y delgado, es al menos 3 veces más largo que ancho. Supera los 6 milímetros de longitud. La cascara, el salvado y el germen se eliminan durante tratamiento industrial. Después del cocinado, los granos tienden a permanecer separados debido a su bajo contenido de amilopectina (componente del arroz), condición indispensable para su preparación en ensaladas y guarniciones. Si durante la cocción se le añade una o dos cucharaditas de zumo de limón al agua, se potenciará la blancura del arroz. Los arroces indios basmati y patna, pertenecen a esta variedad",
-                        "Es un grano más corto y grueso que el arroz de grano largo y tiene una textura suave y tierna al ser cocido. Es de forma ligeramente redondeado y tiende a empastarse cuando se someten a una cocción demasiado prolongada. Se le aplica el mismo procesado industrial que al arroz de grano largo. Es la variedad más consumida en nuestro país",
-                        "Es pequeño y se cuece muy deprisa. Además contiene gran cantidad de almidón que proporciona al medio en el que cuece, con lo que este adquiere una textura cremosa. Es el adecuado para aquellas recetas en las que interese aprovechar esta cualidad, como los arroces cremosos, los risottos italianos o las múltiples variaciones de arroz con leche.",
-                        "Su principal característica es que los granos, tras la cocción, quedan pegados unos a otros debido a su gran contenido en almidón. Esta cualidad lo hace imprescindible para la elaboración de algunos platos de cocina china y japonesa, como el sushi.",
-                        "En nuestro país se cultiva la variedad Urumati de grano largo. Tiene un aroma especial que lo hace muy apetecible. Se lo utiliza para preparar platos típicos del sudeste asiático. En muchas recetas se le agrega azafrán para que el plato gane en color y sabor. Dentro de este tipo se encuentra el arroz tailandés, que destaca por su aroma a jazmín.",
-                        "El arroz admite infinidad de combinaciones. Con él se pueden prepar platos tan contundentes como la paella, o complementar otros más sencillos como una sopa o ensalada."
+                        {
+                            "tipo": "TITULO",
+                            "texto": "EL ARROZ"
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "El arroz es el fruto de la planta de arroz (Oryza sativa)"
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "El cultivo del arroz comenzó hace casi 10.000 años, en regiones húmedas de Asia tropical y subtropical. Posiblemente sea la India el país donde se cultivó por primera vez el arroz, debido a que en ella abundaban los arroces silvestres. Pero el desarrollo del cultivo tuvo lugar en China, desde sus tierras bajas a sus tierras altas."
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Fueron los árabes quienes en el siglo VIII introdujeron el arroz en la península ibérica. Además extendieron e intensificaron el regadío que permitía obtener un gran rendimiento a la tierra y producir más cereales. Más tarde los aragoneses llevaron este cultivo a la Italia meridional, de donde se fué extendiendo su cultivo hacia el norte."
+                        },
+                        {
+                            "tipo": "TITULO",
+                            "texto": "Variedades de arroz"
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Existen en el mundo más de dos mil variedades de arroz, pero sólo se cultivan unas cuantas."
+                        },
+                        {
+                            "tipo": "TITULO",
+                            "texto": "Blanco de grano largo:"
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Es un grano largo y delgado, es al menos 3 veces más largo que ancho. Supera los 6 milímetros de longitud. La cascara, el salvado y el germen se eliminan durante tratamiento industrial. Después del cocinado, los granos tienden a permanecer separados debido a su bajo contenido de amilopectina (componente del arroz), condición indispensable para su preparación en ensaladas y guarniciones. Si durante la cocción se le añade una o dos cucharaditas de zumo de limón al agua, se potenciará la blancura del arroz. Los arroces indios basmati y patna, pertenecen a esta variedad"
+                        },
+                        {
+                            "tipo": "TITULO",
+                            "texto": "Blanco de grano medio"
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Es un grano más corto y grueso que el arroz de grano largo y tiene una textura suave y tierna al ser cocido. Es de forma ligeramente redondeado y tiende a empastarse cuando se someten a una cocción demasiado prolongada. Se le aplica el mismo procesado industrial que al arroz de grano largo. Es la variedad más consumida en nuestro país"
+                        },
+                        {
+                            "tipo": "TITULO",
+                            "texto": "Grano redondo:"
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Es pequeño y se cuece muy deprisa. Además contiene gran cantidad de almidón que proporciona al medio en el que cuece, con lo que este adquiere una textura cremosa. Es el adecuado para aquellas recetas en las que interese aprovechar esta cualidad, como los arroces cremosos, los risottos italianos o las múltiples variaciones de arroz con leche."
+                        },
+                        {
+                            "tipo": "TITULO",
+                            "texto": "Arroz glutinoso:"
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Su principal característica es que los granos, tras la cocción, quedan pegados unos a otros debido a su gran contenido en almidón. Esta cualidad lo hace imprescindible para la elaboración de algunos platos de cocina china y japonesa, como el sushi."
+                        },
+                        {
+                            "tipo": "TITULO",
+                            "texto": "Arroz aromático:"
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "En nuestro país se cultiva la variedad Urumati de grano largo. Tiene un aroma especial que lo hace muy apetecible. Se lo utiliza para preparar platos típicos del sudeste asiático. En muchas recetas se le agrega azafrán para que el plato gane en color y sabor. Dentro de este tipo se encuentra el arroz tailandés, que destaca por su aroma a jazmín."
+                        },
+                        {
+                            "tipo": "TITULO",
+                            "texto": "Formas de cocinar el arroz"
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "El arroz admite infinidad de combinaciones. Con él se pueden prepar platos tan contundentes como la paella, o complementar otros más sencillos como una sopa o ensalada."
+                        }
                     ]
                 },
                 "CAPITULO": [
@@ -56,114 +123,138 @@
                             "nombre": "PAELLAS"
                         },
                         "INTRODUCCION": {
-                            "IMAGEN": {
-                                "@attributes": {
-                                    "src": "imgs/.jpg"
-                                }
-                            },
-                            "TITULO": "",
-                            "PARRAFO": [
-                                "La paella es un plato valenciano muy difundido por España y por otros países con una gran confusión en cuanto a su elaboración e ingredientes. No hay más que leer algunos libros de cocina para comprobarlo.",
-                                "El elemento principal para hacer este plato es el recipiente de cocción, paella de asas. Paella es sartén en valenciano y la que se usa para este menester, tiene un gran diámetro y escasos centímetros de alto. Ello permite una cocción con mucha superficie de evaporación, lo cual le confiere un sabor particular y también una cierta dificultad de que quede en su punto.",
-                                "El segundo punto y no menos importante es el fuego, que debe dar calor a esa gran superficie de forma uniforme. Eso se consigue muy bien con leña, pero actualmente venden unos fuegos de gas con varias ruedas de ignición que resultan muy prácticos y más fáciles de manejar que la leña, al menos para los urbanitas.",
-                                "El tercer punto clave, es el arroz, redondo y de grano pequeño, el que se cultiva en la Albufera y en otros pueblos. La calidad del agua sin dejar de ser importante, se puede suplir con la experiencia.",
-                                "En cuanto a los ingredientes, pueden ser variados. La paella valenciana no lleva marisco. Hay otros tipos de paellas que llevan bacalao y coliflor, bacalao y ajos tiernos, etc. Paellas de pescado y mariscos, paella bruta (carne y pescado), arroces en cazuela, al horno etc. Pero esos son otros arroces o paellas. El último punto es la presentación. Colorida pero sin recargar. Amarillo, rojo, verde matizados por la cocción. En el centro la cabeza de ajos, coronada por tiras de pimiento rojo y como fondo el arroz humeante con las verduras y algún tropezón emergente."
-                            ],
-                            "TABLA": {
-                                "@attributes": {
-                                    "titulo": "Pasos para preparar una paella"
+                            "CONTENIDO": [
+                                {
+                                    "tipo": "IMAGEN",
+                                    "imagen": {
+                                        "@attributes": {
+                                            "src": "imgs/.jpg"
+                                        }
+                                    }
                                 },
-                                "FILA": [
-                                    {
-                                        "CELDA": [
+                                {
+                                    "tipo": "TITULO",
+                                    "texto": ""
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "La paella es un plato valenciano muy difundido por España y por otros países con una gran confusión en cuanto a su elaboración e ingredientes. No hay más que leer algunos libros de cocina para comprobarlo."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "El elemento principal para hacer este plato es el recipiente de cocción, paella de asas. Paella es sartén en valenciano y la que se usa para este menester, tiene un gran diámetro y escasos centímetros de alto. Ello permite una cocción con mucha superficie de evaporación, lo cual le confiere un sabor particular y también una cierta dificultad de que quede en su punto."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "El segundo punto y no menos importante es el fuego, que debe dar calor a esa gran superficie de forma uniforme. Eso se consigue muy bien con leña, pero actualmente venden unos fuegos de gas con varias ruedas de ignición que resultan muy prácticos y más fáciles de manejar que la leña, al menos para los urbanitas."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "El tercer punto clave, es el arroz, redondo y de grano pequeño, el que se cultiva en la Albufera y en otros pueblos. La calidad del agua sin dejar de ser importante, se puede suplir con la experiencia."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "En cuanto a los ingredientes, pueden ser variados. La paella valenciana no lleva marisco. Hay otros tipos de paellas que llevan bacalao y coliflor, bacalao y ajos tiernos, etc. Paellas de pescado y mariscos, paella bruta (carne y pescado), arroces en cazuela, al horno etc. Pero esos son otros arroces o paellas. El último punto es la presentación. Colorida pero sin recargar. Amarillo, rojo, verde matizados por la cocción. En el centro la cabeza de ajos, coronada por tiras de pimiento rojo y como fondo el arroz humeante con las verduras y algún tropezón emergente."
+                                },
+                                {
+                                    "tipo": "TABLA",
+                                    "tabla": {
+                                        "@attributes": {
+                                            "titulo": "Pasos para preparar una paella"
+                                        },
+                                        "FILA": [
                                             {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/paella 006p.jpg"
-                                                },
-                                                "#text": "Pelamos y cortamos las verduras"
+                                                "CELDA": [
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/paella 006p.jpg"
+                                                        },
+                                                        "#text": "Pelamos y cortamos las verduras"
+                                                    },
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/paella 007p.jpg"
+                                                        },
+                                                        "#text": "Cortamos la carme"
+                                                    },
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/paella 010p.jpg"
+                                                        },
+                                                        "#text": "rehogamos el ajo y el pimiento"
+                                                    }
+                                                ]
                                             },
                                             {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/paella 007p.jpg"
-                                                },
-                                                "#text": "Cortamos la carme"
+                                                "CELDA": [
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/paella 012p.jpg"
+                                                        },
+                                                        "#text": "Rehogamos la carne y la retiramos"
+                                                    },
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/paella 014p.jpg"
+                                                        },
+                                                        "#text": "Rehogamos la verdura"
+                                                    },
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/paella 016p.jpg"
+                                                        },
+                                                        "#text": "Añadimos el calamar"
+                                                    }
+                                                ]
                                             },
                                             {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/paella 010p.jpg"
-                                                },
-                                                "#text": "rehogamos el ajo y el pimiento"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "CELDA": [
-                                            {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/paella 012p.jpg"
-                                                },
-                                                "#text": "Rehogamos la carne y la retiramos"
+                                                "CELDA": [
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/paella 018p.jpg"
+                                                        },
+                                                        "#text": "Añadimos un tomate picado"
+                                                    },
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/paella 019p.jpg"
+                                                        },
+                                                        "#text": "Añadimos la carne y rehogamos todo junto"
+                                                    },
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/paella 020p.jpg"
+                                                        },
+                                                        "#text": "Añadimos el agua y dejamos cocer unos minutos"
+                                                    }
+                                                ]
                                             },
                                             {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/paella 014p.jpg"
-                                                },
-                                                "#text": "Rehogamos la verdura"
-                                            },
-                                            {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/paella 016p.jpg"
-                                                },
-                                                "#text": "Añadimos el calamar"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "CELDA": [
-                                            {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/paella 018p.jpg"
-                                                },
-                                                "#text": "Añadimos un tomate picado"
-                                            },
-                                            {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/paella 019p.jpg"
-                                                },
-                                                "#text": "Añadimos la carne y rehogamos todo junto"
-                                            },
-                                            {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/paella 020p.jpg"
-                                                },
-                                                "#text": "Añadimos el agua y dejamos cocer unos minutos"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "CELDA": [
-                                            {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/paella 023p.jpg"
-                                                },
-                                                "#text": "Añadimos el arroz; 1 medida por 3 de agua"
-                                            },
-                                            {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/paella 024p.jpg"
-                                                },
-                                                "#text": "Dejaremos cocer 18-20 minutos"
-                                            },
-                                            {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/paella 027p.jpg"
-                                                },
-                                                "#text": "Dejaremos reposar unos minutos y servimos"
+                                                "CELDA": [
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/paella 023p.jpg"
+                                                        },
+                                                        "#text": "Añadimos el arroz; 1 medida por 3 de agua"
+                                                    },
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/paella 024p.jpg"
+                                                        },
+                                                        "#text": "Dejaremos cocer 18-20 minutos"
+                                                    },
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/paella 027p.jpg"
+                                                        },
+                                                        "#text": "Dejaremos reposar unos minutos y servimos"
+                                                    }
+                                                ]
                                             }
                                         ]
                                     }
-                                ]
-                            }
+                                }
+                            ]
                         },
                         "RECETA": [
                             {
@@ -642,14 +733,23 @@
                             "nombre": "Arroces caldosos"
                         },
                         "INTRODUCCION": {
-                            "IMAGEN": {
-                                "@attributes": {
-                                    "src": "imgs/.jpg"
+                            "CONTENIDO": [
+                                {
+                                    "tipo": "IMAGEN",
+                                    "imagen": {
+                                        "@attributes": {
+                                            "src": "imgs/.jpg"
+                                        }
+                                    }
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "El arroz caldoso es un plato muy rico y sencillo de preparar, claro que al principio cuesta atinar con la proporción de caldo y arroz. Es por eso necesario estar pendientes del fuego durante la cocción y subir o bajar el fuego a partir de los 10 primeros minutos de cocción para que nos quede a nuestro gusto."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Se preparan muchas variedades de arroz caldoso, ya que se pueden combinar infinidad de ingredientes para logra un magnífico arroz."
                                 }
-                            },
-                            "PARRAFO": [
-                                "El arroz caldoso es un plato muy rico y sencillo de preparar, claro que al principio cuesta atinar con la proporción de caldo y arroz. Es por eso necesario estar pendientes del fuego durante la cocción y subir o bajar el fuego a partir de los 10 primeros minutos de cocción para que nos quede a nuestro gusto.",
-                                "Se preparan muchas variedades de arroz caldoso, ya que se pueden combinar infinidad de ingredientes para logra un magnífico arroz."
                             ]
                         },
                         "RECETA": [
@@ -806,16 +906,31 @@
                             "nombre": "Arroces al horno"
                         },
                         "INTRODUCCION": {
-                            "IMAGEN": {
-                                "@attributes": {
-                                    "src": "imgs/.jpg"
+                            "CONTENIDO": [
+                                {
+                                    "tipo": "IMAGEN",
+                                    "imagen": {
+                                        "@attributes": {
+                                            "src": "imgs/.jpg"
+                                        }
+                                    }
+                                },
+                                {
+                                    "tipo": "TITULO",
+                                    "texto": "Arroz al horno"
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "El arroz al horno, llamado también arros rosejat o arros pasejat, porque se llevaba a cocer al horno de pan cuando en las casas se carecía de horno. Es un arroz que también se presta a numerosas combinaciones. Es excelente el arroz al horno hecho con lo que nos haya quedado del cocido."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Para poder preparar este arroz es imprescindible el disponer de una cazuela plana de arroz al horno."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Debemos precalentar el horno con la suficiente antelación para que al meter la cazuela esté bien caliente. Yo lo suelo poner a 220Âº y procuro que el contenido de la cazuela esté lo más caliente posible. Cuando veamos que comienza a cocer, bajamos el horno a 190Âº."
                                 }
-                            },
-                            "TITULO": "Arroz al horno",
-                            "PARRAFO": [
-                                "El arroz al horno, llamado también arros rosejat o arros pasejat, porque se llevaba a cocer al horno de pan cuando en las casas se carecía de horno. Es un arroz que también se presta a numerosas combinaciones. Es excelente el arroz al horno hecho con lo que nos haya quedado del cocido.",
-                                "Para poder preparar este arroz es imprescindible el disponer de una cazuela plana de arroz al horno.",
-                                "Debemos precalentar el horno con la suficiente antelación para que al meter la cazuela esté bien caliente. Yo lo suelo poner a 220Âº y procuro que el contenido de la cazuela esté lo más caliente posible. Cuando veamos que comienza a cocer, bajamos el horno a 190Âº."
                             ]
                         },
                         "RECETA": [
@@ -949,13 +1064,24 @@
                             "nombre": "Arroces blancos"
                         },
                         "INTRODUCCION": {
-                            "IMAGEN": {
-                                "@attributes": {
-                                    "src": "imgs/.jpg"
+                            "CONTENIDO": [
+                                {
+                                    "tipo": "IMAGEN",
+                                    "imagen": {
+                                        "@attributes": {
+                                            "src": "imgs/.jpg"
+                                        }
+                                    }
+                                },
+                                {
+                                    "tipo": "TITULO",
+                                    "texto": "Arroz blanco"
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": ""
                                 }
-                            },
-                            "TITULO": "Arroz blanco",
-                            "PARRAFO": ""
+                            ]
                         },
                         "RECETA": [
                             {
@@ -1097,89 +1223,104 @@
                     "nombre": "Croquetas"
                 },
                 "INTRODUCCION": {
-                    "IMAGEN": {
-                        "@attributes": {
-                            "src": "imgs/.jpg"
-                        }
-                    },
-                    "TITULO": "Las Croquetas",
-                    "PARRAFO": [
-                        "Las croquetas son unas deliciosas bolitas de diferentes masas, recubiertas de huevo y pan rallado que una vez fritas en aceite muy caliente, se obtiene un bocado crujiente con un cremoso interior.",
-                        "Las más comunes son las de besamel con un picadillo de carne y las de patata con bacalao."
-                    ],
-                    "TABLA": {
-                        "@attributes": {
-                            "titulo": "Pasos para preparar las croquetas"
+                    "CONTENIDO": [
+                        {
+                            "tipo": "IMAGEN",
+                            "imagen": {
+                                "@attributes": {
+                                    "src": "imgs/.jpg"
+                                }
+                            }
                         },
-                        "FILA": [
-                            {
-                                "CELDA": [
+                        {
+                            "tipo": "TITULO",
+                            "texto": "Las Croquetas"
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Las croquetas son unas deliciosas bolitas de diferentes masas, recubiertas de huevo y pan rallado que una vez fritas en aceite muy caliente, se obtiene un bocado crujiente con un cremoso interior."
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Las más comunes son las de besamel con un picadillo de carne y las de patata con bacalao."
+                        },
+                        {
+                            "tipo": "TABLA",
+                            "tabla": {
+                                "@attributes": {
+                                    "titulo": "Pasos para preparar las croquetas"
+                                },
+                                "FILA": [
                                     {
-                                        "@attributes": {
-                                            "imagen": "imgs/cmama/Croqueta_2.jpg"
-                                        },
-                                        "#text": "Coceremos la masa de las croquetas"
+                                        "CELDA": [
+                                            {
+                                                "@attributes": {
+                                                    "imagen": "imgs/cmama/Croqueta_2.jpg"
+                                                },
+                                                "#text": "Coceremos la masa de las croquetas"
+                                            },
+                                            {
+                                                "@attributes": {
+                                                    "imagen": "imgs/cmama/croqueta_3.jpg"
+                                                },
+                                                "#text": "La dejaremos enfriar dentro de una manga"
+                                            },
+                                            {
+                                                "@attributes": {
+                                                    "imagen": "imgs/cmama/croqueta_4.jpg"
+                                                },
+                                                "#text": "Prepararemos una bandeja para extender la masa"
+                                            }
+                                        ]
                                     },
                                     {
-                                        "@attributes": {
-                                            "imagen": "imgs/cmama/croqueta_3.jpg"
-                                        },
-                                        "#text": "La dejaremos enfriar dentro de una manga"
+                                        "CELDA": [
+                                            {
+                                                "@attributes": {
+                                                    "imagen": "imgs/cmama/croqueta_5.jpg"
+                                                },
+                                                "#text": "Extenderemos la masa"
+                                            },
+                                            {
+                                                "@attributes": {
+                                                    "imagen": "imgs/cmama/Croqueta_6.jpg"
+                                                },
+                                                "#text": "Una vez cortada en trocitos la rebozalos en huevo y pan rallado"
+                                            },
+                                            {
+                                                "@attributes": {
+                                                    "imagen": "imgs/cmama/croqueta_7.jpg"
+                                                },
+                                                "#text": "Una vez rebozadas se pueden freir o reservar"
+                                            }
+                                        ]
                                     },
                                     {
-                                        "@attributes": {
-                                            "imagen": "imgs/cmama/croqueta_4.jpg"
-                                        },
-                                        "#text": "Prepararemos una bandeja para extender la masa"
-                                    }
-                                ]
-                            },
-                            {
-                                "CELDA": [
-                                    {
-                                        "@attributes": {
-                                            "imagen": "imgs/cmama/croqueta_5.jpg"
-                                        },
-                                        "#text": "Extenderemos la masa"
-                                    },
-                                    {
-                                        "@attributes": {
-                                            "imagen": "imgs/cmama/Croqueta_6.jpg"
-                                        },
-                                        "#text": "Una vez cortada en trocitos la rebozalos en huevo y pan rallado"
-                                    },
-                                    {
-                                        "@attributes": {
-                                            "imagen": "imgs/cmama/croqueta_7.jpg"
-                                        },
-                                        "#text": "Una vez rebozadas se pueden freir o reservar"
-                                    }
-                                ]
-                            },
-                            {
-                                "CELDA": [
-                                    {
-                                        "@attributes": {
-                                            "imagen": "imgs/cmama/croqueta_9.jpg"
-                                        },
-                                        "#text": "En aceite bien caliente se frien de tres en tres"
-                                    },
-                                    {
-                                        "@attributes": {
-                                            "imagen": "imgs/cmama/croqueta_8.jpg"
-                                        },
-                                        "#text": "Se les va dando la vuelta rápidamente"
-                                    },
-                                    {
-                                        "@attributes": {
-                                            "imagen": "imgs/cmama/Croqueta_1.jpg"
-                                        },
-                                        "#text": "Se sirven antes de que se enfríen"
+                                        "CELDA": [
+                                            {
+                                                "@attributes": {
+                                                    "imagen": "imgs/cmama/croqueta_9.jpg"
+                                                },
+                                                "#text": "En aceite bien caliente se frien de tres en tres"
+                                            },
+                                            {
+                                                "@attributes": {
+                                                    "imagen": "imgs/cmama/croqueta_8.jpg"
+                                                },
+                                                "#text": "Se les va dando la vuelta rápidamente"
+                                            },
+                                            {
+                                                "@attributes": {
+                                                    "imagen": "imgs/cmama/Croqueta_1.jpg"
+                                                },
+                                                "#text": "Se sirven antes de que se enfríen"
+                                            }
+                                        ]
                                     }
                                 ]
                             }
-                        ]
-                    }
+                        }
+                    ]
                 },
                 "RECETA": {
                     "TITULO": "Croquetas de mama",
@@ -1221,34 +1362,75 @@
                     "nombre": "Platos de Pasta"
                 },
                 "INTRODUCCION": {
-                    "IMAGEN": [
+                    "CONTENIDO": [
                         {
-                            "@attributes": {
-                                "src": "imgs/cmama/maquinadepasta.jpg"
+                            "tipo": "IMAGEN",
+                            "imagen": {
+                                "@attributes": {
+                                    "src": "imgs/cmama/maquinadepasta.jpg"
+                                }
                             }
                         },
                         {
-                            "@attributes": {
-                                "src": "imgs/cmama/pastarellena.jpg"
+                            "tipo": "TITULO",
+                            "texto": "La pasta"
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Se denomina pasta a los alimentos preparados con una masa cuyo ingrediente básico es la harina de trigo, mezclada con agua, y a la cual se puede añadir sal, huevo u otros ingredientes, conformando un producto que generalmente se cuece en agua hirviendo. Comúnmente se utiliza la especie triticum durum (trigo duro) en su elaboración."
+                        },
+                        {
+                            "tipo": "TITULO",
+                            "texto": "Variedades"
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "La pasta puede ser fresca o seca, existiendo también variedades que se caracterizan por ser rellenas."
+                        },
+                        {
+                            "tipo": "TITULO",
+                            "texto": "Pastas largas"
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Spaghetti, tallarines, ."
+                        },
+                        {
+                            "tipo": "TITULO",
+                            "texto": "Pastas cortas"
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Macarrones, penne, lacitos, caracolas, fifeos etc."
+                        },
+                        {
+                            "tipo": "IMAGEN",
+                            "imagen": {
+                                "@attributes": {
+                                    "src": "imgs/cmama/pastarellena.jpg"
+                                }
                             }
+                        },
+                        {
+                            "tipo": "TITULO",
+                            "texto": "Pastas rellenas"
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "En las pastas con relleno existen numerosos tipos, algunos de los cuales son:"
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Ravioli, tortelini,agnoloti."
+                        },
+                        {
+                            "tipo": "TITULO",
+                            "texto": "Pastas para rellenar:"
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "También hay pastas en forma de loncha, utilizadas para preparar los canelones y lasañas, platos que se acompañan con carne picada, bechamel, verduras u otros rellenos y salsas."
                         }
-                    ],
-                    "TITULO": [
-                        "La pasta",
-                        "Variedades",
-                        "Pastas largas",
-                        "Pastas cortas",
-                        "Pastas rellenas",
-                        "Pastas para rellenar:"
-                    ],
-                    "PARRAFO": [
-                        "Se denomina pasta a los alimentos preparados con una masa cuyo ingrediente básico es la harina de trigo, mezclada con agua, y a la cual se puede añadir sal, huevo u otros ingredientes, conformando un producto que generalmente se cuece en agua hirviendo. Comúnmente se utiliza la especie triticum durum (trigo duro) en su elaboración.",
-                        "La pasta puede ser fresca o seca, existiendo también variedades que se caracterizan por ser rellenas.",
-                        "Spaghetti, tallarines, .",
-                        "Macarrones, penne, lacitos, caracolas, fifeos etc.",
-                        "En las pastas con relleno existen numerosos tipos, algunos de los cuales son:",
-                        "Ravioli, tortelini,agnoloti.",
-                        "También hay pastas en forma de loncha, utilizadas para preparar los canelones y lasañas, platos que se acompañan con carne picada, bechamel, verduras u otros rellenos y salsas."
                     ]
                 },
                 "CAPITULO": [
@@ -1257,13 +1439,24 @@
                             "nombre": ". Recetas para hacer pasta fresca"
                         },
                         "INTRODUCCION": {
-                            "IMAGEN": {
-                                "@attributes": {
-                                    "src": "imgs/.jpg"
+                            "CONTENIDO": [
+                                {
+                                    "tipo": "IMAGEN",
+                                    "imagen": {
+                                        "@attributes": {
+                                            "src": "imgs/.jpg"
+                                        }
+                                    }
+                                },
+                                {
+                                    "tipo": "TITULO",
+                                    "texto": "Pasta al Huevo y pasta Verde"
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Son la base de la mayoría de las pastas. También las hay rojas y negras, depende de que ingrediente le añadamos para que adquiera el color."
                                 }
-                            },
-                            "TITULO": "Pasta al Huevo y pasta Verde",
-                            "PARRAFO": "Son la base de la mayoría de las pastas. También las hay rojas y negras, depende de que ingrediente le añadamos para que adquiera el color."
+                            ]
                         },
                         "RECETA": [
                             {
@@ -1328,21 +1521,51 @@
                             "nombre": ".Salsas para pasta"
                         },
                         "INTRODUCCION": {
-                            "IMAGEN": {
-                                "@attributes": {
-                                    "src": "imgs/.jpg"
+                            "CONTENIDO": [
+                                {
+                                    "tipo": "IMAGEN",
+                                    "imagen": {
+                                        "@attributes": {
+                                            "src": "imgs/.jpg"
+                                        }
+                                    }
+                                },
+                                {
+                                    "tipo": "TITULO",
+                                    "texto": "Cocción de la pasta"
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Utiliza una olla grande, evitando que la pasta esté muy apretada. No la tapes."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "100 gramos de pasta necesitan 1 litro de agua. Un chorrito de un buen aceite de oliva virgen extra te garantizará que no se pegue, aunque si la olla es buena y la mueves correctamente, no es necesario."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Pon el agua a hervir. Cuando comience a cocer, incorpora la sal. Salando el agua cuando está caliente, tardará menos en volver a ebullición."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "A continuación, incorpora la pasta. Remueve bien y sube el fuego si es necesario para que vuelva a hervir. Para que no se pegue, es suficiente con moverlo dos o tres veces durante todo el proceso."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "La pasta está hecha cuando está al dente. Eso significa que se puede morder, masticar. Una pasta pasada es aquella que se deshace en la boca."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Cuando está hecha se cuela y nada más: es un error lavar la pasta escurrida con agua fría. Si deseas secarla bien, puedes extenderla sobre un paño bien limpio."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Si no se va a tomar inmediatamente, se puede guardar en un recipiente con un chorrito de aceite para que no se pegue."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Conviene reservar un poco de agua de cocción para la salsa. Por ejemplo, en el caso de pesto, viene muy bien para aclarar una salsa fuerte y espesa."
                                 }
-                            },
-                            "TITULO": "Cocción de la pasta",
-                            "PARRAFO": [
-                                "Utiliza una olla grande, evitando que la pasta esté muy apretada. No la tapes.",
-                                "100 gramos de pasta necesitan 1 litro de agua. Un chorrito de un buen aceite de oliva virgen extra te garantizará que no se pegue, aunque si la olla es buena y la mueves correctamente, no es necesario.",
-                                "Pon el agua a hervir. Cuando comience a cocer, incorpora la sal. Salando el agua cuando está caliente, tardará menos en volver a ebullición.",
-                                "A continuación, incorpora la pasta. Remueve bien y sube el fuego si es necesario para que vuelva a hervir. Para que no se pegue, es suficiente con moverlo dos o tres veces durante todo el proceso.",
-                                "La pasta está hecha cuando está al dente. Eso significa que se puede morder, masticar. Una pasta pasada es aquella que se deshace en la boca.",
-                                "Cuando está hecha se cuela y nada más: es un error lavar la pasta escurrida con agua fría. Si deseas secarla bien, puedes extenderla sobre un paño bien limpio.",
-                                "Si no se va a tomar inmediatamente, se puede guardar en un recipiente con un chorrito de aceite para que no se pegue.",
-                                "Conviene reservar un poco de agua de cocción para la salsa. Por ejemplo, en el caso de pesto, viene muy bien para aclarar una salsa fuerte y espesa."
                             ]
                         },
                         "RECETA": [
@@ -1467,13 +1690,24 @@
                             "nombre": ". Recetas con espaguetti"
                         },
                         "INTRODUCCION": {
-                            "IMAGEN": {
-                                "@attributes": {
-                                    "src": "imgs/.jpg"
+                            "CONTENIDO": [
+                                {
+                                    "tipo": "IMAGEN",
+                                    "imagen": {
+                                        "@attributes": {
+                                            "src": "imgs/.jpg"
+                                        }
+                                    }
+                                },
+                                {
+                                    "tipo": "TITULO",
+                                    "texto": "Espaquetti a la..."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Aunque veremos algunas recetas típicas de espaquetis, también se pueden aplicar a otros tipos de pasta."
                                 }
-                            },
-                            "TITULO": "Espaquetti a la...",
-                            "PARRAFO": "Aunque veremos algunas recetas típicas de espaquetis, también se pueden aplicar a otros tipos de pasta."
+                            ]
                         },
                         "RECETA": [
                             {
@@ -1624,68 +1858,82 @@
                             "nombre": ". Canelones"
                         },
                         "INTRODUCCION": {
-                            "IMAGEN": {
-                                "@attributes": {
-                                    "src": "imgs/.jpg"
-                                }
-                            },
-                            "TITULO": "Canelones",
-                            "PARRAFO": "Los canelones era el plato que preparaba mi madre el día de Año Nuevo. Los solía hacer con los muslos del pavo. También se pueden preparar con ternera y cerdo, atún, espinacas, pollo o gallina. Siempre saldrán exquisitos.",
-                            "TABLA": {
-                                "@attributes": {
-                                    "titulo": "Pasos para preparar los canelones"
+                            "CONTENIDO": [
+                                {
+                                    "tipo": "IMAGEN",
+                                    "imagen": {
+                                        "@attributes": {
+                                            "src": "imgs/.jpg"
+                                        }
+                                    }
                                 },
-                                "FILA": [
-                                    {
-                                        "CELDA": [
+                                {
+                                    "tipo": "TITULO",
+                                    "texto": "Canelones"
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Los canelones era el plato que preparaba mi madre el día de Año Nuevo. Los solía hacer con los muslos del pavo. También se pueden preparar con ternera y cerdo, atún, espinacas, pollo o gallina. Siempre saldrán exquisitos."
+                                },
+                                {
+                                    "tipo": "TABLA",
+                                    "tabla": {
+                                        "@attributes": {
+                                            "titulo": "Pasos para preparar los canelones"
+                                        },
+                                        "FILA": [
                                             {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/canelones_1.jpg"
-                                                },
-                                                "#text": "Extendemos los canelones cocidos"
+                                                "CELDA": [
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/canelones_1.jpg"
+                                                        },
+                                                        "#text": "Extendemos los canelones cocidos"
+                                                    },
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/canelones_2.jpg"
+                                                        },
+                                                        "#text": "Colocamos el relleno y enrollamos"
+                                                    }
+                                                ]
                                             },
                                             {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/canelones_2.jpg"
-                                                },
-                                                "#text": "Colocamos el relleno y enrollamos"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "CELDA": [
-                                            {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/canelones_3.jpg"
-                                                },
-                                                "#text": "Los colocamos en una fuente de hornear"
+                                                "CELDA": [
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/canelones_3.jpg"
+                                                        },
+                                                        "#text": "Los colocamos en una fuente de hornear"
+                                                    },
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/canelones_4.jpg"
+                                                        },
+                                                        "#text": "Lenamos con ellos la fuente"
+                                                    }
+                                                ]
                                             },
                                             {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/canelones_4.jpg"
-                                                },
-                                                "#text": "Lenamos con ellos la fuente"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "CELDA": [
-                                            {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/canelones_5.jpg"
-                                                },
-                                                "#text": "Los cubrimos con una besamel clarita"
-                                            },
-                                            {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/canelones_6.jpg"
-                                                },
-                                                "#text": "Los espolvoreamos con queso y los gratinamos"
+                                                "CELDA": [
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/canelones_5.jpg"
+                                                        },
+                                                        "#text": "Los cubrimos con una besamel clarita"
+                                                    },
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/canelones_6.jpg"
+                                                        },
+                                                        "#text": "Los espolvoreamos con queso y los gratinamos"
+                                                    }
+                                                ]
                                             }
                                         ]
                                     }
-                                ]
-                            }
+                                }
+                            ]
                         },
                         "RECETA": {
                             "TITULO": "Cenelones de Mamá",
@@ -1754,90 +2002,108 @@
                             "nombre": ". Lasaña"
                         },
                         "INTRODUCCION": {
-                            "IMAGEN": {
-                                "@attributes": {
-                                    "src": "imgs/.jpg"
-                                }
-                            },
-                            "TITULO": "Lasaña",
-                            "PARRAFO": [
-                                "Para preparar una buena lasaña lo más importante es que la pasta sea de muy buena calidad.",
-                                "En el mercado la podemos encontrar: fresca, seca y seca precocida.",
-                                "Vale la pena utilizar un poco más de tiempo y cocerla, pues resulta más ligera que la precocida. No obstante si andamos mal de tiempo o no hay elección, podemos pasar la pasta precocida por un puchero con agua hirviendo, quedará mejor."
-                            ],
-                            "TABLA": {
-                                "@attributes": {
-                                    "titulo": "Pasos para preparar lasaña"
+                            "CONTENIDO": [
+                                {
+                                    "tipo": "IMAGEN",
+                                    "imagen": {
+                                        "@attributes": {
+                                            "src": "imgs/.jpg"
+                                        }
+                                    }
                                 },
-                                "FILA": [
-                                    {
-                                        "CELDA": [
+                                {
+                                    "tipo": "TITULO",
+                                    "texto": "Lasaña"
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Para preparar una buena lasaña lo más importante es que la pasta sea de muy buena calidad."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "En el mercado la podemos encontrar: fresca, seca y seca precocida."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Vale la pena utilizar un poco más de tiempo y cocerla, pues resulta más ligera que la precocida. No obstante si andamos mal de tiempo o no hay elección, podemos pasar la pasta precocida por un puchero con agua hirviendo, quedará mejor."
+                                },
+                                {
+                                    "tipo": "TABLA",
+                                    "tabla": {
+                                        "@attributes": {
+                                            "titulo": "Pasos para preparar lasaña"
+                                        },
+                                        "FILA": [
                                             {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/Lasaña_2.jpg"
-                                                },
-                                                "#text": "Preparamos el ragú"
+                                                "CELDA": [
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/Lasaña_2.jpg"
+                                                        },
+                                                        "#text": "Preparamos el ragú"
+                                                    },
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/Lasaña_1.jpg"
+                                                        },
+                                                        "#text": "Coceremos la pasta en abundante agua"
+                                                    },
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/Lasaña_3.jpg"
+                                                        },
+                                                        "#text": "Extendemos la pasta sobre un paño"
+                                                    }
+                                                ]
                                             },
                                             {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/Lasaña_1.jpg"
-                                                },
-                                                "#text": "Coceremos la pasta en abundante agua"
+                                                "CELDA": [
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/Lasaña_4.jpg"
+                                                        },
+                                                        "#text": "Colocamos unas tiras de pasta en una fuente de hornear"
+                                                    },
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/Lasaña_5.jpg"
+                                                        },
+                                                        "#text": "Pondremos una capa de ragú o el relleno de elección"
+                                                    },
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/Lasaña_6.Jpg"
+                                                        },
+                                                        "#text": "Pondremos otra capa de pasta y hacemos capas sucesivas"
+                                                    }
+                                                ]
                                             },
                                             {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/Lasaña_3.jpg"
-                                                },
-                                                "#text": "Extendemos la pasta sobre un paño"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "CELDA": [
-                                            {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/Lasaña_4.jpg"
-                                                },
-                                                "#text": "Colocamos unas tiras de pasta en una fuente de hornear"
-                                            },
-                                            {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/Lasaña_5.jpg"
-                                                },
-                                                "#text": "Pondremos una capa de ragú o el relleno de elección"
-                                            },
-                                            {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/Lasaña_6.Jpg"
-                                                },
-                                                "#text": "Pondremos otra capa de pasta y hacemos capas sucesivas"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "CELDA": [
-                                            {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/Lasaña_7.jpg"
-                                                },
-                                                "#text": "La cubrimos con una besamel clarita"
-                                            },
-                                            {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/Lasaña_8.jpg"
-                                                },
-                                                "#text": "La espolvoreamos con queso y la gratinamos"
-                                            },
-                                            {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/Lasaña_9.Jpg"
-                                                },
-                                                "#text": "Lista para servir"
+                                                "CELDA": [
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/Lasaña_7.jpg"
+                                                        },
+                                                        "#text": "La cubrimos con una besamel clarita"
+                                                    },
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/Lasaña_8.jpg"
+                                                        },
+                                                        "#text": "La espolvoreamos con queso y la gratinamos"
+                                                    },
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/Lasaña_9.Jpg"
+                                                        },
+                                                        "#text": "Lista para servir"
+                                                    }
+                                                ]
                                             }
                                         ]
                                     }
-                                ]
-                            }
+                                }
+                            ]
                         },
                         "RECETA": [
                             {
@@ -2000,13 +2266,24 @@
                             "nombre": "Macarrones"
                         },
                         "INTRODUCCION": {
-                            "IMAGEN": {
-                                "@attributes": {
-                                    "src": "imgs/.jpg"
+                            "CONTENIDO": [
+                                {
+                                    "tipo": "IMAGEN",
+                                    "imagen": {
+                                        "@attributes": {
+                                            "src": "imgs/.jpg"
+                                        }
+                                    }
+                                },
+                                {
+                                    "tipo": "TITULO",
+                                    "texto": "Los macarrones"
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": ""
                                 }
-                            },
-                            "TITULO": "Los macarrones",
-                            "PARRAFO": ""
+                            ]
                         }
                     }
                 ],
@@ -2100,15 +2377,27 @@
                     "nombre": "Cocas y Empanadillas"
                 },
                 "INTRODUCCION": {
-                    "IMAGEN": {
-                        "@attributes": {
-                            "src": "imgs/.jpg"
+                    "CONTENIDO": [
+                        {
+                            "tipo": "IMAGEN",
+                            "imagen": {
+                                "@attributes": {
+                                    "src": "imgs/.jpg"
+                                }
+                            }
+                        },
+                        {
+                            "tipo": "TITULO",
+                            "texto": "Cocas y Empanadillas"
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Cuando era pequeña me encantaba ir a casa de la señora Pepica el día que amasaba pan. El amasado y el olor a levadura me encantaba. Luego ella separaba un poco de masa, le añadía aceite y lo volvía a amasar. Siempre tenía preparado un frito que le ponía por encima y hacía una coca para la comida de ese día, pues la mañana se le había ido amasando el pan para toda la semana."
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "La elaboración de empanadillas era otra cosa. En mi casa era una fiesta. Se preparaban los rellenos y luego se formaban las empanadillas. Se llevaban a cocer al horno del pueblo, pues en las casas del pueblo so se tenía horno. Era emocionante esperar delante de la boca del horno a ver que tal habían quedado."
                         }
-                    },
-                    "TITULO": "Cocas y Empanadillas",
-                    "PARRAFO": [
-                        "Cuando era pequeña me encantaba ir a casa de la señora Pepica el día que amasaba pan. El amasado y el olor a levadura me encantaba. Luego ella separaba un poco de masa, le añadía aceite y lo volvía a amasar. Siempre tenía preparado un frito que le ponía por encima y hacía una coca para la comida de ese día, pues la mañana se le había ido amasando el pan para toda la semana.",
-                        "La elaboración de empanadillas era otra cosa. En mi casa era una fiesta. Se preparaban los rellenos y luego se formaban las empanadillas. Se llevaban a cocer al horno del pueblo, pues en las casas del pueblo so se tenía horno. Era emocionante esperar delante de la boca del horno a ver que tal habían quedado."
                     ]
                 },
                 "CAPITULO": [
@@ -2117,16 +2406,27 @@
                             "nombre": "Cocas"
                         },
                         "INTRODUCCION": {
-                            "IMAGENES": {
-                                "IMAGEN": {
-                                    "@attributes": {
-                                        "src": "imgs/cmama/plaza 027.jpg"
-                                    },
-                                    "#text": "Coca de boletus"
+                            "CONTENIDO": [
+                                {
+                                    "tipo": "IMAGENES",
+                                    "imagenes": [
+                                        {
+                                            "@attributes": {
+                                                "src": "imgs/cmama/plaza 027.jpg"
+                                            },
+                                            "#text": "Coca de boletus"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "tipo": "TITULO",
+                                    "texto": "Cocas"
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "En Valencia se hacen dos tipos de cocas. Unas que consisten en extender la masa sobre una fuente de horno y se les pone el relleno encima a modo de pitsa. Y otras en las que con la misma masa de hace una tapa y se cierra a modo de empanada. La más típica de estas últimas son las cocas de San Juan."
                                 }
-                            },
-                            "TITULO": "Cocas",
-                            "PARRAFO": "En Valencia se hacen dos tipos de cocas. Unas que consisten en extender la masa sobre una fuente de horno y se les pone el relleno encima a modo de pitsa. Y otras en las que con la misma masa de hace una tapa y se cierra a modo de empanada. La más típica de estas últimas son las cocas de San Juan."
+                            ]
                         },
                         "RECETA": [
                             {
@@ -2436,72 +2736,90 @@
                             "nombre": "Empanadillas"
                         },
                         "INTRODUCCION": {
-                            "IMAGEN": {
-                                "@attributes": {
-                                    "src": "imgs/.jpg"
-                                }
-                            },
-                            "TITULO": "Empanadillas",
-                            "PARRAFO": [
-                                "Las empanadillas son un plato delicioso que se puede preparar de forma diferente, tanto en la fórmula de la masa como en los ingredientes de relleno. Aquí os pondré las que suelo hacer y que me dió la fórmula la SÂª Julia de Vergel, madre del tio Lorenzo.",
-                                "La masa de estas empanadillas no se debe amasar, simplemente mezclar rápidamente tolos los ingredientes y dejar reposar.",
-                                "La masa debe quedar muy blandita y elástica, de lo contrario se abrirán casi antes de hornearlas."
-                            ],
-                            "TABLA": {
-                                "@attributes": {
-                                    "titulo": "Pasos para preparar las empanadillas"
+                            "CONTENIDO": [
+                                {
+                                    "tipo": "IMAGEN",
+                                    "imagen": {
+                                        "@attributes": {
+                                            "src": "imgs/.jpg"
+                                        }
+                                    }
                                 },
-                                "FILA": [
-                                    {
-                                        "CELDA": [
+                                {
+                                    "tipo": "TITULO",
+                                    "texto": "Empanadillas"
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Las empanadillas son un plato delicioso que se puede preparar de forma diferente, tanto en la fórmula de la masa como en los ingredientes de relleno. Aquí os pondré las que suelo hacer y que me dió la fórmula la SÂª Julia de Vergel, madre del tio Lorenzo."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "La masa de estas empanadillas no se debe amasar, simplemente mezclar rápidamente tolos los ingredientes y dejar reposar."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "La masa debe quedar muy blandita y elástica, de lo contrario se abrirán casi antes de hornearlas."
+                                },
+                                {
+                                    "tipo": "TABLA",
+                                    "tabla": {
+                                        "@attributes": {
+                                            "titulo": "Pasos para preparar las empanadillas"
+                                        },
+                                        "FILA": [
                                             {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/empanadilla_1.jpg"
-                                                },
-                                                "#text": "Haremos bolitas con la masa"
+                                                "CELDA": [
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/empanadilla_1.jpg"
+                                                        },
+                                                        "#text": "Haremos bolitas con la masa"
+                                                    },
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/Empanadilla_2.jpg"
+                                                        },
+                                                        "#text": "Extenderemos la masa"
+                                                    }
+                                                ]
                                             },
                                             {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/Empanadilla_2.jpg"
-                                                },
-                                                "#text": "Extenderemos la masa"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "CELDA": [
-                                            {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/Empanadilla_3.jpg"
-                                                },
-                                                "#text": "pondremos el relleno"
+                                                "CELDA": [
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/Empanadilla_3.jpg"
+                                                        },
+                                                        "#text": "pondremos el relleno"
+                                                    },
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/Empanadilla_4.jpg"
+                                                        },
+                                                        "#text": "damos forma de empanadilla"
+                                                    }
+                                                ]
                                             },
                                             {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/Empanadilla_4.jpg"
-                                                },
-                                                "#text": "damos forma de empanadilla"
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "CELDA": [
-                                            {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/Empanadilla_5.jpg"
-                                                },
-                                                "#text": "Las pintamos con huevo"
-                                            },
-                                            {
-                                                "@attributes": {
-                                                    "imagen": "imgs/cmama/Empanadilla_6.jpg"
-                                                },
-                                                "#text": "Las horneamos"
+                                                "CELDA": [
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/Empanadilla_5.jpg"
+                                                        },
+                                                        "#text": "Las pintamos con huevo"
+                                                    },
+                                                    {
+                                                        "@attributes": {
+                                                            "imagen": "imgs/cmama/Empanadilla_6.jpg"
+                                                        },
+                                                        "#text": "Las horneamos"
+                                                    }
+                                                ]
                                             }
                                         ]
                                     }
-                                ]
-                            }
+                                }
+                            ]
                         },
                         "RECETA": [
                             {
@@ -2634,17 +2952,35 @@
                     "nombre": "Legumbres"
                 },
                 "INTRODUCCION": {
-                    "IMAGEN": {
-                        "@attributes": {
-                            "src": "imgs/.jpg"
+                    "CONTENIDO": [
+                        {
+                            "tipo": "IMAGEN",
+                            "imagen": {
+                                "@attributes": {
+                                    "src": "imgs/.jpg"
+                                }
+                            }
+                        },
+                        {
+                            "tipo": "TITULO",
+                            "texto": "Legumbres"
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Las legumbres aportan una cantidad de nutrientes muy importantes para nuestro organismo y nos brindan la mayor cantidad de proteínas de origen vegetal de gran calidad. Combinado con otros ingredientes como: verduras, arroz , carnes, cereales etc. pueden constituir un plato único muy nutritivo y económico."
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Entre las más consumidas podemos distisguir: Judias, garbanzos, lentejas, guisantes, habas,soja, judía verde, cacahuete."
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "En este capítulo nos dedicaremos a las recetas de legumbres secas."
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Antes de usarlas deberemos ponerlas en remojo de 8 a 24 horas, dependiendo del tipo de legumbre. La sal se les pone al final para que no endurezca el pellejo."
                         }
-                    },
-                    "TITULO": "Legumbres",
-                    "PARRAFO": [
-                        "Las legumbres aportan una cantidad de nutrientes muy importantes para nuestro organismo y nos brindan la mayor cantidad de proteínas de origen vegetal de gran calidad. Combinado con otros ingredientes como: verduras, arroz , carnes, cereales etc. pueden constituir un plato único muy nutritivo y económico.",
-                        "Entre las más consumidas podemos distisguir: Judias, garbanzos, lentejas, guisantes, habas,soja, judía verde, cacahuete.",
-                        "En este capítulo nos dedicaremos a las recetas de legumbres secas.",
-                        "Antes de usarlas deberemos ponerlas en remojo de 8 a 24 horas, dependiendo del tipo de legumbre. La sal se les pone al final para que no endurezca el pellejo."
                     ]
                 },
                 "CAPITULO": [
@@ -2653,16 +2989,31 @@
                             "nombre": "Judias"
                         },
                         "INTRODUCCION": {
-                            "IMAGEN": {
-                                "@attributes": {
-                                    "src": "imgs/.jpg"
+                            "CONTENIDO": [
+                                {
+                                    "tipo": "IMAGEN",
+                                    "imagen": {
+                                        "@attributes": {
+                                            "src": "imgs/.jpg"
+                                        }
+                                    }
+                                },
+                                {
+                                    "tipo": "TITULO",
+                                    "texto": "Judias"
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Planta herbácea anual procedente de América y que se usa tanto en su variedad verde, judias verdes, como desecadas. Posee un alto contenido en hidratos de carbono, proteínas y fibra, y muchas vitaminas del complejo de vitaminas B."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Tienen un contenido tóxico que se pierde con la cocción, por lo que no se deben comer crudas. Es conveniente dar un hervor de 10 minutos a fuego vivo y bajarlo luego para que con la cocción no se rompa el pellejo."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Las judias se ponen a cocer con agua fría."
                                 }
-                            },
-                            "TITULO": "Judias",
-                            "PARRAFO": [
-                                "Planta herbácea anual procedente de América y que se usa tanto en su variedad verde, judias verdes, como desecadas. Posee un alto contenido en hidratos de carbono, proteínas y fibra, y muchas vitaminas del complejo de vitaminas B.",
-                                "Tienen un contenido tóxico que se pierde con la cocción, por lo que no se deben comer crudas. Es conveniente dar un hervor de 10 minutos a fuego vivo y bajarlo luego para que con la cocción no se rompa el pellejo.",
-                                "Las judias se ponen a cocer con agua fría."
                             ]
                         },
                         "RECETA": [
@@ -2888,16 +3239,31 @@
                             "nombre": "Lentejas"
                         },
                         "INTRODUCCION": {
-                            "IMAGEN": {
-                                "@attributes": {
-                                    "src": "imgs/.jpg"
+                            "CONTENIDO": [
+                                {
+                                    "tipo": "IMAGEN",
+                                    "imagen": {
+                                        "@attributes": {
+                                            "src": "imgs/.jpg"
+                                        }
+                                    }
+                                },
+                                {
+                                    "tipo": "TITULO",
+                                    "texto": "Las lentejas"
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Es una planta herbácea anual procedente de Oriente Medio. Su contenido en hidratos de carbono no es muy alto y sus proteínas son un poco deficitarias, pero mezcladas con cereales, como el arroz, son de primera calidad. Tienen mucho hierro y en menor cantidad zinc y selenio. También tienen vitaminas del complejo B."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Simplemente cocidas con una cabeza de ajos, una hoja de laurel y un chorrito de aceite están deliciosas, pero como nos gusta como plato único, le añadimos verduras y carne."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Se deben poner a cocer en agua fria, y para cocerlas en olla exprés, deben estar en remojo toda la noche, pues si no corremos el riesgo de que se sequen y se quemen."
                                 }
-                            },
-                            "TITULO": "Las lentejas",
-                            "PARRAFO": [
-                                "Es una planta herbácea anual procedente de Oriente Medio. Su contenido en hidratos de carbono no es muy alto y sus proteínas son un poco deficitarias, pero mezcladas con cereales, como el arroz, son de primera calidad. Tienen mucho hierro y en menor cantidad zinc y selenio. También tienen vitaminas del complejo B.",
-                                "Simplemente cocidas con una cabeza de ajos, una hoja de laurel y un chorrito de aceite están deliciosas, pero como nos gusta como plato único, le añadimos verduras y carne.",
-                                "Se deben poner a cocer en agua fria, y para cocerlas en olla exprés, deben estar en remojo toda la noche, pues si no corremos el riesgo de que se sequen y se quemen."
                             ]
                         },
                         "RECETA": [
@@ -2996,15 +3362,27 @@
                             "nombre": ". Los garbanzos"
                         },
                         "INTRODUCCION": {
-                            "IMAGEN": {
-                                "@attributes": {
-                                    "src": "imgs/.jpg"
+                            "CONTENIDO": [
+                                {
+                                    "tipo": "IMAGEN",
+                                    "imagen": {
+                                        "@attributes": {
+                                            "src": "imgs/.jpg"
+                                        }
+                                    }
+                                },
+                                {
+                                    "tipo": "TITULO",
+                                    "texto": "Los garbanzos"
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "El garbanzo es una planta anual leguminosa procedente de Oriente Medio. Es rico en proteínas, hidratos de carbono y lípidos insaturados. Conviene consumirlos con arroz, pastas o pan, para asimilar mejor sus proteínas. También es conveniente añadirles carnes o pescados con el mismo fin."
+                                },
+                                {
+                                    "tipo": "PARRAFO",
+                                    "texto": "Hay que remojarlos durante unas 8 horas antes de cocerlos. Se ponen a cocer cuando el agua o caldo esté hirviendo. Si durante la cocción necesitan que lea añadamos agua, siempre la añadiremos caliente, de lo contrario se \"encallan\" o sea que no se cuecen bien y quedan duros."
                                 }
-                            },
-                            "TITULO": "Los garbanzos",
-                            "PARRAFO": [
-                                "El garbanzo es una planta anual leguminosa procedente de Oriente Medio. Es rico en proteínas, hidratos de carbono y lípidos insaturados. Conviene consumirlos con arroz, pastas o pan, para asimilar mejor sus proteínas. También es conveniente añadirles carnes o pescados con el mismo fin.",
-                                "Hay que remojarlos durante unas 8 horas antes de cocerlos. Se ponen a cocer cuando el agua o caldo esté hirviendo. Si durante la cocción necesitan que lea añadamos agua, siempre la añadiremos caliente, de lo contrario se \"encallan\" o sea que no se cuecen bien y quedan duros."
                             ]
                         },
                         "RECETA": [

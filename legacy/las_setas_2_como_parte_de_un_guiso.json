@@ -2,22 +2,35 @@
     "RECETARIO": {
         "TITULO": "Las setas como ingrediente de un guiso",
         "INTRODUCCION": {
-            "PARRAFO": "En esta parte veremos como utilizar las setas en la cocina como ingrediente de un plato, y las diversidad de combinaciones que se pueden hace con ellas."
+            "CONTENIDO": [
+                {
+                    "tipo": "PARRAFO",
+                    "texto": "En esta parte veremos como utilizar las setas en la cocina como ingrediente de un plato, y las diversidad de combinaciones que se pueden hace con ellas."
+                }
+            ]
         },
         "CAPITULO": [
             {
                 "@attributes": {
-                    "nombre": "Las setas en el arroz"
+                    "nombre": " Las setas en el arroz"
                 },
                 "INTRODUCCION": {
-                    "IMAGENES": {
-                        "IMAGEN": {
-                            "@attributes": {
-                                "src": "imgs/coco/Arroz.jpg"
-                            }
+                    "CONTENIDO": [
+                        {
+                            "tipo": "IMAGENES",
+                            "imagenes": [
+                                {
+                                    "@attributes": {
+                                        "src": "imgs/coco/Arroz.jpg"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Aquí tenemos una pequeña muestra de formas de preparar arroces con setas, que puede servir para desarrollar vuestra imaginación y punto de partida para preparar vuestras propias recetas."
                         }
-                    },
-                    "PARRAFO": "Aquí tenemos una pequeña muestra de formas de preparar arroces con setas, que puede servir para desarrollar vuestra imaginación y punto de partida para preparar vuestras propias recetas."
+                    ]
                 },
                 "RECETA": [
                     {
@@ -297,8 +310,7 @@
                                         "1 zanahoria",
                                         "2 dientes de ajo",
                                         "150 g de hongos"
-                                    ],
-                                    "#text": "150 g de morros de cerdo"
+                                    ]
                                 },
                                 {
                                     "@attributes": {
@@ -397,17 +409,29 @@
                     "nombre": "Setas con la pasta"
                 },
                 "INTRODUCCION": {
-                    "IMAGENES": {
-                        "IMAGEN": {
-                            "@attributes": {
-                                "src": "imgs/coco/variedadesdepasta.jpg"
-                            }
+                    "CONTENIDO": [
+                        {
+                            "tipo": "IMAGENES",
+                            "imagenes": [
+                                {
+                                    "@attributes": {
+                                        "src": "imgs/coco/variedadesdepasta.jpg"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Nadie sabe en realidad de dónde vino la pasta, pero parece probable que la pasta haya sido un legado de la antigua China, pues Marco Polo se refiere a ella en sus relatos."
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Existen muchas variedades y todas ellas combinan muy bien con las setas y las trufas."
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": ""
                         }
-                    },
-                    "PARRAFO": [
-                        "Nadie sabe en realidad de dónde vino la pasta, pero parece probable que la pasta haya sido un legado de la antigua China, pues Marco Polo se refiere a ella en sus relatos.",
-                        "Existen muchas variedades y todas ellas combinan muy bien con las setas y las trufas.",
-                        ""
                     ]
                 },
                 "RECETA": [
@@ -572,7 +596,7 @@
                             "Después extendemos la masa en una bandeja de horno, que habremos untado previamente con aceite. Se ha de procurar que la masa no quede ni demasiado gruesa ni demasiado fina, una vez extendida la masa en la lata, es preciso dejarla reposar con el fin de que fermente y salga más esponjosa.",
                             "Cuando la pasta ha vuelto a subir, colocaremos por encima el acompañamiento: 4 ó 5 rovellones a los que añadiremos sal y aceite, 2-3 longanizas, 2-3 trozos de tocino veteado, que habremos salado previamente, lo pondremos al horno a 180Âº C durante media hora (conviene vigilar que no se queme). Una vez cocinada la sacaremos del horno y la comeremos tibia."
                         ],
-                        "nota": "Esta es la manera más popular de comer los rovellones en la Vall dâAlbaida."
+                        "NOTA": "Esta es la manera más popular de comer los rovellones en la Vall dâAlbaida."
                     },
                     {
                         "@attributes": {
@@ -1574,10 +1598,8 @@
                             "Forrar un molde de tarta con la pasta brisa. Pinchar con un tenedor y reservar.",
                             "Cortar la parte terrosa de las setas, lavarlas y escurrirlas.",
                             "En una cazuela fundiremos la mantequilla. Espolvorear con la harina y remover con una cuchara de madera, añadir el caldo poco a poco sin dejar de remover.",
-                            {
-                                "PREPARACION": "",
-                                "#text": "En otra sartén rehogar las setas con el aceite, añadirle el diente de ajo picado, salpimentar y dejar cocer a fuego suave hasta que se quede sin jugo."
-                            }
+                            "En otra sartén rehogar las setas con el aceite, añadirle el diente de ajo picado, salpimentar y dejar cocer a fuego suave hasta que se quede sin jugo.",
+                            "Ponerlas sobre la pasta brisa y cubrir con la besamel. Meter en horno precalentado a 180Âº durante 40 minutos."
                         ]
                     },
                     {
@@ -1659,21 +1681,27 @@
                     "nombre": "Setas con legumbres"
                 },
                 "INTRODUCCION": {
-                    "IMAGENES": {
-                        "IMAGEN": [
-                            {
-                                "@attributes": {
-                                    "src": "imgs/coco/granos2.jpg"
+                    "CONTENIDO": [
+                        {
+                            "tipo": "IMAGENES",
+                            "imagenes": [
+                                {
+                                    "@attributes": {
+                                        "src": "imgs/coco/granos2.jpg"
+                                    }
+                                },
+                                {
+                                    "@attributes": {
+                                        "src": "imgs/coco/seta2dibujo.gif"
+                                    }
                                 }
-                            },
-                            {
-                                "@attributes": {
-                                    "src": "imgs/coco/seta2dibujo.gif"
-                                }
-                            }
-                        ]
-                    },
-                    "PARRAFO": "Las legumbres se consumen desde la antiguedad. En las rumbas egipcias se han encontrado vasijas con ellas. Proceden de Oriente Medio, excepto las judías que vinieron de América. Son una importante y saludable fuente de alimentación, y como vamos a ver, también se guisan con setas."
+                            ]
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Las legumbres se consumen desde la antiguedad. En las rumbas egipcias se han encontrado vasijas con ellas. Proceden de Oriente Medio, excepto las judías que vinieron de América. Son una importante y saludable fuente de alimentación, y como vamos a ver, también se guisan con setas."
+                        }
+                    ]
                 },
                 "RECETA": [
                     {
@@ -1932,15 +1960,26 @@
                     "nombre": "Sopas y cremas"
                 },
                 "INTRODUCCION": {
-                    "TITULO": "",
-                    "IMAGENES": {
-                        "IMAGEN": {
-                            "@attributes": {
-                                "src": "imgs/coco/sopas1.jpg"
-                            }
+                    "CONTENIDO": [
+                        {
+                            "tipo": "TITULO",
+                            "texto": ""
+                        },
+                        {
+                            "tipo": "IMAGENES",
+                            "imagenes": [
+                                {
+                                    "@attributes": {
+                                        "src": "imgs/coco/sopas1.jpg"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": ""
                         }
-                    },
-                    "PARRAFO": ""
+                    ]
                 },
                 "RECETA": [
                     {
@@ -2060,7 +2099,7 @@
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "Reducción ácida de Malbec"
+                                        "titulo": "  Reducción ácida de Malbec"
                                     },
                                     "INGREDIENTE": [
                                         "200 cc. Vino Malbec reserva",
@@ -2781,7 +2820,7 @@
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "Guarnición aromática"
+                                        "titulo": "Guarnición aromática "
                                     },
                                     "INGREDIENTE": [
                                         "2 zanahorias",
@@ -2836,16 +2875,27 @@
             },
             {
                 "@attributes": {
-                    "nombre": "Croquetas"
+                    "nombre": " Croquetas"
                 },
                 "INTRODUCCION": {
-                    "IMAGEN": {
-                        "@attributes": {
-                            "src": "imgs/.jpg"
+                    "CONTENIDO": [
+                        {
+                            "tipo": "IMAGEN",
+                            "imagen": {
+                                "@attributes": {
+                                    "src": "imgs/.jpg"
+                                }
+                            }
+                        },
+                        {
+                            "tipo": "TITULO",
+                            "texto": ""
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": "Cada vez ve ven más en los menús croquetas con setas. Realmente es una opción interesante."
                         }
-                    },
-                    "TITULO": "",
-                    "PARRAFO": "Cada vez ve ven más en los menús croquetas con setas. Realmente es una opción interesante."
+                    ]
                 },
                 "RECETA": [
                     {
@@ -2919,18 +2969,26 @@
             },
             {
                 "@attributes": {
-                    "nombre": "Las setas con verduras"
+                    "nombre": " Las setas con verduras"
                 },
                 "INTRODUCCION": {
-                    "IMAGENES": {
-                        "IMAGEN": {
-                            "@attributes": {
-                                "src": "imgs/coco/verduras.jpg"
-                            },
-                            "#text": "Pie de foto"
+                    "CONTENIDO": [
+                        {
+                            "tipo": "IMAGENES",
+                            "imagenes": [
+                                {
+                                    "@attributes": {
+                                        "src": "imgs/coco/verduras.jpg"
+                                    },
+                                    "#text": "Pie de foto"
+                                }
+                            ]
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": ""
                         }
-                    },
-                    "PARRAFO": ""
+                    ]
                 },
                 "RECETA": [
                     {
@@ -3037,7 +3095,7 @@
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "para la salsa de hongos"
+                                        "titulo": "para la salsa de hongos "
                                     },
                                     "INGREDIENTE": [
                                         "1 1/2 l. de caldo de carne bajo de color",
@@ -3631,21 +3689,27 @@
                     "nombre": "Setas en las recetas de aves y caza"
                 },
                 "INTRODUCCION": {
-                    "IMAGENES": {
-                        "IMAGEN": [
-                            {
-                                "@attributes": {
-                                    "src": "imgs/coco/caza.jpg"
+                    "CONTENIDO": [
+                        {
+                            "tipo": "IMAGENES",
+                            "imagenes": [
+                                {
+                                    "@attributes": {
+                                        "src": "imgs/coco/caza.jpg"
+                                    }
+                                },
+                                {
+                                    "@attributes": {
+                                        "src": "imgs/coco/mnt71 boletu.gif"
+                                    }
                                 }
-                            },
-                            {
-                                "@attributes": {
-                                    "src": "imgs/coco/mnt71 boletu.gif"
-                                }
-                            }
-                        ]
-                    },
-                    "PARRAFO": ""
+                            ]
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": ""
+                        }
+                    ]
                 },
                 "RECETA": [
                     {
@@ -3681,7 +3745,7 @@
                             "GRUPO": [
                                 {
                                     "@attributes": {
-                                        "titulo": "Para el carpaccio de hongos"
+                                        "titulo": " Para el carpaccio de hongos"
                                     },
                                     "INGREDIENTE": [
                                         "Â½ Kg. de hongos",
@@ -3693,7 +3757,7 @@
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "Para el carpaccio de ciervo"
+                                        "titulo": " Para el carpaccio de ciervo"
                                     },
                                     "INGREDIENTE": [
                                         "Â½ Kg. de centro de lomo de ciervo",
@@ -3702,7 +3766,7 @@
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "Para la vinagreta de tomate"
+                                        "titulo": " Para la vinagreta de tomate"
                                     },
                                     "INGREDIENTE": [
                                         "1 tomate",
@@ -3756,7 +3820,7 @@
                             "GRUPO": [
                                 {
                                     "@attributes": {
-                                        "titulo": "Para las setas escabechadas"
+                                        "titulo": " Para las setas escabechadas"
                                     },
                                     "INGREDIENTE": [
                                         "350 g de setas de primavera",
@@ -3767,12 +3831,11 @@
                                         "Una hoja de laurel",
                                         "Un limón",
                                         "sal"
-                                    ],
-                                    "#text": "Para las setas escabechadas"
+                                    ]
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "Para las codornices caramelizadas"
+                                        "titulo": " Para las codornices caramelizadas"
                                     },
                                     "INGREDIENTE": [
                                         "4 codornices",
@@ -3901,7 +3964,7 @@
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "Para la picada"
+                                        "titulo": " Para la picada"
                                     },
                                     "INGREDIENTE": [
                                         "3 almendras",
@@ -4004,7 +4067,7 @@
                             "GRUPO": [
                                 {
                                     "@attributes": {
-                                        "titulo": "Para el marinado"
+                                        "titulo": " Para el marinado"
                                     },
                                     "INGREDIENTE": [
                                         "aceite de oliva",
@@ -4016,7 +4079,7 @@
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "Para las brochetas"
+                                        "titulo": " Para las brochetas"
                                     },
                                     "INGREDIENTE": [
                                         "4 solomillos de corzo marinados",
@@ -4027,7 +4090,7 @@
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "Para el salteao de verduras"
+                                        "titulo": " Para el salteao de verduras"
                                     },
                                     "INGREDIENTE": [
                                         "12 cebollitas tiernas",
@@ -4045,9 +4108,8 @@
                             ]
                         },
                         "PREPARACION": [
-                            {
-                                "PREPARACION": "Pondremos a marinar los solomillos durante unas horas."
-                            },
+                            "Pondremos a marinar los solomillos durante unas horas.",
+                            "Para las brochetas:",
                             "Sacar los solomillos del marinado y escurrir; secar y trocear en tacos para brocheta. Montar las brochetas intercalando trozos de corzo y okra; salpimentar y poner a la parrilla.",
                             "Para el salteado:",
                             "Limpiar y lavar las setas, pelar y limpiar el resto de las verduritas y blanquear las que sea necesario. Filetear los ajos y dorar, incorporar las setas y por último la selección de verduritas blanqueadas. Cuando se comience a dorar, añadir 4 cucharadas de fondo de caza con las bayas de enebro, saltear dos minutos más y salpimentar. Montaje del plato:",
@@ -4133,7 +4195,7 @@
                             "GRUPO": [
                                 {
                                     "@attributes": {
-                                        "titulo": "Para el caramelo:"
+                                        "titulo": " Para el caramelo:"
                                     },
                                     "INGREDIENTE": [
                                         "1/2 vaso de agua",
@@ -4143,7 +4205,7 @@
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "Para el magret:"
+                                        "titulo": " Para el magret:"
                                     },
                                     "INGREDIENTE": [
                                         "1 magret de pato",
@@ -4334,7 +4396,7 @@
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "Para el relleno:"
+                                        "titulo": " Para el relleno:"
                                     },
                                     "INGREDIENTE": [
                                         "Miga de pan del grosor de un huevo",
@@ -4687,15 +4749,23 @@
             },
             {
                 "@attributes": {
-                    "nombre": "Setas con los menudillos de aves"
+                    "nombre": " Setas con los menudillos de aves"
                 },
                 "INTRODUCCION": {
-                    "IMAGEN": {
-                        "@attributes": {
-                            "src": "imgs/.jpg"
+                    "CONTENIDO": [
+                        {
+                            "tipo": "IMAGEN",
+                            "imagen": {
+                                "@attributes": {
+                                    "src": "imgs/.jpg"
+                                }
+                            }
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": ""
                         }
-                    },
-                    "PARRAFO": ""
+                    ]
                 },
                 "RECETA": [
                     {
@@ -4780,10 +4850,8 @@
                         "PREPARACION": [
                             "Limpiamos bien las mollejas y las ponemos a cocer durante una hora, aprox. hasta que estén tiernas. Después las troceamos láminas finitas.",
                             "Las setas, una vez limpias, se trocean.",
-                            {
-                                "PREPARACION": "",
-                                "#text": "En una sartén con aceite doramos el ajo picado. Le unimos las setas y las mollejas y las rehogamos durante unos cinco minutos, hasta para que suelten su jugo. Añadimos el vino, la sal, la pimienta y un toque de nuez moscada. Dejamos que reduzcan a fuego más fuerte entre 5/10 minutos."
-                            }
+                            "En una sartén con aceite doramos el ajo picado. Le unimos las setas y las mollejas y las rehogamos durante unos cinco minutos, hasta para que suelten su jugo. Añadimos el vino, la sal, la pimienta y un toque de nuez moscada. Dejamos que reduzcan a fuego más fuerte entre 5/10 minutos.",
+                            "Lo retiramos del fuego y cuando pare el hervor, lo ligamos con la nata. Servir inmediatamente."
                         ]
                     },
                     {
@@ -4840,26 +4908,32 @@
                     "nombre": "Las setas con el cerdo y productos de la matanza"
                 },
                 "INTRODUCCION": {
-                    "IMAGENES": {
-                        "IMAGEN": [
-                            {
-                                "@attributes": {
-                                    "src": "imgs/coco/cerdo.gif"
+                    "CONTENIDO": [
+                        {
+                            "tipo": "IMAGENES",
+                            "imagenes": [
+                                {
+                                    "@attributes": {
+                                        "src": "imgs/coco/cerdo.gif"
+                                    }
+                                },
+                                {
+                                    "@attributes": {
+                                        "src": "imgs/coco/pieazul.jpg"
+                                    }
+                                },
+                                {
+                                    "@attributes": {
+                                        "src": "imgs/coco/cuadro101.jpg"
+                                    }
                                 }
-                            },
-                            {
-                                "@attributes": {
-                                    "src": "imgs/coco/pieazul.jpg"
-                                }
-                            },
-                            {
-                                "@attributes": {
-                                    "src": "imgs/coco/cuadro101.jpg"
-                                }
-                            }
-                        ]
-                    },
-                    "PARRAFO": ""
+                            ]
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": ""
+                        }
+                    ]
                 },
                 "RECETA": [
                     {
@@ -5149,21 +5223,27 @@
                     "nombre": "Las setas con el cordero"
                 },
                 "INTRODUCCION": {
-                    "IMAGENES": {
-                        "IMAGEN": [
-                            {
-                                "@attributes": {
-                                    "src": "imgs/coco/cordero.jpg"
+                    "CONTENIDO": [
+                        {
+                            "tipo": "IMAGENES",
+                            "imagenes": [
+                                {
+                                    "@attributes": {
+                                        "src": "imgs/coco/cordero.jpg"
+                                    }
+                                },
+                                {
+                                    "@attributes": {
+                                        "src": "imgs/coco/Calocybegeorgiidib.jpg"
+                                    }
                                 }
-                            },
-                            {
-                                "@attributes": {
-                                    "src": "imgs/coco/Calocybegeorgiidib.jpg"
-                                }
-                            }
-                        ]
-                    },
-                    "PARRAFO": ""
+                            ]
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": ""
+                        }
+                    ]
                 },
                 "RECETA": [
                     {
@@ -5363,21 +5443,27 @@
                     "nombre": "Las setas con el vacuno"
                 },
                 "INTRODUCCION": {
-                    "IMAGENES": {
-                        "IMAGEN": [
-                            {
-                                "@attributes": {
-                                    "src": "imgs/coco/vacuno_lidia.jpg"
+                    "CONTENIDO": [
+                        {
+                            "tipo": "IMAGENES",
+                            "imagenes": [
+                                {
+                                    "@attributes": {
+                                        "src": "imgs/coco/vacuno_lidia.jpg"
+                                    }
+                                },
+                                {
+                                    "@attributes": {
+                                        "src": "imgs/coco/Morchella_elata1.jpg"
+                                    }
                                 }
-                            },
-                            {
-                                "@attributes": {
-                                    "src": "imgs/coco/Morchella_elata1.jpg"
-                                }
-                            }
-                        ]
-                    },
-                    "PARRAFO": ""
+                            ]
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": ""
+                        }
+                    ]
                 },
                 "RECETA": [
                     {
@@ -6079,12 +6165,20 @@
                     "nombre": "Las setas con pescados y mariscos"
                 },
                 "INTRODUCCION": {
-                    "IMAGEN": {
-                        "@attributes": {
-                            "src": "imgs/.jpg"
+                    "CONTENIDO": [
+                        {
+                            "tipo": "IMAGEN",
+                            "imagen": {
+                                "@attributes": {
+                                    "src": "imgs/.jpg"
+                                }
+                            }
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": ""
                         }
-                    },
-                    "PARRAFO": ""
+                    ]
                 },
                 "RECETA": [
                     {
@@ -6159,7 +6253,7 @@
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "Para los raviolis"
+                                        "titulo": "Para los raviolis "
                                     },
                                     "INGREDIENTE": [
                                         "1 calabacín",
@@ -6565,7 +6659,7 @@
                             "GRUPO": [
                                 {
                                     "@attributes": {
-                                        "titulo": "Para la brandada"
+                                        "titulo": "Para la brandada "
                                     },
                                     "INGREDIENTE": [
                                         "200 g de bacalao",
@@ -6579,7 +6673,7 @@
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "Para el pil-pil de hongos"
+                                        "titulo": "Para el pil-pil de hongos "
                                     },
                                     "INGREDIENTE": [
                                         "50 g de hongos",
@@ -6605,7 +6699,7 @@
                             "GRUPO": [
                                 {
                                     "@attributes": {
-                                        "titulo": "Para el relleno"
+                                        "titulo": "Para el relleno "
                                     },
                                     "INGREDIENTE": [
                                         "12 langostinos cocidos",
@@ -6620,7 +6714,7 @@
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "Para la bechamel"
+                                        "titulo": "Para la bechamel "
                                     },
                                     "INGREDIENTE": [
                                         "1 vaso de leche",
@@ -6658,7 +6752,7 @@
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "Para la salsa"
+                                        "titulo": "Para la salsa "
                                     },
                                     "INGREDIENTE": [
                                         "200 gr. de lepiotas",
@@ -6687,7 +6781,7 @@
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "Para el mojo de tomate"
+                                        "titulo": "Para el mojo de tomate "
                                     },
                                     "INGREDIENTE": [
                                         "2 tomates maduros",
@@ -6705,7 +6799,7 @@
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "Para la sopa de ajo"
+                                        "titulo": "Para la sopa de ajo "
                                     },
                                     "INGREDIENTE": [
                                         "Media cabeza de ajos pelados",
@@ -6719,7 +6813,7 @@
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "Para la trompeta de la muerte y guindillas"
+                                        "titulo": "Para la trompeta de la muerte y guindillas "
                                     },
                                     "INGREDIENTE": [
                                         "25 g de ajo fresco en aros finos",
@@ -6734,7 +6828,7 @@
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "Para el aceite rojo"
+                                        "titulo": "Para el aceite rojo "
                                     },
                                     "INGREDIENTE": [
                                         "50 g de aceite de oliva 0,4Âº",
@@ -6743,7 +6837,7 @@
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "Para el caldo de ave y anís estrellado"
+                                        "titulo": "Para el caldo de ave y anís estrellado "
                                     },
                                     "INGREDIENTE": [
                                         "1/4 de gallina",
@@ -6853,7 +6947,7 @@
                                 },
                                 {
                                     "@attributes": {
-                                        "titulo": "Para la salsa de mostaza agria"
+                                        "titulo": "Para la salsa de mostaza agria "
                                     },
                                     "INGREDIENTE": [
                                         "3 cs de mostaza",
@@ -7119,12 +7213,20 @@
                     "nombre": "Las setas en los postres"
                 },
                 "INTRODUCCION": {
-                    "IMAGEN": {
-                        "@attributes": {
-                            "src": "imgs/.jpg"
+                    "CONTENIDO": [
+                        {
+                            "tipo": "IMAGEN",
+                            "imagen": {
+                                "@attributes": {
+                                    "src": "imgs/.jpg"
+                                }
+                            }
+                        },
+                        {
+                            "tipo": "PARRAFO",
+                            "texto": ""
                         }
-                    },
-                    "PARRAFO": ""
+                    ]
                 },
                 "RECETA": [
                     {
@@ -7597,7 +7699,9 @@
                 "@attributes": {
                     "nombre": "HELADOS CON SETAS Y HONGOS"
                 },
-                "INTRODUCCION": "Con algunas setas también se puede preparar helados ¿te atreves?",
+                "INTRODUCCION": {
+                    "CONTENIDO": []
+                },
                 "RECETA": [
                     {
                         "@attributes": {
