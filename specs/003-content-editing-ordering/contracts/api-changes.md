@@ -18,10 +18,7 @@ Validation on write: every `image://<hash>` referenced in a markdown field must 
 
 ## New endpoints
 
-| Method & Path | Purpose | Notes |
-|---|---|---|
-| `GET /library/status` | Detect pre-v2 libraries | `{ "format": "current" \| "legacy" }`; frontend calls it at startup |
-| `POST /library/reset` | Reset an old-format library | Body `{ "confirm": true }` required; drops and recreates the database at schema v2 (images dir preserved); rejects without confirm (`reset_confirm_required`) |
+*(Amended post-implementation by owner decision: no status/reset endpoints. A pre-v2 library is wiped automatically when the backend opens the data dir — the API only ever sees a v2 database.)*
 
 ## Changed behaviors
 
@@ -30,11 +27,8 @@ Validation on write: every `image://<hash>` referenced in a markdown field must 
 | `POST /import/legacy` / `.../inspect` | Accepts only schema v2 (`CONTENIDO` arrays). v1-shaped documents → `400 legacy_v1_unsupported` (Spanish message). Import report unchanged in shape; image fallback assignment happens transparently |
 | `POST /library/import` | Archives with `format_version != 2` → `400 archive_unsupported_version`; v2 archives carry markdown + note fields |
 | `POST /library/export` | Emits `format_version: 2` |
-| All endpoints on a legacy-format database | Return `409 library_format_legacy` (Spanish message directing to the reset flow), except `/health`, `/library/status`, `/library/reset` |
 
 ## New error codes (Spanish messages in `l10n/messages.py`)
 
 - `legacy_v1_unsupported` — legacy file uses the obsolete grouped format
 - `archive_unsupported_version` — backup archive predates the current format
-- `library_format_legacy` — library was created with a previous version; reset required
-- `reset_confirm_required` — reset must be explicitly confirmed

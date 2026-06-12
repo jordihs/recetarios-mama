@@ -1,10 +1,12 @@
-"""SQLite database: connection management, schema, format detection.
+"""SQLite database: connection management and schema.
 
-Schema v2 stores rich content as markdown TEXT. There is no migration path:
-a v1 database is detected (``format == "legacy"``), left untouched, and the
-API offers a reset instead (see api/library_status.py).
+Schema v2 stores rich content as markdown TEXT. Older databases are not
+supported at all: anything that predates the current schema is wiped on open
+(database file and images directory) and recreated fresh, exactly as if the
+app had just been installed for the first time.
 """
 
+import shutil
 import sqlite3
 from pathlib import Path
 
@@ -72,26 +74,37 @@ class Database:
         self.data_dir = Path(data_dir)
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.path = self.data_dir / "recetarios.db"
-        self.conn = sqlite3.connect(self.path, check_same_thread=False)
-        self.conn.row_factory = sqlite3.Row
-        self.conn.execute("PRAGMA journal_mode = WAL")
-        self.conn.execute("PRAGMA foreign_keys = ON")
-        self.format = self._probe_format()
-        if self.format == "current":
-            self._ensure_schema()
+        self.conn = self._connect()
+        if self._is_outdated():
+            self._wipe_all_data()
+            self.conn = self._connect()
+        self._ensure_schema()
 
-    def _probe_format(self) -> str:
-        """"current" for fresh or v2 databases; "legacy" for anything older."""
+    def _connect(self) -> sqlite3.Connection:
+        conn = sqlite3.connect(self.path, check_same_thread=False)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA journal_mode = WAL")
+        conn.execute("PRAGMA foreign_keys = ON")
+        return conn
+
+    def _is_outdated(self) -> bool:
         version = self.conn.execute("PRAGMA user_version").fetchone()[0]
         if version >= SCHEMA_VERSION:
-            return "current"
+            return False
         has_tables = (
             self.conn.execute(
                 "SELECT 1 FROM sqlite_master WHERE type = 'table' LIMIT 1"
             ).fetchone()
             is not None
         )
-        return "legacy" if has_tables else "current"
+        return has_tables
+
+    def _wipe_all_data(self) -> None:
+        """Pre-v2 data is unsupported: erase it all and start from scratch."""
+        self.conn.close()
+        for suffix in ("", "-wal", "-shm"):
+            (self.data_dir / f"recetarios.db{suffix}").unlink(missing_ok=True)
+        shutil.rmtree(self.data_dir / "images", ignore_errors=True)
 
     def _ensure_schema(self) -> None:
         self.conn.executescript(_SCHEMA)

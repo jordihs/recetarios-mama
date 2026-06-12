@@ -40,7 +40,7 @@ Displayed at the foot of the item's content in the recipe-note visual style. Exc
 ## Schema version & lifecycle
 
 - `PRAGMA user_version = 2`. Fresh databases are created at v2.
-- Opening a v1 database: no read, no write, no migration. `GET /library/status` reports `legacy`; `POST /library/reset` deletes and recreates the database at v2 (images directory preserved — content-addressed files are reusable after re-import).
+- Opening a pre-v2 database: wiped automatically on startup (database file **and** images directory deleted, schema recreated at v2). No migration, no prompt, no trace — the app behaves as a first install. *(Amended post-implementation by owner decision: the original consent-based reset flow was removed.)*
 - Validation on write: markdown size sane (≤ 1 MB per document), every `image://` ref must exist in the store (same rule as before).
 
 ## SQLite schema delta (v2)

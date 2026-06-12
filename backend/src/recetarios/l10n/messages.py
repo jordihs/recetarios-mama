@@ -27,13 +27,6 @@ MESSAGES: dict[str, str] = {
         "La copia de seguridad es de una versión anterior de la aplicación"
         " y no se puede importar."
     ),
-    "library_format_legacy": (
-        "La biblioteca se creó con una versión anterior de la aplicación."
-        " Es necesario reiniciarla para continuar."
-    ),
-    "reset_confirm_required": (
-        "El reinicio borra la biblioteca y requiere confirmación explícita."
-    ),
     "pdf_job_not_found": "No se ha encontrado la tarea de generación de PDF.",
     "internal_error": "Se ha producido un error inesperado.",
 }

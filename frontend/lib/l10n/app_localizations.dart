@@ -604,42 +604,6 @@ abstract class AppLocalizations {
   /// **'Personas (opcional)'**
   String get servingsLabel;
 
-  /// No description provided for @libraryLegacyTitle.
-  ///
-  /// In es, this message translates to:
-  /// **'Biblioteca de una versión anterior'**
-  String get libraryLegacyTitle;
-
-  /// No description provided for @libraryLegacyBody.
-  ///
-  /// In es, this message translates to:
-  /// **'Esta biblioteca se creó con una versión anterior de la aplicación y ya no se puede abrir. Para continuar es necesario reiniciarla: se vaciará la biblioteca (las imágenes se conservan) y podrás volver a importar tus recetarios actualizados.'**
-  String get libraryLegacyBody;
-
-  /// No description provided for @libraryLegacyResetButton.
-  ///
-  /// In es, this message translates to:
-  /// **'Reiniciar biblioteca'**
-  String get libraryLegacyResetButton;
-
-  /// No description provided for @libraryResetConfirmTitle.
-  ///
-  /// In es, this message translates to:
-  /// **'¿Reiniciar la biblioteca?'**
-  String get libraryResetConfirmTitle;
-
-  /// No description provided for @libraryResetConfirmBody.
-  ///
-  /// In es, this message translates to:
-  /// **'Se eliminarán todos los libros, capítulos y recetas. Esta acción no se puede deshacer. ¿Continuar?'**
-  String get libraryResetConfirmBody;
-
-  /// No description provided for @libraryResetDone.
-  ///
-  /// In es, this message translates to:
-  /// **'Biblioteca reiniciada. Ya puedes importar tus recetarios.'**
-  String get libraryResetDone;
-
   /// No description provided for @errorTitle.
   ///
   /// In es, this message translates to:

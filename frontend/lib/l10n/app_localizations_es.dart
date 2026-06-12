@@ -286,27 +286,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get servingsLabel => 'Personas (opcional)';
 
   @override
-  String get libraryLegacyTitle => 'Biblioteca de una versión anterior';
-
-  @override
-  String get libraryLegacyBody =>
-      'Esta biblioteca se creó con una versión anterior de la aplicación y ya no se puede abrir. Para continuar es necesario reiniciarla: se vaciará la biblioteca (las imágenes se conservan) y podrás volver a importar tus recetarios actualizados.';
-
-  @override
-  String get libraryLegacyResetButton => 'Reiniciar biblioteca';
-
-  @override
-  String get libraryResetConfirmTitle => '¿Reiniciar la biblioteca?';
-
-  @override
-  String get libraryResetConfirmBody =>
-      'Se eliminarán todos los libros, capítulos y recetas. Esta acción no se puede deshacer. ¿Continuar?';
-
-  @override
-  String get libraryResetDone =>
-      'Biblioteca reiniciada. Ya puedes importar tus recetarios.';
-
-  @override
   String get errorTitle => 'Error';
 
   @override
