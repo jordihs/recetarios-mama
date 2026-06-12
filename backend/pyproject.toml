@@ -16,6 +16,8 @@ dependencies = [
     "platformdirs>=4.2",
     "python-multipart>=0.0.9",
     "psutil>=5.9",
+    "markdown-it-py>=3.0",
+    "mdit-py-plugins>=0.4",
 ]
 
 [project.optional-dependencies]

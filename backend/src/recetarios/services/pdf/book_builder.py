@@ -25,7 +25,8 @@ from recetarios.services.pdf.base import (
     MARGIN,
     PAGE_SIZE,
     STYLES,
-    block_flowables,
+    image_flowables,
+    markdown_flowables,
     recipe_flowables,
 )
 from recetarios.storage.images import ImageStore
@@ -91,12 +92,8 @@ class BookPdfBuilder:
         story.append(Paragraph(escape(book["title"]), STYLES["cover_title"]))
         story.append(Spacer(0, 1 * cm))
         if book.get("cover_image"):
-            cover = block_flowables(
-                [{"type": "image", "image": book["cover_image"], "placement": "block"}],
-                self.images,
-            )
-            story.extend(cover)
-        story.extend(block_flowables(book.get("presentation") or [], self.images))
+            story.extend(image_flowables(self.images, book["cover_image"]))
+        story.extend(markdown_flowables(book.get("presentation") or "", self.images))
         story.append(NextPageTemplate("main"))
         story.append(PageBreak())
 
@@ -125,14 +122,8 @@ class BookPdfBuilder:
                 )
             )
             if chapter.get("cover_image"):
-                story.extend(
-                    block_flowables(
-                        [{"type": "image", "image": chapter["cover_image"],
-                          "placement": "block"}],
-                        self.images,
-                    )
-                )
-            story.extend(block_flowables(chapter.get("presentation") or [], self.images))
+                story.extend(image_flowables(self.images, chapter["cover_image"]))
+            story.extend(markdown_flowables(chapter.get("presentation") or "", self.images))
 
             # Every recipe begins on a new page (FR-030).
             for recipe_summary in self.library.list_recipes(chapter["id"]):

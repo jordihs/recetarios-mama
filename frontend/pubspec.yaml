@@ -19,6 +19,8 @@ dependencies:
   file_selector: ^1.0.3
   open_filex: ^4.5.0
   cupertino_icons: ^1.0.8
+  markdown: ^7.3.0
+  appflowy_editor: ^6.2.0
 
 dev_dependencies:
   flutter_test:
@@ -26,6 +28,12 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+
+# Patched copy: published 6.2.0 does not compile against this Flutter SDK.
+# See third_party/appflowy_editor/VENDORED.md for the patch and removal condition.
+dependency_overrides:
+  appflowy_editor:
+    path: third_party/appflowy_editor
 
 flutter:
   uses-material-design: true

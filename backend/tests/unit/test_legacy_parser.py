@@ -1,11 +1,18 @@
-"""US5 unit tests: normalization of legacy single-or-array shapes and mapping."""
+"""US1 unit tests: v2 shape validation and per-block markdown emission."""
 
+import json
+
+import pytest
+
+from recetarios.api.errors import ApiError
 from recetarios.services.legacy_import.mapper import map_introduccion, map_recipe
-from recetarios.services.legacy_import.parser import as_list, clean_text
+from recetarios.services.legacy_import.parser import as_list, clean_text, load_document
+
+HASH = "f" * 64
 
 
 def _resolve(_src):
-    return "f" * 64  # every image resolves
+    return HASH  # every image resolves
 
 
 def _drop(_src):
@@ -27,72 +34,136 @@ class TestNormalization:
         assert clean_text("  Sopa \n\t de  ajo ") == "Sopa de ajo"
 
 
-class TestIntroduccionMapping:
-    def test_paragraph_string_and_array(self):
-        single = map_introduccion({"PARRAFO": "Hola"}, _resolve)
-        multi = map_introduccion({"PARRAFO": ["Uno", "Dos"]}, _resolve)
-        assert [b.type for b in single] == ["paragraph"]
-        assert single[0].spans[0].text == "Hola"
-        assert [b.spans[0].text for b in multi] == ["Uno", "Dos"]
+class TestBlockEmission:
+    def test_parrafo_whitespace_normalized(self):
+        intro = {"CONTENIDO": [{"tipo": "PARRAFO", "texto": "  Sopa \n de  ajo  "}]}
+        result = map_introduccion(intro, _resolve)
+        assert result.markdown == "Sopa de ajo"
+        assert result.note is None
 
-    def test_titulo_becomes_heading(self):
-        blocks = map_introduccion({"TITULO": "Sección", "PARRAFO": "x"}, _resolve)
-        assert blocks[0].type == "heading"
-        assert blocks[0].text == "Sección"
-
-    def test_imagen_with_caption_floats_right(self):
-        intro = {"IMAGEN": {"@attributes": {"src": "./imgs/a.jpg"}, "#text": "Pie"}}
-        blocks = map_introduccion(intro, _resolve)
-        assert blocks[0].type == "image"
-        assert blocks[0].caption == "Pie"
-        assert blocks[0].placement == "right"
-
-    def test_imagenes_becomes_grid_group(self):
+    def test_titulo_first_h2_subsequent_h3(self):
         intro = {
-            "IMAGENES": {
-                "IMAGEN": [
-                    {"@attributes": {"src": "a.jpg"}},
-                    {"@attributes": {"src": "b.jpg"}, "#text": "Pie"},
-                ]
-            }
+            "CONTENIDO": [
+                {"tipo": "TITULO", "texto": "Las setas"},
+                {"tipo": "PARRAFO", "texto": "Texto."},
+                {"tipo": "TITULO", "texto": "Recolección"},
+                {"tipo": "TITULO", "texto": "Conservación"},
+            ]
         }
-        blocks = map_introduccion(intro, _resolve)
-        assert blocks[0].type == "image_group"
-        assert blocks[0].layout == "grid"
-        assert len(blocks[0].images) == 2
-        assert blocks[0].images[1].caption == "Pie"
+        result = map_introduccion(intro, _resolve)
+        lines = result.markdown.split("\n\n")
+        assert lines[0] == "## Las setas"
+        assert lines[2] == "### Recolección"
+        assert lines[3] == "### Conservación"
 
-    def test_missing_images_are_dropped_and_reported(self):
-        missing: list[str] = []
-
-        def resolver(src):
-            missing.append(src)
-            return None
-
-        intro = {"IMAGEN": {"@attributes": {"src": "imgs/gone.jpg"}}}
-        blocks = map_introduccion(intro, resolver)
-        assert blocks == []
-        assert missing == ["imgs/gone.jpg"]
-
-    def test_tabla_single_and_image_cells(self):
+    def test_imagen_with_caption(self):
         intro = {
-            "TABLA": {
-                "@attributes": {"titulo": "Tiempos"},
-                "CABECERA": {"CELDA": [{"#text": "Especie"}, {"#text": "Tiempo"}]},
-                "FILA": {
-                    "CELDA": [
-                        {"#text": "Champiñón", "@attributes": {"imagen": "imgs/c.jpg"}},
-                        {"#text": "5 min"},
-                    ]
-                },
-            }
+            "CONTENIDO": [
+                {
+                    "tipo": "IMAGEN",
+                    "imagen": {"@attributes": {"src": "imgs/a.jpg"}, "#text": " Pie de foto "},
+                }
+            ]
         }
-        blocks = map_introduccion(intro, _resolve)
-        assert blocks[0].type == "table"
-        assert blocks[0].title == "Tiempos"
-        assert [c.text for c in blocks[0].header] == ["Especie", "Tiempo"]
-        assert blocks[0].rows[0][0].image == "f" * 64
-        assert blocks[0].rows[0][0].text == "Champiñón"
+        result = map_introduccion(intro, _resolve)
+        assert result.markdown == f"![Pie de foto](image://{HASH})"
+
+    def test_unresolved_imagen_dropped(self):
+        intro = {
+            "CONTENIDO": [
+                {"tipo": "IMAGEN", "imagen": {"@attributes": {"src": "imgs/nope.jpg"}}},
+                {"tipo": "PARRAFO", "texto": "Queda esto."},
+            ]
+        }
+        result = map_introduccion(intro, _drop)
+        assert result.markdown == "Queda esto."
+
+    def test_imagenes_gallery_consecutive_lines(self):
+        intro = {
+            "CONTENIDO": [
+                {
+                    "tipo": "IMAGENES",
+                    "imagenes": [
+                        {"@attributes": {"src": "imgs/a.jpg"}, "#text": "Una"},
+                        {"@attributes": {"src": "imgs/b.jpg"}, "#text": "Dos"},
+                    ],
+                }
+            ]
+        }
+        result = map_introduccion(intro, _resolve)
+        assert result.markdown == (
+            f"![Una](image://{HASH})\n![Dos](image://{HASH})"
+        )
+
+    def test_tabla_with_title_header_and_image_cell(self):
+        intro = {
+            "CONTENIDO": [
+                {
+                    "tipo": "TABLA",
+                    "tabla": {
+                        "@attributes": {"titulo": "Tiempos"},
+                        "CABECERA": {"CELDA": [{"#text": "Especie"}, {"#text": "Minutos"}]},
+                        "FILA": [
+                            {
+                                "CELDA": [
+                                    {"@attributes": {"imagen": "imgs/c.jpg"}, "#text": "Níscalo"},
+                                    {"#text": "5"},
+                                ]
+                            }
+                        ],
+                    },
+                }
+            ]
+        }
+        result = map_introduccion(intro, _resolve)
+        assert result.markdown.startswith("**Tiempos**\n\n")
+        assert "| Especie | Minutos |" in result.markdown
+        assert f"| ![Níscalo](image://{HASH}) | 5 |" in result.markdown
+
+    def test_tabla_without_cabecera_emits_empty_header(self):
+        intro = {
+            "CONTENIDO": [
+                {
+                    "tipo": "TABLA",
+                    "tabla": {"FILA": [{"CELDA": [{"#text": "a"}, {"#text": "b"}]}]},
+                }
+            ]
+        }
+        result = map_introduccion(intro, _resolve)
+        lines = result.markdown.splitlines()
+        assert lines[0] == "|  |  |"
+        assert set(lines[1].replace("|", "").replace(" ", "")) == {"-"}
+        assert lines[2] == "| a | b |"
+
+    def test_nota_lands_in_note_not_body(self):
+        intro = {
+            "CONTENIDO": [
+                {"tipo": "PARRAFO", "texto": "Cuerpo."},
+                {"tipo": "NOTA", "texto": "Primera nota."},
+                {"tipo": "NOTA", "texto": "Segunda nota."},
+            ]
+        }
+        result = map_introduccion(intro, _resolve)
+        assert result.markdown == "Cuerpo."
+        assert result.note == "Primera nota.\n\nSegunda nota."
+
+    def test_source_order_preserved(self):
+        intro = {
+            "CONTENIDO": [
+                {"tipo": "IMAGEN", "imagen": {"@attributes": {"src": "imgs/a.jpg"}}},
+                {"tipo": "PARRAFO", "texto": "Uno."},
+                {"tipo": "TITULO", "texto": "Título"},
+                {"tipo": "PARRAFO", "texto": "Dos."},
+            ]
+        }
+        result = map_introduccion(intro, _resolve)
+        assert result.markdown == (
+            f"![](image://{HASH})\n\nUno.\n\n## Título\n\nDos."
+        )
+
+    def test_empty_intro(self):
+        assert map_introduccion(None, _resolve).markdown == ""
+        assert map_introduccion({}, _resolve).markdown == ""
 
 
 class TestRecipeMapping:
@@ -112,12 +183,12 @@ class TestRecipeMapping:
         }
         recipe = map_recipe(legacy, _resolve)
         assert recipe.title == "Tortilla"
-        assert recipe.image == "f" * 64
+        assert recipe.image == HASH
+        assert recipe.introduction == ""
+        assert recipe.preparation == "Paso uno.\n\nPaso dos."
         assert recipe.ingredients.servings == "6"
-        assert recipe.ingredients.groups[0].items == ["Huevos", "Sal"]
+        assert [g.items for g in recipe.ingredients.groups] == [["Huevos", "Sal"], ["Aceite"]]
         assert recipe.ingredients.groups[1].title == "Para el aliño"
-        assert recipe.ingredients.groups[1].items == ["Aceite"]
-        assert [b.spans[0].text for b in recipe.preparation] == ["Paso uno.", "Paso dos."]
         assert recipe.note == "Una nota"
 
     def test_preparacion_single_string(self):
@@ -127,6 +198,78 @@ class TestRecipeMapping:
             "PREPARACION": "Hervir.",
         }
         recipe = map_recipe(legacy, _drop)
-        assert len(recipe.preparation) == 1
-        assert recipe.ingredients.groups[0].items == ["Agua"]
-        assert recipe.image is None
+        assert recipe.preparation == "Hervir."
+        assert recipe.note is None
+
+    def test_incomplete_recipe_missing_sections(self):
+        recipe = map_recipe({"TITULO": "Solo título"}, _drop)
+        assert recipe.title == "Solo título"
+        assert recipe.ingredients.groups == []
+        assert recipe.preparation == ""
+
+    def test_nota_array_joined(self):
+        legacy = {"TITULO": "Con notas", "NOTA": ["Nota uno.", "Nota dos."]}
+        recipe = map_recipe(legacy, _drop)
+        assert recipe.note == "Nota uno.\n\nNota dos."
+
+
+class TestV1Detection:
+    def _write(self, tmp_path, document):
+        path = tmp_path / "libro.json"
+        path.write_text(json.dumps(document, ensure_ascii=False), encoding="utf-8")
+        return path
+
+    def _v1_error(self, tmp_path, document):
+        with pytest.raises(ApiError) as exc:
+            load_document(self._write(tmp_path, document))
+        assert exc.value.code == "legacy_v1_unsupported"
+
+    def test_v1_grouped_intro_keys_rejected(self, tmp_path):
+        self._v1_error(
+            tmp_path,
+            {
+                "RECETARIO": {
+                    "TITULO": "Viejo",
+                    "INTRODUCCION": {"PARRAFO": ["uno", "dos"], "TITULO": "t"},
+                    "CAPITULO": [],
+                }
+            },
+        )
+
+    def test_v1_string_intro_rejected(self, tmp_path):
+        self._v1_error(
+            tmp_path,
+            {"RECETARIO": {"TITULO": "Viejo", "INTRODUCCION": "texto suelto", "CAPITULO": []}},
+        )
+
+    def test_v1_marker_in_chapter_intro_rejected(self, tmp_path):
+        self._v1_error(
+            tmp_path,
+            {
+                "RECETARIO": {
+                    "TITULO": "Viejo",
+                    "CAPITULO": [
+                        {
+                            "@attributes": {"nombre": "Cap"},
+                            "INTRODUCCION": {"IMAGENES": {"IMAGEN": []}},
+                        }
+                    ],
+                }
+            },
+        )
+
+    def test_v2_document_accepted(self, tmp_path):
+        document = {
+            "RECETARIO": {
+                "TITULO": "Nuevo",
+                "INTRODUCCION": {"CONTENIDO": [{"tipo": "PARRAFO", "texto": "Hola"}]},
+                "CAPITULO": [
+                    {
+                        "@attributes": {"nombre": "Cap"},
+                        "INTRODUCCION": {"CONTENIDO": []},
+                    }
+                ],
+            }
+        }
+        recetario = load_document(self._write(tmp_path, document))
+        assert recetario["TITULO"] == "Nuevo"

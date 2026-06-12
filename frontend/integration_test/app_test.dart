@@ -24,7 +24,8 @@ void main() {
     // Home: the Spanish book list is shown without any login step (FR-002).
     expect(find.text('Recetarios de mamá'), findsOneWidget);
 
-    // Create a book through the form (US1 journey).
+    // Create a book through the form (US1 journey). Save lives in the pinned
+    // bottom bar, always visible regardless of the content editor's height.
     await tester.tap(find.text('Añadir libro'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField).first, 'Libro e2e');

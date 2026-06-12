@@ -1,4 +1,4 @@
-"""US9: accent/case-insensitive full-text search with breadcrumbs (FR-036..038)."""
+"""Accent/case-insensitive full-text search with breadcrumbs over markdown content."""
 
 import pytest
 
@@ -12,27 +12,36 @@ def library(client):
         json={"title": "De temporada", "parent_chapter_id": chapter["id"]},
     ).json()
 
-    def recipe(chapter_id, title, ingredient="Sal", preparation="Cocinar.", intro=None):
+    def recipe(chapter_id, title, ingredient="Sal", preparation="Cocinar.", intro="", note=None):
         return client.post(
             f"/chapters/{chapter_id}/recipes",
             json={
                 "title": title,
-                "introduction": []
-                if intro is None
-                else [{"type": "paragraph", "spans": [{"text": intro}]}],
+                "introduction": intro,
                 "ingredients": {
                     "servings": None,
                     "groups": [{"title": None, "items": [ingredient]}],
                 },
-                "preparation": [{"type": "paragraph", "spans": [{"text": preparation}]}],
-                "note": None,
+                "preparation": preparation,
+                "note": note,
             },
         ).json()
 
     r1 = recipe(chapter["id"], "Guiso de champiñón", ingredient="500 g de champiñones")
     r2 = recipe(nested["id"], "Níscalos al ajillo", preparation="Saltear los níscalos.")
     r3 = recipe(nested["id"], "Sopa", intro="Una sopa de invierno con apio.")
-    return {"book": book, "chapter": chapter, "nested": nested, "r1": r1, "r2": r2, "r3": r3}
+    r4 = recipe(
+        chapter["id"], "Croquetas", note="El truco es la nuez moscada de Octubre."
+    )
+    return {
+        "book": book,
+        "chapter": chapter,
+        "nested": nested,
+        "r1": r1,
+        "r2": r2,
+        "r3": r3,
+        "r4": r4,
+    }
 
 
 def _search(client, q):
@@ -52,6 +61,25 @@ def test_matches_ingredients_preparation_and_introduction(client, library):
     assert any(r["recipe_id"] == library["r3"]["id"] for r in _search(client, "apio"))
 
 
+def test_markdown_syntax_is_not_indexed(client, library):
+    recipe = library["r3"]
+    body = {
+        "title": "Sopa",
+        "introduction": "## Otoño\n\nCon **boletus** edulis.",
+        "ingredients": {"servings": None, "groups": [{"title": None, "items": ["Sal"]}]},
+        "preparation": "Cocinar.",
+        "note": None,
+    }
+    client.put(f"/recipes/{recipe['id']}", json=body)
+    assert any(r["recipe_id"] == recipe["id"] for r in _search(client, "boletus"))
+    assert any(r["recipe_id"] == recipe["id"] for r in _search(client, "otono"))
+
+
+def test_note_text_is_searchable(client, library):
+    results = _search(client, "moscada")
+    assert any(r["recipe_id"] == library["r4"]["id"] for r in results)
+
+
 def test_breadcrumb_reflects_nesting(client, library):
     results = _search(client, "niscalos")
     match = next(r for r in results if r["recipe_id"] == library["r2"]["id"])
@@ -63,9 +91,9 @@ def test_index_stays_in_sync_with_updates(client, library):
     recipe = library["r3"]
     body = {
         "title": "Sopa de calabaza",
-        "introduction": [],
+        "introduction": "",
         "ingredients": {"servings": None, "groups": [{"title": None, "items": ["Calabaza"]}]},
-        "preparation": [{"type": "paragraph", "spans": [{"text": "Triturar."}]}],
+        "preparation": "Triturar.",
         "note": None,
     }
     client.put(f"/recipes/{recipe['id']}", json=body)

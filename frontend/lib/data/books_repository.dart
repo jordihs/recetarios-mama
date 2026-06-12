@@ -19,12 +19,14 @@ class BooksRepository {
   Future<BookDetail> create({
     required String title,
     String? coverImage,
-    List<ContentBlock> presentation = const [],
+    String presentation = '',
+    String? note,
   }) async {
     final data = await _api.post('/books', body: {
       'title': title,
       'cover_image': coverImage,
       'presentation': presentation,
+      'note': note,
     });
     return BookDetail.fromJson((data as Map).cast<String, dynamic>());
   }
@@ -33,12 +35,14 @@ class BooksRepository {
     String id, {
     required String title,
     String? coverImage,
-    List<ContentBlock> presentation = const [],
+    String presentation = '',
+    String? note,
   }) async {
     final data = await _api.put('/books/$id', body: {
       'title': title,
       'cover_image': coverImage,
       'presentation': presentation,
+      'note': note,
     });
     return BookDetail.fromJson((data as Map).cast<String, dynamic>());
   }

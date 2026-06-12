@@ -11,21 +11,11 @@ import 'package:recetarios/features/chapters/chapter_list_screen.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
 import 'package:recetarios/widgets/item_card.dart';
 
-List<ContentBlock> _paragraphs(List<String> texts) => [
-      for (final text in texts)
-        {
-          'type': 'paragraph',
-          'spans': [
-            {'text': text}
-          ],
-        },
-    ];
-
 Widget _wrap(
   Widget child, {
   required Map<String?, List<ItemSummary>> chaptersByParent,
-  List<ContentBlock> bookPresentation = const [],
-  List<ContentBlock> chapterPresentation = const [],
+  String bookPresentation = '',
+  String chapterPresentation = '',
 }) {
   return ProviderScope(
     overrides: [
@@ -102,10 +92,8 @@ void main() {
   });
 
   testWidgets('book introduction is shown in full above its chapters', (tester) async {
-    final intro = _paragraphs([
-      'Primer párrafo de la introducción del libro.',
-      'Segundo párrafo completo, sin recortar.',
-    ]);
+    const intro = 'Primer párrafo de la introducción del libro.\n\n'
+        'Segundo párrafo completo, sin recortar.\n';
     await tester.pumpWidget(_wrap(
       const ChapterListScreen(bookId: 'book-1'),
       chaptersByParent: {
@@ -115,8 +103,8 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    expect(find.text('Primer párrafo de la introducción del libro.'), findsOneWidget);
-    expect(find.text('Segundo párrafo completo, sin recortar.'), findsOneWidget);
+    expect(find.textContaining('Primer párrafo de la introducción del libro.'), findsOneWidget);
+    expect(find.textContaining('Segundo párrafo completo, sin recortar.'), findsOneWidget);
     // Edit button for the parent book is available from the full view.
     expect(find.byTooltip('Editar libro'), findsOneWidget);
   });
@@ -125,11 +113,11 @@ void main() {
     await tester.pumpWidget(_wrap(
       const ChapterListScreen(bookId: 'book-1', chapterId: 'c1'),
       chaptersByParent: const {},
-      chapterPresentation: _paragraphs(['Introducción completa del capítulo.']),
+      chapterPresentation: 'Introducción completa del capítulo.',
     ));
     await tester.pumpAndSettle();
 
-    expect(find.text('Introducción completa del capítulo.'), findsOneWidget);
+    expect(find.textContaining('Introducción completa del capítulo.'), findsOneWidget);
     expect(find.byTooltip('Editar capítulo'), findsOneWidget);
   });
 }

@@ -36,26 +36,12 @@ Widget _app(Widget child, {List<ItemSummary>? recipes, Recipe? recipe}) {
 Recipe _recipe() => Recipe(
       id: 'r1',
       title: 'Tortilla',
-      introduction: [
-        {
-          'type': 'paragraph',
-          'spans': [
-            {'text': 'INTRO-TEXT'}
-          ],
-        }
-      ],
+      introduction: 'INTRO-TEXT con **énfasis**.',
       ingredients: IngredientsList(servings: '4', groups: [
         IngredientGroup(items: ['2 huevos']),
         IngredientGroup(title: 'Para el aliño', items: ['Aceite']),
       ]),
-      preparation: [
-        {
-          'type': 'paragraph',
-          'spans': [
-            {'text': 'PREP-TEXT'}
-          ],
-        }
-      ],
+      preparation: 'PREP-TEXT',
       note: 'Una nota',
     );
 

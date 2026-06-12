@@ -1,4 +1,4 @@
-"""US3: recipe list summaries and full detail (read endpoints + reorder)."""
+"""Recipe list summaries and full detail (read endpoints + reorder)."""
 
 import pytest
 
@@ -6,9 +6,7 @@ from recetarios.storage.db import Database
 from recetarios.storage.repository import Repository
 
 RECIPE_BODY = {
-    "introduction": [
-        {"type": "paragraph", "spans": [{"text": "Una receta de la abuela."}]}
-    ],
+    "introduction": "Una receta de la abuela.",
     "ingredients": {
         "servings": "4",
         "groups": [
@@ -16,14 +14,14 @@ RECIPE_BODY = {
             {"title": "Para el aliño", "items": ["Aceite de oliva"]},
         ],
     },
-    "preparation": [{"type": "paragraph", "spans": [{"text": "Batir y freír."}]}],
+    "preparation": "Batir y freír.",
     "note": "Mejor en sartén de hierro.",
 }
 
 
 @pytest.fixture()
 def seed(client, data_dir):
-    """Direct-repository seeding (write API lands in US4)."""
+    """Direct-repository seeding for read-only endpoint tests."""
     db = Database(data_dir)
     repo = Repository(db)
     yield repo
@@ -64,6 +62,17 @@ def test_list_recipes_summaries(client, seed, chapter_id):
     assert "ingredients" not in recipes[0]  # summaries stay light
 
 
+def test_description_derived_from_first_markdown_paragraph(client, seed, chapter_id):
+    _seed_recipe(
+        seed,
+        chapter_id,
+        "Sopa",
+        introduction="## Historia\n\nLa hacía *siempre* en otoño.\n",
+    )
+    recipes = client.get(f"/chapters/{chapter_id}/recipes").json()
+    assert recipes[0]["description"] == "La hacía siempre en otoño."
+
+
 def test_recipe_detail_full_payload(client, seed, chapter_id):
     recipe_id = _seed_recipe(seed, chapter_id)
     response = client.get(f"/recipes/{recipe_id}")
@@ -73,7 +82,8 @@ def test_recipe_detail_full_payload(client, seed, chapter_id):
     assert detail["chapter_id"] == chapter_id
     assert detail["ingredients"]["servings"] == "4"
     assert detail["ingredients"]["groups"][1]["title"] == "Para el aliño"
-    assert detail["preparation"][0]["spans"][0]["text"] == "Batir y freír."
+    assert detail["preparation"] == "Batir y freír."
+    assert detail["introduction"] == "Una receta de la abuela."
     assert detail["note"] == "Mejor en sartén de hierro."
 
 

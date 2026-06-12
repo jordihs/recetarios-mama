@@ -29,12 +29,6 @@ class ItemSummary {
   final int recipeCount;
 }
 
-/// Content block as raw JSON map; rendering/editing interprets `type`.
-typedef ContentBlock = Map<String, dynamic>;
-
-List<ContentBlock> blocksFromJson(dynamic json) =>
-    (json as List? ?? const []).map((e) => (e as Map).cast<String, dynamic>()).toList();
-
 class IngredientGroup {
   IngredientGroup({this.title, List<String>? items}) : items = items ?? [];
 
@@ -81,19 +75,19 @@ class Recipe {
         id: json['id'] as String,
         title: json['title'] as String,
         image: json['image'] as String?,
-        introduction: blocksFromJson(json['introduction']),
+        introduction: json['introduction'] as String? ?? '',
         ingredients:
             IngredientsList.fromJson((json['ingredients'] as Map).cast<String, dynamic>()),
-        preparation: blocksFromJson(json['preparation']),
+        preparation: json['preparation'] as String? ?? '',
         note: json['note'] as String?,
       );
 
   final String id;
   String title;
   String? image;
-  List<ContentBlock> introduction;
+  String introduction;
   IngredientsList ingredients;
-  List<ContentBlock> preparation;
+  String preparation;
   String? note;
 
   Map<String, dynamic> toJson() => {
@@ -107,19 +101,27 @@ class Recipe {
 }
 
 class BookDetail {
-  BookDetail({required this.id, required this.title, this.coverImage, required this.presentation});
+  BookDetail({
+    required this.id,
+    required this.title,
+    this.coverImage,
+    required this.presentation,
+    this.note,
+  });
 
   factory BookDetail.fromJson(Map<String, dynamic> json) => BookDetail(
         id: json['id'] as String,
         title: json['title'] as String,
         coverImage: json['cover_image'] as String?,
-        presentation: blocksFromJson(json['presentation']),
+        presentation: json['presentation'] as String? ?? '',
+        note: json['note'] as String?,
       );
 
   final String id;
   String title;
   String? coverImage;
-  List<ContentBlock> presentation;
+  String presentation;
+  String? note;
 }
 
 class ChapterDetail {
@@ -130,6 +132,7 @@ class ChapterDetail {
     required this.title,
     this.coverImage,
     required this.presentation,
+    this.note,
   });
 
   factory ChapterDetail.fromJson(Map<String, dynamic> json) => ChapterDetail(
@@ -138,7 +141,8 @@ class ChapterDetail {
         parentChapterId: json['parent_chapter_id'] as String?,
         title: json['title'] as String,
         coverImage: json['cover_image'] as String?,
-        presentation: blocksFromJson(json['presentation']),
+        presentation: json['presentation'] as String? ?? '',
+        note: json['note'] as String?,
       );
 
   final String id;
@@ -146,7 +150,8 @@ class ChapterDetail {
   final String? parentChapterId;
   String title;
   String? coverImage;
-  List<ContentBlock> presentation;
+  String presentation;
+  String? note;
 }
 
 class SearchResult {

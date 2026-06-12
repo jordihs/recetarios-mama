@@ -10,7 +10,7 @@ import 'package:recetarios/features/recipes/recipe_actions.dart';
 import 'package:recetarios/features/recipes/recipe_edit_form.dart';
 import 'package:recetarios/features/recipes/recipe_list_section.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
-import 'package:recetarios/widgets/block_renderer.dart';
+import 'package:recetarios/widgets/markdown_view.dart';
 
 final recipeDetailProvider = FutureProvider.family<Recipe, String>(
   (ref, id) => ref.watch(recipesRepositoryProvider).get(id),
@@ -197,7 +197,7 @@ class RecipeContentView extends ConsumerWidget {
                   ),
                 if (recipe.introduction.isNotEmpty) ...[
                   const SizedBox(height: 16),
-                  BlockRenderer(blocks: recipe.introduction, api: api),
+                  MarkdownView(markdown: recipe.introduction, api: api),
                 ],
                 const SizedBox(height: 16),
                 Text(l10n.ingredients, style: theme.textTheme.titleLarge),
@@ -239,7 +239,7 @@ class RecipeContentView extends ConsumerWidget {
                 const SizedBox(height: 16),
                 Text(l10n.preparation, style: theme.textTheme.titleLarge),
                 const SizedBox(height: 8),
-                BlockRenderer(blocks: recipe.preparation, api: api),
+                MarkdownView(markdown: recipe.preparation, api: api),
                 if (recipe.note != null && recipe.note!.isNotEmpty) ...[
                   const SizedBox(height: 16),
                   Card(

@@ -1,25 +1,13 @@
-"""Domain services for books/chapters/recipes. Books for US1."""
+"""Domain services for books/chapters/recipes."""
 
 import json
 from sqlite3 import Row
 
-from pydantic import TypeAdapter
-
 from recetarios.api.errors import ApiError, NotFoundError
-from recetarios.models.blocks import (
-    ContentBlock,
-    first_paragraph_text,
-    referenced_image_hashes,
-)
 from recetarios.models.entities import BookInput, ChapterInput, RecipeInput
+from recetarios.models.markdown import first_paragraph, referenced_images
 from recetarios.storage.images import ImageStore
 from recetarios.storage.repository import Repository
-
-_blocks_adapter = TypeAdapter(list[ContentBlock])
-
-
-def parse_blocks(raw: str) -> list[ContentBlock]:
-    return _blocks_adapter.validate_python(json.loads(raw))
 
 
 class LibraryService:
@@ -41,7 +29,7 @@ class LibraryService:
     def create_book(self, data: BookInput) -> dict:
         self._check_image_refs(data.cover_image, data.presentation)
         book_id = self.repo.create_book(
-            data.title, data.cover_image, _dump_blocks(data.presentation)
+            data.title, data.cover_image, data.presentation, data.note
         )
         return self.get_book(book_id)
 
@@ -50,7 +38,7 @@ class LibraryService:
             raise NotFoundError("book_not_found")
         self._check_image_refs(data.cover_image, data.presentation)
         self.repo.update_book(
-            book_id, data.title, data.cover_image, _dump_blocks(data.presentation)
+            book_id, data.title, data.cover_image, data.presentation, data.note
         )
         return self.get_book(book_id)
 
@@ -90,7 +78,8 @@ class LibraryService:
             data.parent_chapter_id,
             data.title,
             data.cover_image,
-            _dump_blocks(data.presentation),
+            data.presentation,
+            data.note,
         )
         return self.get_chapter(chapter_id)
 
@@ -105,7 +94,8 @@ class LibraryService:
             data.parent_chapter_id,
             data.title,
             data.cover_image,
-            _dump_blocks(data.presentation),
+            data.presentation,
+            data.note,
         )
         return self.get_chapter(chapter_id)
 
@@ -142,7 +132,7 @@ class LibraryService:
             "id": row["id"],
             "title": row["title"],
             "cover_image": row["cover_image"],
-            "description": first_paragraph_text(parse_blocks(row["presentation"])),
+            "description": first_paragraph(row["presentation"]),
             "has_subchapters": self.repo.chapter_has_subchapters(row["id"]),
             "recipe_count": self.repo.chapter_recipe_count(row["id"]),
         }
@@ -154,7 +144,8 @@ class LibraryService:
             "parent_chapter_id": row["parent_chapter_id"],
             "title": row["title"],
             "cover_image": row["cover_image"],
-            "presentation": json.loads(row["presentation"]),
+            "presentation": row["presentation"],
+            "note": row["note"],
             "position": row["position"],
             "created_at": row["created_at"],
             "updated_at": row["updated_at"],
@@ -186,9 +177,9 @@ class LibraryService:
             chapter_id,
             data.title,
             data.image,
-            _dump_blocks(data.introduction),
+            data.introduction,
             data.ingredients.model_dump(),
-            _dump_blocks(data.preparation),
+            data.preparation,
             data.note,
         )
         return self.get_recipe(recipe_id)
@@ -201,9 +192,9 @@ class LibraryService:
             recipe_id,
             data.title,
             data.image,
-            _dump_blocks(data.introduction),
+            data.introduction,
             data.ingredients.model_dump(),
-            _dump_blocks(data.preparation),
+            data.preparation,
             data.note,
         )
         return self.get_recipe(recipe_id)
@@ -223,7 +214,7 @@ class LibraryService:
             "id": row["id"],
             "title": row["title"],
             "image": row["image"],
-            "description": first_paragraph_text(parse_blocks(row["introduction"])),
+            "description": first_paragraph(row["introduction"]),
         }
 
     def _recipe_detail(self, row: Row) -> dict:
@@ -232,9 +223,9 @@ class LibraryService:
             "chapter_id": row["chapter_id"],
             "title": row["title"],
             "image": row["image"],
-            "introduction": json.loads(row["introduction"]),
+            "introduction": row["introduction"],
             "ingredients": json.loads(row["ingredients"]),
-            "preparation": json.loads(row["preparation"]),
+            "preparation": row["preparation"],
             "note": row["note"],
             "position": row["position"],
             "created_at": row["created_at"],
@@ -243,8 +234,8 @@ class LibraryService:
 
     # ---------------------------------------------------------------- helpers
 
-    def _check_image_refs(self, cover: str | None, blocks: list[ContentBlock]) -> None:
-        refs = referenced_image_hashes(blocks)
+    def _check_image_refs(self, cover: str | None, markdown: str) -> None:
+        refs = referenced_images(markdown)
         if cover:
             refs.add(cover)
         for ref in refs:
@@ -256,7 +247,7 @@ class LibraryService:
             "id": row["id"],
             "title": row["title"],
             "cover_image": row["cover_image"],
-            "description": first_paragraph_text(parse_blocks(row["presentation"])),
+            "description": first_paragraph(row["presentation"]),
         }
 
     def _book_detail(self, row: Row) -> dict:
@@ -264,12 +255,9 @@ class LibraryService:
             "id": row["id"],
             "title": row["title"],
             "cover_image": row["cover_image"],
-            "presentation": json.loads(row["presentation"]),
+            "presentation": row["presentation"],
+            "note": row["note"],
             "position": row["position"],
             "created_at": row["created_at"],
             "updated_at": row["updated_at"],
         }
-
-
-def _dump_blocks(blocks: list[ContentBlock]) -> list[dict]:
-    return [block.model_dump() for block in blocks]

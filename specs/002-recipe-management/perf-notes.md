@@ -19,3 +19,16 @@ The recipe list payload is summaries-only (`id`, `title`, `image`, `description`
 
 - Search uses SQLite FTS5 (`unicode61 remove_diacritics 2`) with bm25 ranking; index updated synchronously on recipe writes and rebuilt after archive restore.
 - Book PDF generation runs as a background job with polling, so the UI stays responsive regardless of book size.
+
+## Feature 003 re-validation (markdown content model)
+
+**Date**: 2026-06-12 | Same hardware and method, re-run after the blocks→markdown storage swap (schema v2, ordered v2 legacy import, markdown→FTS extraction, markdown→flowables PDF pipeline).
+
+| Success criterion | Target | Measured | Verdict |
+|---|---|---|---|
+| SC-011 full-text search | < 1 s | **6 ms** over 561 real recipes | PASS |
+| SC-005 whole-book PDF | < 2 min | **4.3 s** for the largest real book (3.3 MB PDF) | PASS |
+| SC-006 single recipe PDF (backend share) | < 15 s | **6 ms** | PASS |
+| (context) v2 legacy import of all 3 books, 561 recipes, incl. image fallback pass | — | 1.4 s | — |
+
+Markdown parsing (markdown-it-py) adds no measurable cost at this scale; targets unchanged from feature 002.

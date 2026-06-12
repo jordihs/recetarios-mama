@@ -7,7 +7,7 @@ import 'package:recetarios/data/models.dart';
 import 'package:recetarios/features/books/book_form_screen.dart' show imagesTypeGroup;
 import 'package:recetarios/features/recipes/ingredients_editor.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
-import 'package:recetarios/widgets/block_editor/block_list_editor.dart';
+import 'package:recetarios/widgets/markdown_editor.dart';
 
 /// Edit-mode form (FR-017/019): every element of the recipe is editable with
 /// section-appropriate editors. Mutates [draft] in place; [onChanged] marks
@@ -69,13 +69,29 @@ class RecipeEditForm extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(l10n.introduction, style: theme.textTheme.titleLarge),
-                BlockListEditor(blocks: draft.introduction, api: api, onChanged: onChanged),
+                const SizedBox(height: 4),
+                MarkdownEditor(
+                  initialMarkdown: draft.introduction,
+                  api: api,
+                  onChanged: (value) {
+                    draft.introduction = value;
+                    onChanged();
+                  },
+                ),
                 const SizedBox(height: 16),
                 Text(l10n.ingredients, style: theme.textTheme.titleLarge),
                 IngredientsEditor(value: draft.ingredients, onChanged: onChanged),
                 const SizedBox(height: 16),
                 Text(l10n.preparation, style: theme.textTheme.titleLarge),
-                BlockListEditor(blocks: draft.preparation, api: api, onChanged: onChanged),
+                const SizedBox(height: 4),
+                MarkdownEditor(
+                  initialMarkdown: draft.preparation,
+                  api: api,
+                  onChanged: (value) {
+                    draft.preparation = value;
+                    onChanged();
+                  },
+                ),
                 const SizedBox(height: 16),
                 TextFormField(
                   initialValue: draft.note ?? '',

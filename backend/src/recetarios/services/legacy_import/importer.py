@@ -9,9 +9,10 @@ leaving the library unchanged.
 from pathlib import Path
 
 from recetarios.api.errors import ApiError
+from recetarios.models.markdown import referenced_images_ordered
 from recetarios.services.legacy_import.mapper import map_introduccion, map_recipe
 from recetarios.services.legacy_import.parser import as_list, clean_text, load_document
-from recetarios.services.library import LibraryService, _dump_blocks
+from recetarios.services.library import LibraryService
 from recetarios.storage.images import ImageStore, ImageStoreError
 from recetarios.storage.repository import Repository
 
@@ -85,20 +86,21 @@ class LegacyImporter:
 
         resolver = _ImageResolver(source.parent, self.images)
         counters = {"chapters": 0, "recipes": 0}
-        book_id = self.repo.create_book(
-            title, None, _dump_blocks(map_introduccion(document.get("INTRODUCCION"), resolver))
-        )
+        intro = map_introduccion(document.get("INTRODUCCION"), resolver)
+        book_id = self.repo.create_book(title, None, intro.markdown, intro.note)
         try:
             self._import_chapters(book_id, None, document.get("CAPITULO"), resolver, counters)
             root_recipes = as_list(document.get("RECETA"))
             if root_recipes:
-                chapter_id = self.repo.create_chapter(book_id, None, title, None, [])
+                chapter_id = self.repo.create_chapter(book_id, None, title, None, "", None)
                 counters["chapters"] += 1
                 self._import_recipes(chapter_id, root_recipes, resolver, counters)
         except Exception:
             # FR-026: never leave a half-imported book behind.
             self.repo.delete_book(book_id)
             raise
+
+        self._assign_fallback_images(book_id)
 
         return {
             "book_id": book_id,
@@ -113,9 +115,9 @@ class LegacyImporter:
     def _import_chapters(self, book_id, parent_id, chapters, resolver, counters) -> None:
         for chapter in as_list(chapters):
             name = clean_text((chapter.get("@attributes") or {}).get("nombre")) or "(capítulo)"
-            presentation = map_introduccion(chapter.get("INTRODUCCION"), resolver)
+            intro = map_introduccion(chapter.get("INTRODUCCION"), resolver)
             chapter_id = self.repo.create_chapter(
-                book_id, parent_id, name, None, _dump_blocks(presentation)
+                book_id, parent_id, name, None, intro.markdown, intro.note
             )
             counters["chapters"] += 1
             self._import_recipes(chapter_id, as_list(chapter.get("RECETA")), resolver, counters)
@@ -128,12 +130,64 @@ class LegacyImporter:
                 chapter_id,
                 recipe.title,
                 recipe.image,
-                _dump_blocks(recipe.introduction),
+                recipe.introduction,
                 recipe.ingredients.model_dump(),
-                _dump_blocks(recipe.preparation),
+                recipe.preparation,
                 recipe.note,
             )
             counters["recipes"] += 1
+
+    # ------------------------------------------------------ image fallback
+
+    def _assign_fallback_images(self, book_id: str) -> None:
+        """Imageless books/chapters inherit the first subtree image (FR-016..019).
+
+        Depth-first, document order: own content → recipes (cover, then
+        content) → subchapters. Recipes are never assigned. Runs over
+        already-resolved `image://` refs, so every hash is valid.
+        """
+        first_by_chapter: dict[str, str | None] = {}
+
+        def chapter_first_image(chapter_row) -> str | None:
+            own = referenced_images_ordered(chapter_row["presentation"])
+            if own:
+                return own[0]
+            for recipe in self.repo.list_recipes(chapter_row["id"]):
+                if recipe["image"]:
+                    return recipe["image"]
+                content = referenced_images_ordered(
+                    recipe["introduction"]
+                ) + referenced_images_ordered(recipe["preparation"])
+                if content:
+                    return content[0]
+            for sub in self.repo.list_chapters(book_id, chapter_row["id"]):
+                found = first_by_chapter[sub["id"]]
+                if found:
+                    return found
+            return None
+
+        def assign(parent_id: str | None) -> None:
+            for chapter in self.repo.list_chapters(book_id, parent_id):
+                assign(chapter["id"])  # children first: parents look them up
+                first = chapter_first_image(chapter)
+                first_by_chapter[chapter["id"]] = first
+                if first and not chapter["cover_image"]:
+                    self.repo.set_chapter_cover(chapter["id"], first)
+
+        assign(None)
+
+        book = self.repo.get_book(book_id)
+        if book["cover_image"]:
+            return
+        own = referenced_images_ordered(book["presentation"])
+        first = own[0] if own else None
+        if first is None:
+            for chapter in self.repo.list_chapters(book_id, None):
+                first = first_by_chapter.get(chapter["id"])
+                if first:
+                    break
+        if first:
+            self.repo.set_book_cover(book_id, first)
 
 
 def validate_on_collision(value: str) -> str:

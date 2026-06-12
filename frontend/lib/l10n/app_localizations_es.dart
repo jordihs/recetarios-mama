@@ -243,37 +243,35 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get additionalContent => 'Contenido de presentación adicional';
+  String get content => 'Contenido';
 
   @override
-  String get addParagraph => 'Añadir párrafo';
+  String get editorBold => 'Negrita';
 
   @override
-  String get addHeading => 'Añadir título';
+  String get editorItalic => 'Cursiva';
 
   @override
-  String get addImage => 'Añadir imagen';
+  String get editorH2 => 'Título de sección';
 
   @override
-  String get addImageGroup => 'Añadir grupo de imágenes';
+  String get editorH3 => 'Subtítulo';
 
   @override
-  String get addTable => 'Añadir tabla';
+  String get editorBulletedList => 'Lista';
 
   @override
-  String get caption => 'Pie de foto';
+  String get editorInsertTable => 'Insertar tabla';
 
   @override
-  String get placementRight => 'A la derecha del texto';
+  String get editorInsertImage => 'Insertar imagen';
 
   @override
-  String get placementBlock => 'En bloque';
+  String get editorSource => 'Fuente';
 
   @override
-  String get layoutGrid => 'Cuadrícula';
-
-  @override
-  String get layoutRow => 'Fila';
+  String get editorSourceOnly =>
+      'Este contenido contiene estructuras que solo se pueden editar en modo fuente.';
 
   @override
   String get addGroup => 'Añadir grupo';
@@ -288,13 +286,25 @@ class AppLocalizationsEs extends AppLocalizations {
   String get servingsLabel => 'Personas (opcional)';
 
   @override
-  String get addRow => 'Añadir fila';
+  String get libraryLegacyTitle => 'Biblioteca de una versión anterior';
 
   @override
-  String get addColumn => 'Añadir columna';
+  String get libraryLegacyBody =>
+      'Esta biblioteca se creó con una versión anterior de la aplicación y ya no se puede abrir. Para continuar es necesario reiniciarla: se vaciará la biblioteca (las imágenes se conservan) y podrás volver a importar tus recetarios actualizados.';
 
   @override
-  String get tableTitle => 'Título de la tabla (opcional)';
+  String get libraryLegacyResetButton => 'Reiniciar biblioteca';
+
+  @override
+  String get libraryResetConfirmTitle => '¿Reiniciar la biblioteca?';
+
+  @override
+  String get libraryResetConfirmBody =>
+      'Se eliminarán todos los libros, capítulos y recetas. Esta acción no se puede deshacer. ¿Continuar?';
+
+  @override
+  String get libraryResetDone =>
+      'Biblioteca reiniciada. Ya puedes importar tus recetarios.';
 
   @override
   String get errorTitle => 'Error';

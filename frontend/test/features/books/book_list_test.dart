@@ -75,10 +75,48 @@ void main() {
     expect(find.textContaining('Todavía no hay libros'), findsOneWidget);
   });
 
+  testWidgets('imageless card shows at least double the description lines',
+      (tester) async {
+    final longDescription = 'Una descripción larguísima que sigue y sigue. ' * 20;
+    await tester.pumpWidget(_wrap(
+      const BookListScreen(),
+      books: [
+        ItemSummary(
+          id: 'b1',
+          title: 'Con imagen',
+          description: longDescription,
+          image: 'a' * 64,
+        ),
+        ItemSummary(id: 'b2', title: 'Sin imagen', description: longDescription),
+      ],
+    ));
+    await tester.pumpAndSettle();
+
+    int descriptionMaxLines(String title) {
+      final card = find.ancestor(
+        of: find.text(title),
+        matching: find.byType(ItemCard),
+      );
+      final text = tester
+          .widgetList<Text>(
+              find.descendant(of: card, matching: find.byType(Text)))
+          .firstWhere((t) => (t.data ?? '').startsWith('Una descripción'));
+      return text.maxLines!;
+    }
+
+    final withImage = descriptionMaxLines('Con imagen');
+    final imageless = descriptionMaxLines('Sin imagen');
+    expect(imageless, greaterThanOrEqualTo(2 * withImage),
+        reason: 'imageless: $imageless, with image: $withImage');
+    // With-image layout unchanged from feature 002.
+    expect(withImage, 4);
+  });
+
   testWidgets('book form requires a title', (tester) async {
     await tester.pumpWidget(_wrap(const BookFormScreen()));
     await tester.pumpAndSettle();
 
+    // Save lives in the pinned bottom bar — visible without scrolling.
     await tester.tap(find.text('Guardar'));
     await tester.pumpAndSettle();
 

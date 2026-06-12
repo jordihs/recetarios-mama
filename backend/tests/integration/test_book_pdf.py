@@ -22,18 +22,14 @@ def library(client, tmp_path):
         json={
             "title": "Recetas de prueba",
             "cover_image": image,
-            "presentation": [
-                {"type": "paragraph", "spans": [{"text": "Las recetas de la familia."}]}
-            ],
+            "presentation": "Las recetas de la familia.",
         },
     ).json()
     chapter1 = client.post(
         f"/books/{book['id']}/chapters",
         json={
             "title": "Entrantes",
-            "presentation": [
-                {"type": "paragraph", "spans": [{"text": "Para abrir el apetito."}]}
-            ],
+            "presentation": "Para abrir el apetito.",
         },
     ).json()
     sub = client.post(
@@ -47,16 +43,12 @@ def library(client, tmp_path):
             json={
                 "title": title,
                 "image": image if with_image else None,
-                "introduction": [
-                    {"type": "paragraph", "spans": [{"text": f"Introducción de {title}."}]}
-                ],
+                "introduction": f"Introducción de {title}.",
                 "ingredients": {
                     "servings": "4",
                     "groups": [{"title": None, "items": ["Ingrediente uno", "Dos"]}],
                 },
-                "preparation": [
-                    {"type": "paragraph", "spans": [{"text": f"Preparación de {title}."}]}
-                ],
+                "preparation": f"Preparación de {title}.",
                 "note": None,
             },
         )

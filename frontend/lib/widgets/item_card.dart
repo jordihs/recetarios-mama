@@ -74,12 +74,29 @@ class ItemCard extends StatelessWidget {
                     if (description.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Expanded(
-                        child: Text(
-                          description,
-                          style: theme.textTheme.bodySmall,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 4,
-                        ),
+                        child: imageUrl != null
+                            ? Text(
+                                description,
+                                style: theme.textTheme.bodySmall,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 4,
+                              )
+                            // No image: the description gets the image's
+                            // space — as many lines as actually fit (FR-020).
+                            : LayoutBuilder(builder: (context, constraints) {
+                                final style = theme.textTheme.bodySmall;
+                                final lineHeight = (style?.fontSize ?? 12) *
+                                    (style?.height ?? 1.4);
+                                final lines = (constraints.maxHeight / lineHeight)
+                                    .floor()
+                                    .clamp(4, 40);
+                                return Text(
+                                  description,
+                                  style: style,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: lines,
+                                );
+                              }),
                       ),
                     ],
                   ],

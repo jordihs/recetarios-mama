@@ -9,23 +9,16 @@ import 'package:recetarios/data/models.dart';
 import 'package:recetarios/features/recipes/ingredients_editor.dart';
 import 'package:recetarios/features/recipes/recipe_view_screen.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
-import 'package:recetarios/widgets/block_editor/block_list_editor.dart';
+import 'package:recetarios/widgets/markdown_editor.dart';
 
 Recipe _recipe() => Recipe(
       id: 'r1',
       title: 'Tortilla',
-      introduction: [],
+      introduction: '',
       ingredients: IngredientsList(groups: [
         IngredientGroup(items: ['Huevos'])
       ]),
-      preparation: [
-        {
-          'type': 'paragraph',
-          'spans': [
-            {'text': 'Freír.'}
-          ],
-        }
-      ],
+      preparation: 'Freír.',
     );
 
 Widget _app(Widget child, {Recipe? recipe}) {
@@ -86,32 +79,23 @@ void main() {
     expect(find.text('Cambiada'), findsNothing);
   });
 
-  testWidgets('block editor adds and removes paragraph blocks', (tester) async {
-    final blocks = <ContentBlock>[];
-    var changed = 0;
-    await tester.pumpWidget(_app(Scaffold(
-      body: SingleChildScrollView(
-        child: BlockListEditor(
-          blocks: blocks,
-          api: ApiClient('http://127.0.0.1:9'),
-          onChanged: () => changed++,
-        ),
-      ),
-    )));
+  testWidgets('edit mode uses one rich editor per section', (tester) async {
+    final recipe = _recipe();
+    await tester.pumpWidget(_app(const RecipeViewScreen(recipeId: 'r1'), recipe: recipe));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Añadir párrafo'));
+    await tester.tap(find.byTooltip('Editar'));
     await tester.pumpAndSettle();
-    expect(blocks.length, 1);
-    expect(blocks.first['type'], 'paragraph');
-    expect(changed, greaterThan(0));
 
-    await tester.enterText(find.byType(TextField).first, 'Hola');
-    expect((blocks.first['spans'] as List).first['text'], 'Hola');
+    // Per-paragraph controls are gone (FR-008): one document editor per
+    // section (introduction + preparation), WYSIWYG by default.
+    expect(find.text('Añadir párrafo'), findsNothing);
+    expect(find.byType(MarkdownEditor), findsNWidgets(2));
+    expect(find.textContaining('Freír', findRichText: true), findsWidgets);
 
-    await tester.tap(find.byTooltip('Eliminar'));
-    await tester.pumpAndSettle();
-    expect(blocks, isEmpty);
+    // Save/discard wiring survives the editor swap.
+    expect(find.text('Guardar'), findsOneWidget);
+    expect(find.text('Descartar cambios'), findsOneWidget);
   });
 
   testWidgets('ingredients editor adds groups and items', (tester) async {

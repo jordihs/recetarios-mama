@@ -24,13 +24,15 @@ class ChaptersRepository {
     required String title,
     String? parentChapterId,
     String? coverImage,
-    List<ContentBlock> presentation = const [],
+    String presentation = '',
+    String? note,
   }) async {
     final data = await _api.post('/books/$bookId/chapters', body: {
       'title': title,
       'parent_chapter_id': parentChapterId,
       'cover_image': coverImage,
       'presentation': presentation,
+      'note': note,
     });
     return ChapterDetail.fromJson((data as Map).cast<String, dynamic>());
   }
@@ -40,13 +42,15 @@ class ChaptersRepository {
     required String title,
     String? parentChapterId,
     String? coverImage,
-    List<ContentBlock> presentation = const [],
+    String presentation = '',
+    String? note,
   }) async {
     final data = await _api.put('/chapters/$id', body: {
       'title': title,
       'parent_chapter_id': parentChapterId,
       'cover_image': coverImage,
       'presentation': presentation,
+      'note': note,
     });
     return ChapterDetail.fromJson((data as Map).cast<String, dynamic>());
   }

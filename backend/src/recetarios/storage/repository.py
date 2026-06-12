@@ -5,19 +5,8 @@ import uuid
 from datetime import UTC, datetime
 from sqlite3 import Row
 
-from pydantic import TypeAdapter, ValidationError
-
-from recetarios.models.blocks import ContentBlock, blocks_plain_text
+from recetarios.models.markdown import plain_text
 from recetarios.storage.db import Database
-
-_blocks_adapter = TypeAdapter(list[ContentBlock])
-
-
-def _plain(blocks_json: str) -> str:
-    try:
-        return blocks_plain_text(_blocks_adapter.validate_python(json.loads(blocks_json)))
-    except (ValidationError, ValueError):
-        return ""
 
 
 def _ingredients_plain(ingredients_json: str) -> str:
@@ -55,7 +44,11 @@ class Repository:
         return self.conn.execute("SELECT * FROM books WHERE id = ?", (book_id,)).fetchone()
 
     def create_book(
-        self, title: str, cover_image: str | None, presentation: list[dict]
+        self,
+        title: str,
+        cover_image: str | None,
+        presentation: str,
+        note: str | None,
     ) -> str:
         book_id = _new_id()
         now = _now()
@@ -63,20 +56,31 @@ class Repository:
             "SELECT COALESCE(MAX(position) + 1, 0) FROM books"
         ).fetchone()[0]
         self.conn.execute(
-            "INSERT INTO books(id, title, cover_image, presentation, position,"
-            " created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (book_id, title, cover_image, json.dumps(presentation), position, now, now),
+            "INSERT INTO books(id, title, cover_image, presentation, note, position,"
+            " created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (book_id, title, cover_image, presentation, note, position, now, now),
         )
         self.conn.commit()
         return book_id
 
     def update_book(
-        self, book_id: str, title: str, cover_image: str | None, presentation: list[dict]
+        self,
+        book_id: str,
+        title: str,
+        cover_image: str | None,
+        presentation: str,
+        note: str | None,
     ) -> None:
         self.conn.execute(
-            "UPDATE books SET title = ?, cover_image = ?, presentation = ?, updated_at = ?"
-            " WHERE id = ?",
-            (title, cover_image, json.dumps(presentation), _now(), book_id),
+            "UPDATE books SET title = ?, cover_image = ?, presentation = ?, note = ?,"
+            " updated_at = ? WHERE id = ?",
+            (title, cover_image, presentation, note, _now(), book_id),
+        )
+        self.conn.commit()
+
+    def set_book_cover(self, book_id: str, cover_image: str) -> None:
+        self.conn.execute(
+            "UPDATE books SET cover_image = ? WHERE id = ?", (cover_image, book_id)
         )
         self.conn.commit()
 
@@ -133,7 +137,8 @@ class Repository:
         parent_chapter_id: str | None,
         title: str,
         cover_image: str | None,
-        presentation: list[dict],
+        presentation: str,
+        note: str | None,
     ) -> str:
         chapter_id = _new_id()
         now = _now()
@@ -144,15 +149,16 @@ class Repository:
         ).fetchone()[0]
         self.conn.execute(
             "INSERT INTO chapters(id, book_id, parent_chapter_id, title, cover_image,"
-            " presentation, position, created_at, updated_at)"
-            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            " presentation, note, position, created_at, updated_at)"
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 chapter_id,
                 book_id,
                 parent_chapter_id,
                 title,
                 cover_image,
-                json.dumps(presentation),
+                presentation,
+                note,
                 position,
                 now,
                 now,
@@ -167,19 +173,27 @@ class Repository:
         parent_chapter_id: str | None,
         title: str,
         cover_image: str | None,
-        presentation: list[dict],
+        presentation: str,
+        note: str | None,
     ) -> None:
         self.conn.execute(
             "UPDATE chapters SET parent_chapter_id = ?, title = ?, cover_image = ?,"
-            " presentation = ?, updated_at = ? WHERE id = ?",
+            " presentation = ?, note = ?, updated_at = ? WHERE id = ?",
             (
                 parent_chapter_id,
                 title,
                 cover_image,
-                json.dumps(presentation),
+                presentation,
+                note,
                 _now(),
                 chapter_id,
             ),
+        )
+        self.conn.commit()
+
+    def set_chapter_cover(self, chapter_id: str, cover_image: str) -> None:
+        self.conn.execute(
+            "UPDATE chapters SET cover_image = ? WHERE id = ?", (cover_image, chapter_id)
         )
         self.conn.commit()
 
@@ -218,9 +232,9 @@ class Repository:
         chapter_id: str,
         title: str,
         image: str | None,
-        introduction: list[dict],
+        introduction: str,
         ingredients: dict,
-        preparation: list[dict],
+        preparation: str,
         note: str | None,
     ) -> str:
         recipe_id = _new_id()
@@ -238,9 +252,9 @@ class Repository:
                 chapter_id,
                 title,
                 image,
-                json.dumps(introduction),
+                introduction,
                 json.dumps(ingredients),
-                json.dumps(preparation),
+                preparation,
                 note,
                 position,
                 now,
@@ -248,8 +262,7 @@ class Repository:
             ),
         )
         self._fts_upsert(
-            recipe_id, title, json.dumps(introduction), json.dumps(ingredients),
-            json.dumps(preparation),
+            recipe_id, title, introduction, json.dumps(ingredients), preparation, note
         )
         self.conn.commit()
         return recipe_id
@@ -259,9 +272,9 @@ class Repository:
         recipe_id: str,
         title: str,
         image: str | None,
-        introduction: list[dict],
+        introduction: str,
         ingredients: dict,
-        preparation: list[dict],
+        preparation: str,
         note: str | None,
     ) -> None:
         self.conn.execute(
@@ -270,17 +283,16 @@ class Repository:
             (
                 title,
                 image,
-                json.dumps(introduction),
+                introduction,
                 json.dumps(ingredients),
-                json.dumps(preparation),
+                preparation,
                 note,
                 _now(),
                 recipe_id,
             ),
         )
         self._fts_upsert(
-            recipe_id, title, json.dumps(introduction), json.dumps(ingredients),
-            json.dumps(preparation),
+            recipe_id, title, introduction, json.dumps(ingredients), preparation, note
         )
         self.conn.commit()
 
@@ -308,8 +320,18 @@ class Repository:
     # ----------------------------------------------------------------- search
 
     def _fts_upsert(
-        self, recipe_id: str, title: str, introduction: str, ingredients: str, preparation: str
+        self,
+        recipe_id: str,
+        title: str,
+        introduction: str,
+        ingredients: str,
+        preparation: str,
+        note: str | None,
     ) -> None:
+        # The note is searchable too; it rides on the introduction column.
+        introduction_text = plain_text(introduction)
+        if note:
+            introduction_text = f"{introduction_text}\n{note}".strip()
         self.conn.execute("DELETE FROM recipe_fts WHERE recipe_id = ?", (recipe_id,))
         self.conn.execute(
             "INSERT INTO recipe_fts(recipe_id, title, ingredients, preparation, introduction)"
@@ -318,8 +340,8 @@ class Repository:
                 recipe_id,
                 title,
                 _ingredients_plain(ingredients),
-                _plain(preparation),
-                _plain(introduction),
+                plain_text(preparation),
+                introduction_text,
             ),
         )
 
@@ -330,11 +352,11 @@ class Repository:
         """Full index rebuild — used after archive restore and bulk imports."""
         self.conn.execute("DELETE FROM recipe_fts")
         for row in self.conn.execute(
-            "SELECT id, title, introduction, ingredients, preparation FROM recipes"
+            "SELECT id, title, introduction, ingredients, preparation, note FROM recipes"
         ).fetchall():
             self._fts_upsert(
                 row["id"], row["title"], row["introduction"], row["ingredients"],
-                row["preparation"],
+                row["preparation"], row["note"],
             )
         self.conn.commit()
 

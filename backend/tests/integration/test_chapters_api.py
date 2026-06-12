@@ -1,4 +1,4 @@
-"""US2: nested chapters CRUD, reorder, cycle prevention, cascade delete."""
+"""Nested chapters CRUD, reorder, note round-trip, cycle prevention, cascade delete."""
 
 import pytest
 
@@ -8,13 +8,16 @@ def book_id(client):
     return client.post("/books", json={"title": "Libro"}).json()["id"]
 
 
-def _make_chapter(client, book_id, title, parent=None, description=None):
-    presentation = []
-    if description is not None:
-        presentation.append({"type": "paragraph", "spans": [{"text": description}]})
+def _make_chapter(client, book_id, title, parent=None, description=None, note=None):
+    presentation = description if description is not None else ""
     response = client.post(
         f"/books/{book_id}/chapters",
-        json={"title": title, "parent_chapter_id": parent, "presentation": presentation},
+        json={
+            "title": title,
+            "parent_chapter_id": parent,
+            "presentation": presentation,
+            "note": note,
+        },
     )
     assert response.status_code == 200, response.text
     return response.json()
@@ -31,6 +34,28 @@ def test_create_and_list_top_level_chapters(client, book_id):
     assert chapters[0]["description"] == "Para abrir boca"
     assert chapters[0]["has_subchapters"] is False
     assert chapters[0]["recipe_count"] == 0
+
+
+def test_description_skips_heading(client, book_id):
+    chapter = _make_chapter(
+        client, book_id, "Setas", description="## Las setas\n\nDel bosque a la mesa."
+    )
+    listed = client.get(f"/books/{book_id}/chapters").json()
+    assert listed[0]["description"] == "Del bosque a la mesa."
+    assert chapter["presentation"] == "## Las setas\n\nDel bosque a la mesa."
+
+
+def test_note_round_trips(client, book_id):
+    chapter = _make_chapter(client, book_id, "Guisos", note="Receta de invierno.")
+    detail = client.get(f"/chapters/{chapter['id']}").json()
+    assert detail["note"] == "Receta de invierno."
+
+    response = client.put(
+        f"/chapters/{chapter['id']}",
+        json={"title": "Guisos", "parent_chapter_id": None, "note": None},
+    )
+    assert response.status_code == 200
+    assert client.get(f"/chapters/{chapter['id']}").json()["note"] is None
 
 
 def test_nested_chapters(client, book_id):

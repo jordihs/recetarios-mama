@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(& C:\\\\Proyectos\\\\recetarios-mama\\\\backend\\\\.venv\\\\Scripts\\\\python.exe -m pytest *)",
+      "PowerShell(backend\\\\.venv\\\\Scripts\\\\python.exe -m pytest *)",
+      "PowerShell(.venv\\\\Scripts\\\\python.exe -m pytest *)",
+      "PowerShell(Set-Location C:\\\\Proyectos\\\\recetarios-mama\\\\frontend; C:\\\\soft\\\\flutter\\\\bin\\\\flutter.bat *)",
+      "PowerShell(& C:\\\\soft\\\\flutter\\\\bin\\\\flutter.bat analyze *)",
+      "PowerShell(& C:\\\\soft\\\\flutter\\\\bin\\\\flutter.bat test *)",
+      "PowerShell(& C:\\\\soft\\\\flutter\\\\bin\\\\flutter.bat gen-l10n)",
+      "PowerShell(.specify/scripts/powershell/check-prerequisites.ps1 *)",
+      "PowerShell(backend\\\\.venv\\\\Scripts\\\\python.exe -m ruff check *)",
+      "PowerShell(.venv\\\\Scripts\\\\python.exe -m ruff check *)"
+    ]
+  }
+}

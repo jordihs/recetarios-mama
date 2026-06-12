@@ -19,6 +19,21 @@ MESSAGES: dict[str, str] = {
         "La importación reemplaza toda la biblioteca y requiere confirmación."
     ),
     "output_dir_invalid": "La carpeta de destino no existe o no se puede escribir en ella.",
+    "legacy_v1_unsupported": (
+        "El archivo usa el formato antiguo agrupado, que ya no se admite."
+        " Genera el recetario con el esquema actualizado e inténtalo de nuevo."
+    ),
+    "archive_unsupported_version": (
+        "La copia de seguridad es de una versión anterior de la aplicación"
+        " y no se puede importar."
+    ),
+    "library_format_legacy": (
+        "La biblioteca se creó con una versión anterior de la aplicación."
+        " Es necesario reiniciarla para continuar."
+    ),
+    "reset_confirm_required": (
+        "El reinicio borra la biblioteca y requiere confirmación explícita."
+    ),
     "pdf_job_not_found": "No se ha encontrado la tarea de generación de PDF.",
     "internal_error": "Se ha producido un error inesperado.",
 }

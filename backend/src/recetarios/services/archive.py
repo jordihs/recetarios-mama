@@ -1,9 +1,12 @@
 """Library archive: single-file export/import of the whole library (FR-027/028).
 
-Format: ZIP containing `library.json` (versioned, full nested trees) and
-`images/<hash>.<ext>`. Import fully validates the manifest, ingests images
-(content-addressed, idempotent), and replaces the library inside one SQLite
-transaction — failure anywhere leaves the live library untouched.
+Format v2: ZIP containing `library.json` (versioned, full nested trees with
+markdown content strings and note fields) and `images/<hash>.<ext>`. Archives
+with any other `format_version` are rejected (`archive_unsupported_version`,
+FR-015) — there is no conversion path. Import fully validates the manifest,
+ingests images (content-addressed, idempotent), and replaces the library
+inside one SQLite transaction — failure anywhere leaves the live library
+untouched.
 """
 
 import json
@@ -11,18 +14,16 @@ import zipfile
 from datetime import UTC, datetime
 from pathlib import Path
 
-from pydantic import TypeAdapter, ValidationError
+from pydantic import ValidationError
 
 from recetarios.api.errors import ApiError
-from recetarios.models.blocks import ContentBlock, referenced_image_hashes
 from recetarios.models.entities import IngredientsList
+from recetarios.models.markdown import referenced_images
 from recetarios.storage.db import Database
 from recetarios.storage.images import ImageStore, ImageStoreError
 from recetarios.storage.repository import Repository, _new_id, _now
 
-FORMAT_VERSION = 1
-
-_blocks_adapter = TypeAdapter(list[ContentBlock])
+FORMAT_VERSION = 2
 
 
 class ArchiveService:
@@ -55,39 +56,36 @@ class ArchiveService:
         return {"path": str(target), "books": len(books)}
 
     def _export_book(self, row, hashes: set[str]) -> dict:
-        presentation = json.loads(row["presentation"])
-        self._collect(presentation, hashes)
+        hashes.update(referenced_images(row["presentation"]))
         if row["cover_image"]:
             hashes.add(row["cover_image"])
         return {
             "title": row["title"],
             "cover_image": row["cover_image"],
-            "presentation": presentation,
+            "presentation": row["presentation"],
+            "note": row["note"],
             "chapters": self._export_chapters(row["id"], None, hashes),
         }
 
     def _export_chapters(self, book_id: str, parent_id: str | None, hashes: set[str]) -> list:
         chapters = []
         for row in self.repo.list_chapters(book_id, parent_id):
-            presentation = json.loads(row["presentation"])
-            self._collect(presentation, hashes)
+            hashes.update(referenced_images(row["presentation"]))
             if row["cover_image"]:
                 hashes.add(row["cover_image"])
             recipes = []
             for recipe_row in self.repo.list_recipes(row["id"]):
-                introduction = json.loads(recipe_row["introduction"])
-                preparation = json.loads(recipe_row["preparation"])
-                self._collect(introduction, hashes)
-                self._collect(preparation, hashes)
+                hashes.update(referenced_images(recipe_row["introduction"]))
+                hashes.update(referenced_images(recipe_row["preparation"]))
                 if recipe_row["image"]:
                     hashes.add(recipe_row["image"])
                 recipes.append(
                     {
                         "title": recipe_row["title"],
                         "image": recipe_row["image"],
-                        "introduction": introduction,
+                        "introduction": recipe_row["introduction"],
                         "ingredients": json.loads(recipe_row["ingredients"]),
-                        "preparation": preparation,
+                        "preparation": recipe_row["preparation"],
                         "note": recipe_row["note"],
                     }
                 )
@@ -95,18 +93,13 @@ class ArchiveService:
                 {
                     "title": row["title"],
                     "cover_image": row["cover_image"],
-                    "presentation": presentation,
+                    "presentation": row["presentation"],
+                    "note": row["note"],
                     "recipes": recipes,
                     "children": self._export_chapters(book_id, row["id"], hashes),
                 }
             )
         return chapters
-
-    def _collect(self, blocks: list[dict], hashes: set[str]) -> None:
-        try:
-            hashes.update(referenced_image_hashes(_blocks_adapter.validate_python(blocks)))
-        except ValidationError:
-            pass
 
     # ----------------------------------------------------------------- import
 
@@ -145,21 +138,33 @@ class ArchiveService:
         return {"books": len(manifest["books"])}
 
     def _validate_manifest(self, manifest: dict) -> None:
-        if not isinstance(manifest, dict) or manifest.get("format_version") != FORMAT_VERSION:
+        if not isinstance(manifest, dict):
             raise ApiError("archive_invalid")
+        if manifest.get("format_version") != FORMAT_VERSION:
+            raise ApiError("archive_unsupported_version")
         books = manifest.get("books")
         if not isinstance(books, list):
             raise ApiError("archive_invalid")
 
+        def require_markdown(value) -> None:
+            if value is not None and not isinstance(value, str):
+                raise ApiError("archive_invalid")
+
+        def require_note(value) -> None:
+            if value is not None and not isinstance(value, str):
+                raise ApiError("archive_invalid")
+
         def validate_chapter(chapter: dict) -> None:
             if not isinstance(chapter.get("title"), str):
                 raise ApiError("archive_invalid")
-            _blocks_adapter.validate_python(chapter.get("presentation") or [])
+            require_markdown(chapter.get("presentation"))
+            require_note(chapter.get("note"))
             for recipe in chapter.get("recipes") or []:
                 if not isinstance(recipe.get("title"), str):
                     raise ApiError("archive_invalid")
-                _blocks_adapter.validate_python(recipe.get("introduction") or [])
-                _blocks_adapter.validate_python(recipe.get("preparation") or [])
+                require_markdown(recipe.get("introduction"))
+                require_markdown(recipe.get("preparation"))
+                require_note(recipe.get("note"))
                 IngredientsList.model_validate(recipe.get("ingredients") or {})
             for child in chapter.get("children") or []:
                 validate_chapter(child)
@@ -168,7 +173,8 @@ class ArchiveService:
             for book in books:
                 if not isinstance(book.get("title"), str):
                     raise ApiError("archive_invalid")
-                _blocks_adapter.validate_python(book.get("presentation") or [])
+                require_markdown(book.get("presentation"))
+                require_note(book.get("note"))
                 for chapter in book.get("chapters") or []:
                     validate_chapter(chapter)
         except ValidationError as exc:
@@ -178,10 +184,10 @@ class ArchiveService:
         now = _now()
         book_id = _new_id()
         conn.execute(
-            "INSERT INTO books(id, title, cover_image, presentation, position,"
-            " created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO books(id, title, cover_image, presentation, note, position,"
+            " created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             (book_id, book["title"], book.get("cover_image"),
-             json.dumps(book.get("presentation") or []), position, now, now),
+             book.get("presentation") or "", book.get("note"), position, now, now),
         )
         self._insert_chapters(conn, book_id, None, book.get("chapters") or [], now)
 
@@ -190,10 +196,10 @@ class ArchiveService:
             chapter_id = _new_id()
             conn.execute(
                 "INSERT INTO chapters(id, book_id, parent_chapter_id, title, cover_image,"
-                " presentation, position, created_at, updated_at)"
-                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                " presentation, note, position, created_at, updated_at)"
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (chapter_id, book_id, parent_id, chapter["title"], chapter.get("cover_image"),
-                 json.dumps(chapter.get("presentation") or []), position, now, now),
+                 chapter.get("presentation") or "", chapter.get("note"), position, now, now),
             )
             for recipe_position, recipe in enumerate(chapter.get("recipes") or []):
                 conn.execute(
@@ -201,9 +207,9 @@ class ArchiveService:
                     " ingredients, preparation, note, position, created_at, updated_at)"
                     " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     (_new_id(), chapter_id, recipe["title"], recipe.get("image"),
-                     json.dumps(recipe.get("introduction") or []),
+                     recipe.get("introduction") or "",
                      json.dumps(recipe.get("ingredients") or {}),
-                     json.dumps(recipe.get("preparation") or []),
+                     recipe.get("preparation") or "",
                      recipe.get("note"), recipe_position, now, now),
                 )
             self._insert_chapters(conn, book_id, chapter_id, chapter.get("children") or [], now)

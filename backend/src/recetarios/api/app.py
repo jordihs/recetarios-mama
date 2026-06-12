@@ -25,6 +25,23 @@ def create_app(data_dir: Path) -> FastAPI:
 
     app = FastAPI(title="recetarios", version=API_VERSION, lifespan=lifespan)
 
+    @app.middleware("http")
+    async def legacy_format_guard(request: Request, call_next):
+        # A pre-v2 library is read-only territory: only the status/reset flow
+        # (and health) may pass until the user resets it.
+        exempt = ("/health", "/library/status", "/library/reset")
+        if request.url.path not in exempt and request.app.state.db.format == "legacy":
+            return JSONResponse(
+                status_code=409,
+                content={
+                    "error": {
+                        "code": "library_format_legacy",
+                        "message": msg("library_format_legacy"),
+                    }
+                },
+            )
+        return await call_next(request)
+
     @app.exception_handler(ApiError)
     async def api_error_handler(_request: Request, exc: ApiError):
         return JSONResponse(
@@ -48,8 +65,19 @@ def create_app(data_dir: Path) -> FastAPI:
 
 
 def _register_routers(app: FastAPI) -> None:
-    from recetarios.api import books, chapters, images, pdf, recipes, search, settings, transfer
+    from recetarios.api import (
+        books,
+        chapters,
+        images,
+        library_status,
+        pdf,
+        recipes,
+        search,
+        settings,
+        transfer,
+    )
 
+    app.include_router(library_status.router)
     app.include_router(images.router)
     app.include_router(books.router)
     app.include_router(chapters.router)

@@ -4,14 +4,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:recetarios/app/providers.dart';
-import 'package:recetarios/data/models.dart';
 import 'package:recetarios/features/books/book_form_screen.dart' show imagesTypeGroup;
 import 'package:recetarios/features/chapters/chapter_list_screen.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
-import 'package:recetarios/widgets/block_editor/block_list_editor.dart';
+import 'package:recetarios/widgets/markdown_editor.dart';
 
 /// Create (chapterId == null) or edit a chapter. The parent (book + optional
 /// parent chapter) comes from the navigation context and is not editable here.
+///
+/// The whole presentation is one markdown document edited in a single
+/// rich text editor (US2); the note is a separate plain field (FR-004).
 class ChapterFormScreen extends ConsumerStatefulWidget {
   const ChapterFormScreen({
     super.key,
@@ -31,10 +33,10 @@ class ChapterFormScreen extends ConsumerStatefulWidget {
 class _ChapterFormScreenState extends ConsumerState<ChapterFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
-  final _descriptionController = TextEditingController();
+  final _noteController = TextEditingController();
+  String _content = '';
   String? _coverImage;
   String? _parentChapterId;
-  List<ContentBlock> _otherBlocks = [];
   bool _loading = false;
 
   @override
@@ -49,19 +51,12 @@ class _ChapterFormScreenState extends ConsumerState<ChapterFormScreen> {
   Future<void> _load() async {
     setState(() => _loading = true);
     final chapter = await ref.read(chaptersRepositoryProvider).get(widget.chapterId!);
-    final paragraphIndex = chapter.presentation.indexWhere((b) => b['type'] == 'paragraph');
     setState(() {
       _titleController.text = chapter.title;
+      _content = chapter.presentation;
+      _noteController.text = chapter.note ?? '';
       _coverImage = chapter.coverImage;
       _parentChapterId = chapter.parentChapterId;
-      if (paragraphIndex >= 0) {
-        _descriptionController.text =
-            ((chapter.presentation[paragraphIndex]['spans'] as List? ?? const [])
-                .map((s) => (s as Map)['text'] as String? ?? '')).join();
-        _otherBlocks = [...chapter.presentation]..removeAt(paragraphIndex);
-      } else {
-        _otherBlocks = chapter.presentation;
-      }
       _loading = false;
     });
   }
@@ -69,7 +64,7 @@ class _ChapterFormScreenState extends ConsumerState<ChapterFormScreen> {
   @override
   void dispose() {
     _titleController.dispose();
-    _descriptionController.dispose();
+    _noteController.dispose();
     super.dispose();
   }
 
@@ -83,17 +78,7 @@ class _ChapterFormScreenState extends ConsumerState<ChapterFormScreen> {
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
-    final description = _descriptionController.text.trim();
-    final presentation = <ContentBlock>[
-      if (description.isNotEmpty)
-        {
-          'type': 'paragraph',
-          'spans': [
-            {'text': description}
-          ],
-        },
-      ..._otherBlocks,
-    ];
+    final note = _noteController.text.trim();
     final repo = ref.read(chaptersRepositoryProvider);
     if (widget.chapterId == null) {
       await repo.create(
@@ -101,7 +86,8 @@ class _ChapterFormScreenState extends ConsumerState<ChapterFormScreen> {
         title: _titleController.text,
         parentChapterId: _parentChapterId,
         coverImage: _coverImage,
-        presentation: presentation,
+        presentation: _content,
+        note: note.isEmpty ? null : note,
       );
     } else {
       await repo.update(
@@ -109,7 +95,8 @@ class _ChapterFormScreenState extends ConsumerState<ChapterFormScreen> {
         title: _titleController.text,
         parentChapterId: _parentChapterId,
         coverImage: _coverImage,
-        presentation: presentation,
+        presentation: _content,
+        note: note.isEmpty ? null : note,
       );
     }
     ref.invalidate(chapterListProvider((bookId: widget.bookId, parentId: _parentChapterId)));
@@ -125,6 +112,24 @@ class _ChapterFormScreenState extends ConsumerState<ChapterFormScreen> {
     final api = ref.watch(apiClientProvider);
     return Scaffold(
       appBar: AppBar(title: Text(widget.chapterId == null ? l10n.addChapter : l10n.editChapter)),
+      // Save/cancel live in a pinned bottom bar (same pattern as the recipe
+      // editor) so they stay reachable however tall the content editor gets.
+      bottomNavigationBar: _loading
+          ? null
+          : Material(
+              elevation: 8,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(onPressed: () => context.pop(), child: Text(l10n.cancel)),
+                    const SizedBox(width: 8),
+                    FilledButton(onPressed: _save, child: Text(l10n.save)),
+                  ],
+                ),
+              ),
+            ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : Center(
@@ -143,11 +148,23 @@ class _ChapterFormScreenState extends ConsumerState<ChapterFormScreen> {
                             (value == null || value.trim().isEmpty) ? l10n.titleRequired : null,
                       ),
                       const SizedBox(height: 12),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(l10n.content,
+                            style: Theme.of(context).textTheme.titleSmall),
+                      ),
+                      const SizedBox(height: 4),
+                      MarkdownEditor(
+                        initialMarkdown: _content,
+                        api: api,
+                        onChanged: (value) => _content = value,
+                      ),
+                      const SizedBox(height: 12),
                       TextFormField(
-                        controller: _descriptionController,
-                        decoration: InputDecoration(labelText: l10n.description),
-                        minLines: 3,
-                        maxLines: 8,
+                        controller: _noteController,
+                        decoration: InputDecoration(labelText: l10n.note),
+                        minLines: 2,
+                        maxLines: 4,
                       ),
                       const SizedBox(height: 16),
                       Row(
@@ -174,23 +191,6 @@ class _ChapterFormScreenState extends ConsumerState<ChapterFormScreen> {
                             child: Image.network(api.imageUrl(_coverImage!), height: 180),
                           ),
                         ),
-                      const SizedBox(height: 16),
-                      ExpansionTile(
-                        title: Text(l10n.additionalContent),
-                        childrenPadding: const EdgeInsets.all(8),
-                        children: [
-                          BlockListEditor(blocks: _otherBlocks, api: api, onChanged: () {}),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TextButton(onPressed: () => context.pop(), child: Text(l10n.cancel)),
-                          const SizedBox(width: 8),
-                          FilledButton(onPressed: _save, child: Text(l10n.save)),
-                        ],
-                      ),
                     ],
                   ),
                 ),

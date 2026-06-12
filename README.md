@@ -17,10 +17,15 @@ Two projects meeting only at a localhost REST API:
   the backend on desktop, renders the responsive Spanish UI from phone to
   desktop sizes.
 
-Content is stored as typed JSON blocks (paragraphs, headings, captioned
-images, image grids, tables) that feed screen rendering, editing, and PDF
-output from a single model. See `specs/002-recipe-management/` for the full
-specification, plan, data model, and REST contract.
+Rich content (book/chapter introductions, recipe introduction and
+preparation) is stored as **markdown** (CommonMark + GFM tables; images as
+`image://<sha256>` URIs into the content-addressed store). One canonical
+document feeds screen rendering, the WYSIWYG editor (appflowy_editor with an
+unobtrusive raw-source view), full-text search, list descriptions, and PDF
+output. Editing is a single document per section — no per-paragraph controls.
+See `specs/002-recipe-management/` for the baseline architecture and
+`specs/003-content-editing-ordering/` for the markdown content model, the
+ordered v2 legacy import, and the schema-v2 reset flow.
 
 ## Development
 
@@ -31,7 +36,7 @@ smoke checklist.
 ```powershell
 # Backend
 cd backend; .venv\Scripts\Activate.ps1
-pytest                 # 80 tests incl. golden imports of the real legacy books
+pytest                 # incl. golden ordering checks against the real legacy books
 python -m recetarios --port 8765 --data-dir ..\.devdata
 
 # Frontend
@@ -53,6 +58,15 @@ by the API-first architecture — see research note R2.
 ## Legacy data
 
 The `legacy/` directory holds the original family recipe collection (JSON per
-`legacy/schema/recetarios-schema.json`, images under `legacy/imgs/`). It is
-read-only input: golden tests import all three books end-to-end and assert
-100% content preservation.
+`legacy/schema/recetarios-schema.json` **v2** — ordered `CONTENIDO` arrays —
+images under `legacy/imgs/`). It is read-only input: golden tests import all
+three books end-to-end, assert 100% content preservation, and machine-check
+that every introduction's element order equals the source order. v1-shaped
+documents (grouped block keys) are rejected at import.
+
+## Vendored dependency
+
+`frontend/third_party/appflowy_editor/` is a one-line-patched copy of
+appflowy_editor 6.2.0 (the published release does not compile against the
+project's Flutter SDK). See `VENDORED.md` there for the patch and the
+removal condition.

@@ -2,7 +2,11 @@
 
 from pydantic import BaseModel, Field, field_validator
 
-from recetarios.models.blocks import ContentBlock, blocks_plain_text, referenced_image_hashes
+from recetarios.models.markdown import (
+    MAX_DOCUMENT_BYTES,
+    plain_text,
+    referenced_images,
+)
 
 MAX_TITLE = 200
 
@@ -13,6 +17,14 @@ def _validate_title(value: str) -> str:
         raise ValueError("title must not be empty")
     if len(value) > MAX_TITLE:
         raise ValueError(f"title must be at most {MAX_TITLE} characters")
+    return value
+
+
+def _validate_markdown(value: str) -> str:
+    if len(value.encode("utf-8")) > MAX_DOCUMENT_BYTES:
+        raise ValueError(
+            f"document must be at most {MAX_DOCUMENT_BYTES} bytes"
+        )
     return value
 
 
@@ -37,32 +49,37 @@ class IngredientsList(BaseModel):
 class BookInput(BaseModel):
     title: str
     cover_image: str | None = None
-    presentation: list[ContentBlock] = Field(default_factory=list)
+    presentation: str = ""
+    note: str | None = None
 
     _title = field_validator("title")(_validate_title)
+    _presentation = field_validator("presentation")(_validate_markdown)
 
 
 class ChapterInput(BaseModel):
     title: str
     parent_chapter_id: str | None = None
     cover_image: str | None = None
-    presentation: list[ContentBlock] = Field(default_factory=list)
+    presentation: str = ""
+    note: str | None = None
 
     _title = field_validator("title")(_validate_title)
+    _presentation = field_validator("presentation")(_validate_markdown)
 
 
 class RecipeInput(BaseModel):
     title: str
     image: str | None = None
-    introduction: list[ContentBlock] = Field(default_factory=list)
+    introduction: str = ""
     ingredients: IngredientsList = Field(default_factory=IngredientsList)
-    preparation: list[ContentBlock] = Field(default_factory=list)
+    preparation: str = ""
     note: str | None = None
 
     _title = field_validator("title")(_validate_title)
+    _documents = field_validator("introduction", "preparation")(_validate_markdown)
 
     def referenced_images(self) -> set[str]:
-        refs = referenced_image_hashes(self.introduction) | referenced_image_hashes(
+        refs = referenced_images(self.introduction) | referenced_images(
             self.preparation
         )
         if self.image:
@@ -73,6 +90,6 @@ class RecipeInput(BaseModel):
         return {
             "title": self.title,
             "ingredients": self.ingredients.plain_text(),
-            "preparation": blocks_plain_text(self.preparation),
-            "introduction": blocks_plain_text(self.introduction),
+            "preparation": plain_text(self.preparation),
+            "introduction": plain_text(self.introduction),
         }

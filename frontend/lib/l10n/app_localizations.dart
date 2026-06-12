@@ -520,71 +520,65 @@ abstract class AppLocalizations {
   /// **'PDF guardado en {path}'**
   String pdfSavedAt(Object path);
 
-  /// No description provided for @additionalContent.
+  /// No description provided for @content.
   ///
   /// In es, this message translates to:
-  /// **'Contenido de presentación adicional'**
-  String get additionalContent;
+  /// **'Contenido'**
+  String get content;
 
-  /// No description provided for @addParagraph.
+  /// No description provided for @editorBold.
   ///
   /// In es, this message translates to:
-  /// **'Añadir párrafo'**
-  String get addParagraph;
+  /// **'Negrita'**
+  String get editorBold;
 
-  /// No description provided for @addHeading.
+  /// No description provided for @editorItalic.
   ///
   /// In es, this message translates to:
-  /// **'Añadir título'**
-  String get addHeading;
+  /// **'Cursiva'**
+  String get editorItalic;
 
-  /// No description provided for @addImage.
+  /// No description provided for @editorH2.
   ///
   /// In es, this message translates to:
-  /// **'Añadir imagen'**
-  String get addImage;
+  /// **'Título de sección'**
+  String get editorH2;
 
-  /// No description provided for @addImageGroup.
+  /// No description provided for @editorH3.
   ///
   /// In es, this message translates to:
-  /// **'Añadir grupo de imágenes'**
-  String get addImageGroup;
+  /// **'Subtítulo'**
+  String get editorH3;
 
-  /// No description provided for @addTable.
+  /// No description provided for @editorBulletedList.
   ///
   /// In es, this message translates to:
-  /// **'Añadir tabla'**
-  String get addTable;
+  /// **'Lista'**
+  String get editorBulletedList;
 
-  /// No description provided for @caption.
+  /// No description provided for @editorInsertTable.
   ///
   /// In es, this message translates to:
-  /// **'Pie de foto'**
-  String get caption;
+  /// **'Insertar tabla'**
+  String get editorInsertTable;
 
-  /// No description provided for @placementRight.
+  /// No description provided for @editorInsertImage.
   ///
   /// In es, this message translates to:
-  /// **'A la derecha del texto'**
-  String get placementRight;
+  /// **'Insertar imagen'**
+  String get editorInsertImage;
 
-  /// No description provided for @placementBlock.
+  /// No description provided for @editorSource.
   ///
   /// In es, this message translates to:
-  /// **'En bloque'**
-  String get placementBlock;
+  /// **'Fuente'**
+  String get editorSource;
 
-  /// No description provided for @layoutGrid.
+  /// No description provided for @editorSourceOnly.
   ///
   /// In es, this message translates to:
-  /// **'Cuadrícula'**
-  String get layoutGrid;
-
-  /// No description provided for @layoutRow.
-  ///
-  /// In es, this message translates to:
-  /// **'Fila'**
-  String get layoutRow;
+  /// **'Este contenido contiene estructuras que solo se pueden editar en modo fuente.'**
+  String get editorSourceOnly;
 
   /// No description provided for @addGroup.
   ///
@@ -610,23 +604,41 @@ abstract class AppLocalizations {
   /// **'Personas (opcional)'**
   String get servingsLabel;
 
-  /// No description provided for @addRow.
+  /// No description provided for @libraryLegacyTitle.
   ///
   /// In es, this message translates to:
-  /// **'Añadir fila'**
-  String get addRow;
+  /// **'Biblioteca de una versión anterior'**
+  String get libraryLegacyTitle;
 
-  /// No description provided for @addColumn.
+  /// No description provided for @libraryLegacyBody.
   ///
   /// In es, this message translates to:
-  /// **'Añadir columna'**
-  String get addColumn;
+  /// **'Esta biblioteca se creó con una versión anterior de la aplicación y ya no se puede abrir. Para continuar es necesario reiniciarla: se vaciará la biblioteca (las imágenes se conservan) y podrás volver a importar tus recetarios actualizados.'**
+  String get libraryLegacyBody;
 
-  /// No description provided for @tableTitle.
+  /// No description provided for @libraryLegacyResetButton.
   ///
   /// In es, this message translates to:
-  /// **'Título de la tabla (opcional)'**
-  String get tableTitle;
+  /// **'Reiniciar biblioteca'**
+  String get libraryLegacyResetButton;
+
+  /// No description provided for @libraryResetConfirmTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Reiniciar la biblioteca?'**
+  String get libraryResetConfirmTitle;
+
+  /// No description provided for @libraryResetConfirmBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Se eliminarán todos los libros, capítulos y recetas. Esta acción no se puede deshacer. ¿Continuar?'**
+  String get libraryResetConfirmBody;
+
+  /// No description provided for @libraryResetDone.
+  ///
+  /// In es, this message translates to:
+  /// **'Biblioteca reiniciada. Ya puedes importar tus recetarios.'**
+  String get libraryResetDone;
 
   /// No description provided for @errorTitle.
   ///

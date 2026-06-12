@@ -7,8 +7,8 @@ import 'package:recetarios/data/chapters_repository.dart';
 import 'package:recetarios/data/models.dart';
 import 'package:recetarios/features/books/book_list_screen.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
-import 'package:recetarios/widgets/block_renderer.dart';
 import 'package:recetarios/widgets/item_card.dart';
+import 'package:recetarios/widgets/markdown_view.dart';
 
 final chaptersRepositoryProvider =
     Provider<ChaptersRepository>((ref) => ChaptersRepository(ref.watch(apiClientProvider)));
@@ -45,19 +45,22 @@ class ChapterListScreen extends ConsumerWidget {
     final chapters = ref.watch(chapterListProvider((bookId: bookId, parentId: chapterId)));
 
     final String parentTitle;
-    final List<ContentBlock> parentPresentation;
+    final String parentPresentation;
+    final String? parentNote;
     final String editRoute;
     final String editTooltip;
     if (chapterId == null) {
       final book = ref.watch(bookDetailProvider(bookId));
       parentTitle = book.value?.title ?? '';
-      parentPresentation = book.value?.presentation ?? const [];
+      parentPresentation = book.value?.presentation ?? '';
+      parentNote = book.value?.note;
       editRoute = '/books/$bookId/edit';
       editTooltip = l10n.editBook;
     } else {
       final chapter = ref.watch(chapterDetailProvider(chapterId!));
       parentTitle = chapter.value?.title ?? '';
-      parentPresentation = chapter.value?.presentation ?? const [];
+      parentPresentation = chapter.value?.presentation ?? '';
+      parentNote = chapter.value?.note;
       editRoute = '/books/$bookId/chapters/$chapterId/edit';
       editTooltip = l10n.editChapter;
     }
@@ -90,14 +93,37 @@ class ChapterListScreen extends ConsumerWidget {
             slivers: [
               // Full introduction of the parent book/chapter (FR-006 companion:
               // lists show the truncated description; this is the full content).
-              if (parentPresentation.isNotEmpty)
+              if (parentPresentation.isNotEmpty || (parentNote?.isNotEmpty ?? false))
                 SliverToBoxAdapter(
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 860),
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                        child: BlockRenderer(blocks: parentPresentation, api: api),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (parentPresentation.isNotEmpty)
+                              MarkdownView(markdown: parentPresentation, api: api),
+                            // The note sits at the foot of the content, in the
+                            // recipe-note visual style (FR-004 companion).
+                            if (parentNote != null && parentNote.isNotEmpty)
+                              Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(l10n.note,
+                                          style: Theme.of(context).textTheme.titleSmall),
+                                      const SizedBox(height: 4),
+                                      Text(parentNote),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

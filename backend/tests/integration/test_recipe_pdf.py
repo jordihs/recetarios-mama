@@ -22,11 +22,10 @@ def recipe_id(client):
         json={
             "title": "Tortilla francesa",
             "image": image,
-            "introduction": [
-                {"type": "paragraph", "spans": [{"text": "TEXTO-DE-INTRODUCCION"}]}
-            ],
+            "introduction": "TEXTO-DE-INTRODUCCION\n\n"
+            "**Tiempos**\n\n| Paso | Minutos |\n| --- | --- |\n| Batir | 2 |\n",
             "ingredients": {"servings": "2", "groups": [{"title": None, "items": ["Huevos"]}]},
-            "preparation": [{"type": "paragraph", "spans": [{"text": "Batir y cuajar."}]}],
+            "preparation": "Batir y **cuajar**.\n\n- Punto uno\n- Punto dos\n",
             "note": None,
         },
     ).json()

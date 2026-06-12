@@ -1,4 +1,4 @@
-"""US4: recipe create/update/delete with validation."""
+"""Recipe create/update/delete with validation (markdown payloads)."""
 
 import io
 
@@ -27,9 +27,9 @@ def _upload_image(client) -> str:
 def _recipe_body(**overrides):
     body = {
         "title": "Tortilla",
-        "introduction": [],
+        "introduction": "",
         "ingredients": {"servings": None, "groups": [{"title": None, "items": ["Huevos"]}]},
-        "preparation": [{"type": "paragraph", "spans": [{"text": "Freír."}]}],
+        "preparation": "Freír.",
         "note": None,
     }
     body.update(overrides)
@@ -70,26 +70,31 @@ def test_create_with_valid_image(client, chapter_id):
     image = _upload_image(client)
     body = _recipe_body(
         image=image,
-        introduction=[{"type": "image", "image": image, "caption": "Foto", "placement": "block"}],
+        introduction=f"![Foto](image://{image})",
     )
     response = client.post(f"/chapters/{chapter_id}/recipes", json=body)
     assert response.status_code == 200
     assert response.json()["image"] == image
+    assert response.json()["introduction"] == f"![Foto](image://{image})"
 
 
 def test_unknown_image_ref_rejected(client, chapter_id):
-    body = _recipe_body(
-        introduction=[{"type": "image", "image": "0" * 64, "placement": "block"}]
-    )
+    body = _recipe_body(introduction=f"![x](image://{'0' * 64})")
     response = client.post(f"/chapters/{chapter_id}/recipes", json=body)
     assert response.status_code == 400
     assert response.json()["error"]["code"] == "invalid_image_ref"
 
 
-def test_unknown_block_type_rejected(client, chapter_id):
-    body = _recipe_body(preparation=[{"type": "video", "url": "x"}])
+def test_non_string_content_rejected(client, chapter_id):
+    body = _recipe_body(preparation=[{"type": "paragraph", "spans": []}])
     response = client.post(f"/chapters/{chapter_id}/recipes", json=body)
     assert response.status_code == 422
+
+
+def test_oversized_document_rejected(client, chapter_id):
+    body = _recipe_body(preparation="x" * (1024 * 1024 + 1))
+    response = client.post(f"/chapters/{chapter_id}/recipes", json=body)
+    assert response.status_code in (400, 422)
 
 
 def test_empty_title_rejected(client, chapter_id):
