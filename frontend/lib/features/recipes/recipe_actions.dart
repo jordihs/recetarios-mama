@@ -42,18 +42,27 @@ Future<void> createRecipeFlow(
   );
   if (title == null || title.trim().isEmpty) return;
 
-  final recipe = await ref.read(recipesRepositoryProvider).create(chapterId, {
-    'title': title.trim(),
-    'introduction': <Object>[],
-    'ingredients': {
-      'servings': null,
-      'groups': [
-        {'title': null, 'items': <String>[]}
-      ],
-    },
-    'preparation': <Object>[],
-    'note': null,
-  });
+  final Recipe recipe;
+  try {
+    recipe = await ref.read(recipesRepositoryProvider).create(chapterId, {
+      'title': title.trim(),
+      'introduction': '',
+      'ingredients': {
+        'servings': null,
+        'groups': [
+          {'title': null, 'items': <String>[]}
+        ],
+      },
+      'preparation': '',
+      'note': null,
+    });
+  } catch (error) {
+    // Surface the backend's Spanish message instead of failing silently.
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$error')));
+    }
+    return;
+  }
   ref.invalidate(recipeListProvider(chapterId));
   ref.invalidate(chapterListProvider);
   if (context.mounted) {

@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:recetarios/data/api_client.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
 import 'package:recetarios/widgets/markdown_editor.dart';
+import 'package:recetarios/widgets/markdown_editor_codecs.dart';
 
 const _hash =
     'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
@@ -126,6 +127,41 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     expect(lastMarkdown, contains('image://$_hash'));
     // Network images cannot load inside widget tests; drain those errors.
+    while (tester.takeException() != null) {}
+  });
+
+  testWidgets('real-world content opens in WYSIWYG mode (round-trip safe)',
+      (tester) async {
+    // Multi-paragraph text, headings, captioned images, galleries, and
+    // lists — the shapes the legacy import actually produces.
+    const initial = '## Las setas\n\n'
+        'Primer párrafo con **negrita**.\n\n'
+        'Segundo párrafo, separado.\n\n'
+        '![Pie de foto](image://$_hash)\n\n'
+        '![Una](image://$_hash)\n![Dos](image://$_hash)\n\n'
+        '### Subsección\n\n'
+        '- uno\n- dos\n';
+    await tester.pumpWidget(editor(initial: initial));
+    await tester.pump();
+
+    // WYSIWYG, not the source fallback.
+    expect(find.byType(AppFlowyEditor), findsOneWidget);
+    expect(find.byKey(MarkdownEditor.sourceFieldKey), findsNothing);
+    while (tester.takeException() != null) {}
+  });
+
+  testWidgets('captions and galleries survive the WYSIWYG round trip',
+      (tester) async {
+    const initial = 'Texto.\n\n'
+        '![Pie de foto](image://$_hash)\n\n'
+        '![Una](image://$_hash)\n![Dos](image://$_hash)';
+    await tester.pumpWidget(editor(initial: initial));
+    await tester.pump();
+
+    final state = tester.state<MarkdownEditorState>(find.byType(MarkdownEditor));
+    final encoded = encodeDocumentToMarkdown(state.editorState.document)
+        .replaceAll('http://127.0.0.1:9/images/$_hash', 'image://$_hash');
+    expect(encoded, initial);
     while (tester.takeException() != null) {}
   });
 

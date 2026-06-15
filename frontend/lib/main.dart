@@ -1,5 +1,7 @@
 import 'dart:ui' show AppExitResponse;
 
+import 'package:appflowy_editor/appflowy_editor.dart'
+    show AppFlowyEditorL10n, AppFlowyEditorLocalizations;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,6 +13,10 @@ import 'package:recetarios/data/api_client.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const _BootSplash());
+  // The rich text editor's own UI strings (tooltips, menus) ship per-locale;
+  // Spanish is published as es-VE. The app is Spanish-only (constitution).
+  AppFlowyEditorL10n.current =
+      await AppFlowyEditorLocalizations.load(const Locale('es', 'VE'));
   try {
     final connection = await BackendConnection.establish();
     final api = ApiClient(connection.baseUrl);

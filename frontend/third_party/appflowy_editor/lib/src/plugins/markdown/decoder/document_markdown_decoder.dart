@@ -67,9 +67,12 @@ class DocumentMarkdownDecoder extends Converter<String, Document> {
   }
 
   String _formatMarkdown(String markdown) {
-    // Rule 1: single '\n' between text and image, add double '\n'
+    // Rule 1: single '\n' between text and image, add double '\n'.
+    // Excludes ')' from the preceding-character match so that consecutive
+    // image lines (galleries) are preserved: images end with ')', so
+    // image-after-image is ')'\n'![' which this rule intentionally skips.
     String result = markdown.replaceAllMapped(
-      RegExp(r'([^\n])\n!\[([^\]]*)\]\(([^)]+)\)', multiLine: true),
+      RegExp(r'([^\n)])\n!\[([^\]]*)\]\(([^)]+)\)', multiLine: true),
       (match) {
         final text = match[1] ?? '';
         final altText = match[2] ?? '';

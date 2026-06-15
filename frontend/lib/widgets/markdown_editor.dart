@@ -7,6 +7,7 @@ import 'package:markdown/markdown.dart' as md;
 
 import 'package:recetarios/data/api_client.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
+import 'package:recetarios/widgets/markdown_editor_codecs.dart';
 
 const _imagesTypeGroup = XTypeGroup(
   label: 'Imágenes',
@@ -86,7 +87,10 @@ class MarkdownEditorState extends State<MarkdownEditor> {
       );
 
   Document _decode(String markdown) {
-    final document = markdownToDocument(_toEditable(markdown));
+    final document = markdownToDocument(
+      _toEditable(markdown),
+      markdownParsers: const [CaptionedImageMarkdownParser()],
+    );
     if (document.root.children.isEmpty) {
       document.insert([0], [paragraphNode()]);
     }
@@ -94,7 +98,7 @@ class MarkdownEditorState extends State<MarkdownEditor> {
   }
 
   String _encode(Document document) =>
-      _toCanonical(documentToMarkdown(document)).trim();
+      _toCanonical(encodeDocumentToMarkdown(document)).trim();
 
   /// True when WYSIWYG decode→encode preserves the document's semantics
   /// (compared as GFM HTML, so cosmetic syntax differences don't count).
