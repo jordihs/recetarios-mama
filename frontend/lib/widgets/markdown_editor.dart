@@ -182,14 +182,23 @@ class MarkdownEditorState extends State<MarkdownEditor> {
         '| Columna | Columna |\n| --- | --- |\n|  |  |',
       );
 
-  Future<void> insertImageReference(String hash, {String caption = ''}) async {
+  // Public: called from tests with the editor focused — uses current selection.
+  Future<void> insertImageReference(String hash, {String caption = ''}) =>
+      _doInsertImage(hash, caption: caption, sel: _editor?.selection);
+
+  // Core insertion: uses [sel] so callers can pass a snapshot taken before
+  // any async gap that would clear the editor's focus/selection.
+  Future<void> _doInsertImage(
+    String hash, {
+    String caption = '',
+    Selection? sel,
+  }) async {
     final editor = _editor;
     if (editor == null) return;
     // Inside a table cell, images can't be block nodes — insert as inline
-    // markdown text in the cell's paragraph delta instead.
-    if (_cursorInTableCell(editor)) {
-      final sel = editor.selection;
-      if (sel == null) return;
+    // markdown text in the cell's paragraph delta so the reference stays in
+    // the cell as valid GFM inline-image syntax.
+    if (sel != null && _selInTableCell(editor, sel)) {
       final node = editor.getNodeAtPath(sel.end.path);
       if (node == null) return;
       final transaction = editor.transaction
@@ -197,22 +206,20 @@ class MarkdownEditorState extends State<MarkdownEditor> {
       await editor.apply(transaction);
       return;
     }
-    await _insertMarkdownSnippet('![$caption](image://$hash)');
+    await _insertMarkdownSnippet('![$caption](image://$hash)', sel: sel);
   }
 
-  bool _cursorInTableCell(EditorState editor) {
-    final path = editor.selection?.end.path;
-    if (path == null || path.length < 2) return false;
+  bool _selInTableCell(EditorState editor, Selection sel) {
+    final path = sel.end.path;
+    if (path.length < 2) return false;
     return editor.getNodeAtPath([path[0]])?.type == TableBlockKeys.type;
   }
 
-  Future<void> _insertMarkdownSnippet(String snippet) async {
+  Future<void> _insertMarkdownSnippet(String snippet, {Selection? sel}) async {
     final editor = _editor;
-    if (editor == null) {
-      return;
-    }
+    if (editor == null) return;
     final nodes = _decode(snippet).root.children.map((n) => n.deepCopy()).toList();
-    final path = editor.selection?.end.path;
+    final path = (sel ?? editor.selection)?.end.path;
     final insertAt = path == null || path.isEmpty
         ? [editor.document.root.children.length]
         : [path.first + 1];
@@ -221,13 +228,16 @@ class MarkdownEditorState extends State<MarkdownEditor> {
   }
 
   Future<void> _pickAndInsertImage() async {
+    final editor = _editor;
+    if (editor == null) return;
+    // Snapshot selection NOW — the file-picker dialog will cause the editor
+    // to lose focus, clearing editor.selection before we can use it.
+    final sel = editor.selection;
     final file = await openFile(acceptedTypeGroups: const [_imagesTypeGroup]);
-    if (file == null) {
-      return;
-    }
+    if (file == null) return;
     final bytes = await file.readAsBytes();
     final result = await widget.api.uploadImage(bytes, file.name);
-    await insertImageReference(result['hash'] as String);
+    await _doInsertImage(result['hash'] as String, sel: sel);
   }
 
   // ------------------------------------------------------------------ build
