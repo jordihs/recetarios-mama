@@ -66,7 +66,7 @@ class CaptionedImageMarkdownParser extends CustomMarkdownParser {
     return node.copyWith(attributes: {
       ...node.attributes,
       _altKey: alt,
-      if (group != null) _galleryKey: group,
+      _galleryKey: group,
     });
   }
 }

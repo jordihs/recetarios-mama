@@ -20,9 +20,14 @@ final recipeDetailProvider = FutureProvider.family<Recipe, String>(
 /// with save / discard-changes buttons (FR-018) and an unsaved-changes
 /// navigation guard (FR-021).
 class RecipeViewScreen extends ConsumerStatefulWidget {
-  const RecipeViewScreen({super.key, required this.recipeId});
+  const RecipeViewScreen({
+    super.key,
+    required this.recipeId,
+    this.startInEditMode = false,
+  });
 
   final String recipeId;
+  final bool startInEditMode;
 
   @override
   ConsumerState<RecipeViewScreen> createState() => _RecipeViewScreenState();
@@ -32,6 +37,13 @@ class _RecipeViewScreenState extends ConsumerState<RecipeViewScreen> {
   bool _editing = false;
   bool _dirty = false;
   Recipe? _draft;
+  bool _pendingAutoEdit = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _pendingAutoEdit = widget.startInEditMode;
+  }
 
   Recipe _cloneOf(Recipe recipe) {
     final json = (jsonDecode(jsonEncode(recipe.toJson())) as Map).cast<String, dynamic>();
@@ -51,6 +63,7 @@ class _RecipeViewScreenState extends ConsumerState<RecipeViewScreen> {
     final draft = _draft!;
     await ref.read(recipesRepositoryProvider).update(draft.id, draft.toJson());
     ref.invalidate(recipeDetailProvider(widget.recipeId));
+    ref.invalidate(recipeListProvider);
     setState(() {
       _editing = false;
       _draft = null;
@@ -129,6 +142,12 @@ class _RecipeViewScreenState extends ConsumerState<RecipeViewScreen> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (error, _) => Center(child: Text('$error')),
           data: (data) {
+            if (_pendingAutoEdit && !_editing) {
+              _pendingAutoEdit = false;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted && !_editing) _startEditing(data);
+              });
+            }
             if (!_editing) return RecipeContentView(recipe: data);
             return Column(
               children: [

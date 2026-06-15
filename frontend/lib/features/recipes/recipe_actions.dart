@@ -66,7 +66,7 @@ Future<void> createRecipeFlow(
   ref.invalidate(recipeListProvider(chapterId));
   ref.invalidate(chapterListProvider);
   if (context.mounted) {
-    context.push('/books/$bookId/chapters/$chapterId/recipes/${recipe.id}');
+    context.push('/books/$bookId/chapters/$chapterId/recipes/${recipe.id}?edit=true');
   }
 }
 

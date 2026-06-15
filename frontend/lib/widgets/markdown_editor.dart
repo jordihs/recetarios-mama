@@ -182,8 +182,29 @@ class MarkdownEditorState extends State<MarkdownEditor> {
         '| Columna | Columna |\n| --- | --- |\n|  |  |',
       );
 
-  Future<void> insertImageReference(String hash, {String caption = ''}) =>
-      _insertMarkdownSnippet('![$caption](image://$hash)');
+  Future<void> insertImageReference(String hash, {String caption = ''}) async {
+    final editor = _editor;
+    if (editor == null) return;
+    // Inside a table cell, images can't be block nodes — insert as inline
+    // markdown text in the cell's paragraph delta instead.
+    if (_cursorInTableCell(editor)) {
+      final sel = editor.selection;
+      if (sel == null) return;
+      final node = editor.getNodeAtPath(sel.end.path);
+      if (node == null) return;
+      final transaction = editor.transaction
+        ..insertText(node, sel.end.offset, '![$caption](image://$hash)');
+      await editor.apply(transaction);
+      return;
+    }
+    await _insertMarkdownSnippet('![$caption](image://$hash)');
+  }
+
+  bool _cursorInTableCell(EditorState editor) {
+    final path = editor.selection?.end.path;
+    if (path == null || path.length < 2) return false;
+    return editor.getNodeAtPath([path[0]])?.type == TableBlockKeys.type;
+  }
 
   Future<void> _insertMarkdownSnippet(String snippet) async {
     final editor = _editor;

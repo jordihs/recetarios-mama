@@ -61,8 +61,10 @@ GoRouter buildRouter() {
       ),
       GoRoute(
         path: '/books/:bookId/chapters/:chapterId/recipes/:recipeId',
-        builder: (context, state) =>
-            RecipeViewScreen(recipeId: state.pathParameters['recipeId']!),
+        builder: (context, state) => RecipeViewScreen(
+          recipeId: state.pathParameters['recipeId']!,
+          startInEditMode: state.uri.queryParameters['edit'] == 'true',
+        ),
       ),
     ],
   );
