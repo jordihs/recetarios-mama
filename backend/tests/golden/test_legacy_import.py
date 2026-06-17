@@ -386,11 +386,20 @@ def test_images_imported_and_resolvable(client):
     assert report["images_imported"] > 0
 
     checked = 0
-    for chapter in client.get(f"/books/{result['book_id']}/chapters").json():
-        for summary in client.get(f"/chapters/{chapter['id']}/recipes").json():
-            if summary["image"]:
-                assert client.get(f"/images/{summary['image']}").status_code == 200
-                checked += 1
+
+    def walk(book_id: str, parent: str | None = None) -> None:
+        nonlocal checked
+        for chapter in client.get(
+            f"/books/{book_id}/chapters",
+            params={} if parent is None else {"parent": parent},
+        ).json():
+            for summary in client.get(f"/chapters/{chapter['id']}/recipes").json():
+                if summary["image"]:
+                    assert client.get(f"/images/{summary['image']}").status_code == 200
+                    checked += 1
+            walk(book_id, chapter["id"])
+
+    walk(result["book_id"])
     assert checked > 0
 
 
