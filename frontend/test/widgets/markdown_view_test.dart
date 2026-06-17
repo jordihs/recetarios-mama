@@ -21,7 +21,7 @@ Widget _app(String markdown) {
 }
 
 void main() {
-  testWidgets('image-bearing table cells bottom-align; text cells unchanged',
+  testWidgets('all table cells top-align regardless of content',
       (tester) async {
     const markdown = '| Especie | Foto |\n'
         '| --- | --- |\n'
@@ -33,26 +33,10 @@ void main() {
         tester.widgetList<TableCell>(find.byType(TableCell)).toList();
     expect(cells, isNotEmpty);
 
-    bool hasImage(TableCell cell) => find
-        .descendant(of: find.byWidget(cell), matching: find.byType(Image))
-        .evaluate()
-        .isNotEmpty;
-
-    var imageCells = 0;
-    var textCells = 0;
     for (final cell in cells) {
-      if (hasImage(cell)) {
-        imageCells++;
-        expect(cell.verticalAlignment, TableCellVerticalAlignment.bottom,
-            reason: 'image cells must bottom-align (FR-021)');
-      } else {
-        textCells++;
-        expect(cell.verticalAlignment, isNot(TableCellVerticalAlignment.bottom),
-            reason: 'text-only cells keep the default alignment');
-      }
+      expect(cell.verticalAlignment, TableCellVerticalAlignment.top,
+          reason: 'all cells must top-align');
     }
-    expect(imageCells, greaterThan(0));
-    expect(textCells, greaterThan(0));
     while (tester.takeException() != null) {}
   });
 }
