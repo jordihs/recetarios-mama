@@ -2284,90 +2284,90 @@
                                     "texto": ""
                                 }
                             ]
-                        }
-                    }
-                ],
-                "RECETA": [
-                    {
-                        "@attributes": {
-                            "imagen": "imgs/cmama/macarrones.jpg"
                         },
-                        "TITULO": "Macarrones con costillas",
-                        "INGREDIENTES": {
-                            "GRUPO": [
-                                {
-                                    "INGREDIENTE": "400 g de macarrones"
+                        "RECETA": [
+                            {
+                                "@attributes": {
+                                    "imagen": "imgs/cmama/macarrones.jpg"
                                 },
-                                {
-                                    "@attributes": {
-                                        "titulo": "Para la salsa"
-                                    },
-                                    "INGREDIENTE": [
-                                        "500 gr de costillas de cerdo partidas en cuadraditos",
-                                        "2 k de tomate fresco",
-                                        "1/2 cebolla ( 300 gr)",
-                                        "Un trocito de pimiento rojo",
-                                        "1 ramita de perejil",
-                                        "75 gr de aceite",
-                                        "1 cucharada de orégano",
-                                        "1/2 diente de ajo"
-                                    ]
-                                },
-                                {
-                                    "@attributes": {
-                                        "titulo": "Para gratinar"
-                                    },
-                                    "INGREDIENTE": [
-                                        "25 gr de mantequilla",
-                                        "50 gr de queso parmesano rallado"
-                                    ]
-                                }
-                            ]
-                        },
-                        "PREPARACION": [
-                            "Comenzaremos preparando la salsa.",
-                            "Calentar el aceite en una cazuela y rehogar la cebolla, cuando empiece a tomar color añadir la costilla de cerdo, cuando esté doradita, añadir el tomate triturado, el ajito picado y el orégano. Dejar cocer treinta minutos a fuego moderado, rectificar de sal y reservar.",
-                            "Preparación de los macarrones.",
-                            "Coceremos los macarrones en abundante agua con sal, Se recomienda 1 litro por 100 g de pasta. Cocer unos 11 minutos. Cuando esté cocida, escurrir en un colador.",
-                            "En una bandeja de horno pondremos los macarrones recien escurridos y le añadimos la salsa, los mezclaremos bien y los espolvoreamos con el queso rallado. Le pondremos pequeñas bolitas de mantequilla y los gratinaremos."
-                        ]
-                    },
-                    {
-                        "@attributes": {
-                            "imagen": "imgs/cmama/maca_ caldosos.jpg"
-                        },
-                        "TITULO": "Macarrones caldosos",
-                        "INGREDIENTES": {
-                            "GRUPO": [
-                                {
-                                    "INGREDIENTE": [
-                                        "1/2 k de aguja de vacuno",
-                                        "1/2 vasito (de vino) de aceite de oliva",
-                                        "1 cebolla",
-                                        "1 zanahoria",
-                                        "1 k de patatas",
-                                        "3 puñados de macarrones",
-                                        "1 hoja de laurel",
-                                        "1/2 cucharadita de pimentón colorado",
-                                        "3 bolitas de pimienta negra",
-                                        "1 pizca de pimienta blanca",
-                                        "4 dientes de ajo"
+                                "TITULO": "Macarrones con costillas",
+                                "INGREDIENTES": {
+                                    "GRUPO": [
+                                        {
+                                            "INGREDIENTE": "400 g de macarrones"
+                                        },
+                                        {
+                                            "@attributes": {
+                                                "titulo": "Para la salsa"
+                                            },
+                                            "INGREDIENTE": [
+                                                "500 gr de costillas de cerdo partidas en cuadraditos",
+                                                "2 k de tomate fresco",
+                                                "1/2 cebolla ( 300 gr)",
+                                                "Un trocito de pimiento rojo",
+                                                "1 ramita de perejil",
+                                                "75 gr de aceite",
+                                                "1 cucharada de orégano",
+                                                "1/2 diente de ajo"
+                                            ]
+                                        },
+                                        {
+                                            "@attributes": {
+                                                "titulo": "Para gratinar"
+                                            },
+                                            "INGREDIENTE": [
+                                                "25 gr de mantequilla",
+                                                "50 gr de queso parmesano rallado"
+                                            ]
+                                        }
                                     ]
                                 },
-                                {
-                                    "@attributes": {
-                                        "titulo": "Opcional"
-                                    },
-                                    "INGREDIENTE": [
-                                        "6/7 trompetas de los muertos secas",
-                                        "Un puñadito de senderuelas secas"
+                                "PREPARACION": [
+                                    "Comenzaremos preparando la salsa.",
+                                    "Calentar el aceite en una cazuela y rehogar la cebolla, cuando empiece a tomar color añadir la costilla de cerdo, cuando esté doradita, añadir el tomate triturado, el ajito picado y el orégano. Dejar cocer treinta minutos a fuego moderado, rectificar de sal y reservar.",
+                                    "Preparación de los macarrones.",
+                                    "Coceremos los macarrones en abundante agua con sal, Se recomienda 1 litro por 100 g de pasta. Cocer unos 11 minutos. Cuando esté cocida, escurrir en un colador.",
+                                    "En una bandeja de horno pondremos los macarrones recien escurridos y le añadimos la salsa, los mezclaremos bien y los espolvoreamos con el queso rallado. Le pondremos pequeñas bolitas de mantequilla y los gratinaremos."
+                                ]
+                            },
+                            {
+                                "@attributes": {
+                                    "imagen": "imgs/cmama/maca_ caldosos.jpg"
+                                },
+                                "TITULO": "Macarrones caldosos",
+                                "INGREDIENTES": {
+                                    "GRUPO": [
+                                        {
+                                            "INGREDIENTE": [
+                                                "1/2 k de aguja de vacuno",
+                                                "1/2 vasito (de vino) de aceite de oliva",
+                                                "1 cebolla",
+                                                "1 zanahoria",
+                                                "1 k de patatas",
+                                                "3 puñados de macarrones",
+                                                "1 hoja de laurel",
+                                                "1/2 cucharadita de pimentón colorado",
+                                                "3 bolitas de pimienta negra",
+                                                "1 pizca de pimienta blanca",
+                                                "4 dientes de ajo"
+                                            ]
+                                        },
+                                        {
+                                            "@attributes": {
+                                                "titulo": "Opcional"
+                                            },
+                                            "INGREDIENTE": [
+                                                "6/7 trompetas de los muertos secas",
+                                                "Un puñadito de senderuelas secas"
+                                            ]
+                                        }
                                     ]
-                                }
-                            ]
-                        },
-                        "PREPARACION": [
-                            "En una olla Express súper rápida, rehogamos la carne troceada, en cuanto esté sellada añadimos los ajos y la cebolla, rehogamos hasta que la cebolla empiece a dorar. Añadimos la hoja de laurel, las pimientas, la zanahoria en rodajas, las setas y 1 litro de agua, tapamos la olla y coceremos unos 20 minutos",
-                            "Añadir las patatas cortados en cubitos y un poco de agua. Poner a cocer. A los 10 minutos de cocción añadir los macarrones. Seguir cociendo hasta que todo esté tierno, rectificar de sal. Servir."
+                                },
+                                "PREPARACION": [
+                                    "En una olla Express súper rápida, rehogamos la carne troceada, en cuanto esté sellada añadimos los ajos y la cebolla, rehogamos hasta que la cebolla empiece a dorar. Añadimos la hoja de laurel, las pimientas, la zanahoria en rodajas, las setas y 1 litro de agua, tapamos la olla y coceremos unos 20 minutos",
+                                    "Añadir las patatas cortados en cubitos y un poco de agua. Poner a cocer. A los 10 minutos de cocción añadir los macarrones. Seguir cociendo hasta que todo esté tierno, rectificar de sal. Servir."
+                                ]
+                            }
                         ]
                     }
                 ]
