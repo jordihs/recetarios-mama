@@ -5,6 +5,11 @@ name: Release
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g. v1.1.0)'
+        required: true
 
 permissions:
   contents: write
@@ -12,8 +17,12 @@ permissions:
 jobs:
   release:
     runs-on: windows-latest
+    env:
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
 
       - uses: actions/setup-python@v5
         with:
@@ -46,10 +55,13 @@ jobs:
       - name: Create release zip
         run: >
           Compress-Archive -Path dist\recetarios-mama
-          -DestinationPath "recetarios-mama-${{ github.ref_name }}-windows-x64.zip"
+          -DestinationPath "recetarios-mama-${{ env.RELEASE_TAG }}-windows-x64.zip"
 
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          files: recetarios-mama-${{ github.ref_name }}-windows-x64.zip
+          tag_name: ${{ env.RELEASE_TAG }}
+          files: |
+            recetarios-mama-${{ env.RELEASE_TAG }}-windows-x64.zip
+            database/biblioteca.recetarios
           generate_release_notes: true
