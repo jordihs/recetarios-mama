@@ -94,7 +94,21 @@ class MarkdownView extends StatelessWidget {
 
   TextSpan _inlineSpan(md.Node node, {TextStyle style = const TextStyle()}) {
     if (node is! md.Element) {
-      return TextSpan(text: node.textContent, style: style);
+      final text = node.textContent;
+      // <br> stored as literal text in a single text node (the markdown package
+      // does not always parse it as inline HTML inside table cells).
+      if (text.contains('<br>')) {
+        final parts = text.split('<br>');
+        return TextSpan(
+          children: [
+            for (var i = 0; i < parts.length; i++) ...[
+              if (parts[i].isNotEmpty) TextSpan(text: parts[i], style: style),
+              if (i < parts.length - 1) const TextSpan(text: '\n'),
+            ],
+          ],
+        );
+      }
+      return TextSpan(text: text, style: style);
     }
     final next = switch (node.tag) {
       'strong' => style.merge(const TextStyle(fontWeight: FontWeight.bold)),
@@ -102,6 +116,8 @@ class MarkdownView extends StatelessWidget {
       _ => style,
     };
     if (node.tag == 'img') return const TextSpan();
+    // <br> parsed as inline HTML element — render as newline.
+    if (node.tag == 'br') return const TextSpan(text: '\n');
     return TextSpan(
       children: [
         for (final child in node.children ?? const <md.Node>[])
@@ -111,16 +127,43 @@ class MarkdownView extends StatelessWidget {
     );
   }
 
-  Widget _richText(BuildContext context, md.Element element) {
+  Widget _richText(BuildContext context, md.Element element, {bool bold = false}) {
+    final boldStyle = bold ? const TextStyle(fontWeight: FontWeight.bold) : null;
     return Text.rich(
       TextSpan(
         children: [
           for (final child in element.children ?? const <md.Node>[])
-            _inlineSpan(child),
+            _inlineSpan(child, style: boldStyle ?? const TextStyle()),
         ],
       ),
-      style: Theme.of(context).textTheme.bodyMedium,
+      style: Theme.of(context).textTheme.bodyMedium?.merge(boldStyle),
     );
+  }
+
+  // Extracts the plain text from a cell, excluding image nodes, converting
+  // both <br> element nodes and literal "<br>" text to newlines.  The result
+  // is trimmed so that image-adjacent separators don't leave blank lines.
+  String _cellPlainText(md.Element cell) {
+    final buf = StringBuffer();
+    void walk(md.Node node) {
+      if (node is md.Element) {
+        if (node.tag == 'img') return;
+        if (node.tag == 'br') {
+          buf.write('\n');
+          return;
+        }
+        for (final child in node.children ?? const <md.Node>[]) {
+          walk(child);
+        }
+      } else {
+        buf.write(node.textContent.replaceAll('<br>', '\n'));
+      }
+    }
+
+    for (final child in cell.children ?? const <md.Node>[]) {
+      walk(child);
+    }
+    return buf.toString().trim();
   }
 
   // ---------------------------------------------------------------- blocks
@@ -270,24 +313,38 @@ class MarkdownView extends StatelessWidget {
     final images = _inlineImages(cell);
     final Widget content;
     if (images.isNotEmpty) {
+      // Collect all text from the cell excluding images; <br> (element or
+      // literal) becomes \n, and leading/trailing \n are trimmed so that
+      // image-adjacent separators don't produce blank lines in the view.
+      final text = _cellPlainText(cell);
+      final textStyle = Theme.of(context).textTheme.bodyMedium?.merge(
+            bold ? const TextStyle(fontWeight: FontWeight.bold) : null,
+          );
+      // CrossAxisAlignment.stretch ensures Text receives the column's full
+      // width as a tight constraint, preventing text from bleeding outside
+      // the cell when IntrinsicColumnWidth is used.  Images are wrapped in
+      // Align so they stay left-aligned and at most 160 px wide regardless
+      // of the computed column width.
       content = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          for (final image in images) SizedBox(width: 160, child: _captionedImage(context, image)),
-          if (cell.textContent.trim().isNotEmpty) _richText(context, cell),
+          for (final image in images)
+            Align(
+              alignment: Alignment.topLeft,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 160),
+                child: _captionedImage(context, image),
+              ),
+            ),
+          if (text.isNotEmpty) Text(text, style: textStyle),
         ],
       );
     } else {
-      content = bold
-          ? Text(cell.textContent, style: const TextStyle(fontWeight: FontWeight.bold))
-          : _richText(context, cell);
+      content = _richText(context, cell, bold: bold);
     }
     return TableCell(
-      // Image-bearing cells bottom-align so texts share a baseline (FR-021).
-      verticalAlignment: images.isNotEmpty
-          ? TableCellVerticalAlignment.bottom
-          : TableCellVerticalAlignment.top,
+      verticalAlignment: TableCellVerticalAlignment.top,
       child: Padding(padding: const EdgeInsets.all(6), child: content),
     );
   }

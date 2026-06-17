@@ -81,10 +81,20 @@ class DocumentMarkdownDecoder extends Converter<String, Document> {
       },
     );
 
-    // Rule 2: without '\n' between text and image, add double '\n'
-    result = result.replaceAllMapped(
-      RegExp(r'([^\n])!\[([^\]]*)\]\(([^)]+)\)'),
-      (match) => '${match[1]}\n\n![${match[2]}](${match[3]})',
+    // Rule 2: without '\n' between text and image, add double '\n'.
+    // Applied line-by-line, skipping table rows (lines that start with '|')
+    // so that image references inside cells are not broken into separate blocks.
+    result = result.splitMapJoin(
+      RegExp(r'^.*$', multiLine: true),
+      onMatch: (m) {
+        final line = m.group(0)!;
+        if (line.trimLeft().startsWith('|')) return line;
+        return line.replaceAllMapped(
+          RegExp(r'([^\n])!\[([^\]]*)\]\(([^)]+)\)'),
+          (m) => '${m[1]}\n\n![${m[2]}](${m[3]})',
+        );
+      },
+      onNonMatch: (s) => s,
     );
 
     // Add another rules here.

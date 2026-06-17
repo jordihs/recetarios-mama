@@ -13,6 +13,12 @@ import 'package:markdown/markdown.dart' as md;
 const _altKey = 'alt';
 const _galleryKey = 'galleryGroup';
 
+/// Node attribute keys used to store the original table markdown on table
+/// nodes. These are set during [encodeDocumentToMarkdown] and read back by
+/// [_encodeNode] so that tables survive the WYSIWYG round-trip without loss.
+const tableMarkdownKey = 'tableMarkdown';
+const tableIndexKey = 'tableIndex';
+
 int _galleryCounter = 0;
 
 /// Decode parser: standalone images and image-only paragraphs (galleries)
@@ -108,6 +114,13 @@ String encodeDocumentToMarkdown(Document document) {
 String _encodeNode(Node node) {
   if (node.type == ImageBlockKeys.type) {
     return imageNodeToMarkdown(node);
+  }
+  // Return stored original markdown instead of re-encoding (which would be
+  // lossy for tables with image cells or other GFM content not in appflowy's
+  // native block format).
+  if (node.type == TableBlockKeys.type) {
+    final stored = node.attributes[tableMarkdownKey] as String?;
+    if (stored != null && stored.isNotEmpty) return stored;
   }
   return documentToMarkdown(
     Document(root: pageNode(children: [node.deepCopy()])),
