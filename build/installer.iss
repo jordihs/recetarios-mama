@@ -144,13 +144,12 @@ begin
     WizardForm.StatusLabel.Caption := CustomMessage('ImportandoDB');
     WizardForm.Update;
 
-    PsArgs := Format(
-      '-NonInteractive -ExecutionPolicy Bypass -File "%s"' +
-      ' -BackendExe "%s" -DbFile "%s" -DataDir "%s"',
-      [ExpandConstant('{app}\import_biblioteca.ps1'),
-       ExpandConstant('{app}\backend\recetarios.exe'),
-       ExpandConstant('{app}\biblioteca.recetarios'),
-       ExpandConstant('{localappdata}\recetarios-mama')]);
+    PsArgs :=
+      '-NonInteractive -ExecutionPolicy Bypass' +
+      ' -File "' + ExpandConstant('{app}\import_biblioteca.ps1') + '"' +
+      ' -BackendExe "' + ExpandConstant('{app}\backend\recetarios.exe') + '"' +
+      ' -DbFile "' + ExpandConstant('{app}\biblioteca.recetarios') + '"' +
+      ' -DataDir "' + ExpandConstant('{localappdata}\recetarios-mama') + '"';
 
     Exec('powershell.exe', PsArgs, '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
   end;
