@@ -1,7 +1,7 @@
 name: Release
 
 # Pushing a version tag (v1.0.1, v2.0.0, ...) builds the Windows app,
-# zips it, and publishes a GitHub release with the zip attached.
+# compila el instalador con Inno Setup y publica el release en GitHub.
 on:
   push:
     tags: ['v*']
@@ -52,16 +52,24 @@ jobs:
       - name: Build Windows package
         run: .\build\build-windows.ps1 -FlutterBin flutter
 
-      - name: Create release zip
-        run: >
-          Compress-Archive -Path dist\recetarios-mama
-          -DestinationPath "recetarios-mama-${{ env.RELEASE_TAG }}-windows-x64.zip"
+      - name: Install Inno Setup
+        run: choco install innosetup --yes --no-progress
+
+      - name: Build installer
+        run: |
+          $version = '${{ env.RELEASE_TAG }}' -replace '^v', ''
+          & 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' `
+            "/DAppVersion=$version" `
+            build\installer.iss
+
+      - name: Rename installer
+        run: |
+          Move-Item dist\recetarios-mama-setup.exe `
+            "recetarios-mama-${{ env.RELEASE_TAG }}-windows-x64-setup.exe"
 
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.RELEASE_TAG }}
-          files: |
-            recetarios-mama-${{ env.RELEASE_TAG }}-windows-x64.zip
-            database/biblioteca.recetarios
+          files: recetarios-mama-${{ env.RELEASE_TAG }}-windows-x64-setup.exe
           generate_release_notes: true

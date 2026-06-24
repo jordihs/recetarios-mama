@@ -1,8 +1,13 @@
 # Builds the distributable Windows app: PyInstaller backend + Flutter Windows GUI.
 # Output: dist/recetarios-mama/  (Flutter app with the backend bundled at backend/)
+#
+# Agregar -BuildInstaller para compilar también el instalador con Inno Setup.
+# Requiere Inno Setup 6 instalado (https://jrsoftware.org/isinfo.php).
+# Output del instalador: dist/recetarios-mama-setup.exe
 [CmdletBinding()]
 param(
-    [string]$FlutterBin = "C:\soft\flutter\bin\flutter.bat"
+    [string]$FlutterBin       = "C:\soft\flutter\bin\flutter.bat",
+    [switch]$BuildInstaller
 )
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
@@ -41,3 +46,17 @@ Copy-Item -Recurse (Join-Path $root 'frontend\build\windows\x64\runner\Release\*
 Copy-Item -Recurse (Join-Path $root 'backend\dist\recetarios') (Join-Path $out 'backend')
 
 Write-Host "Done: $out"
+
+if ($BuildInstaller) {
+    Write-Host "[4/4] Compilando instalador con Inno Setup..."
+    $iscc = @(
+        'C:\Program Files (x86)\Inno Setup 6\ISCC.exe',
+        'C:\Program Files\Inno Setup 6\ISCC.exe'
+    ) | Where-Object { Test-Path $_ } | Select-Object -First 1
+
+    if (-not $iscc) {
+        throw "No se encontró Inno Setup 6. Instálalo desde https://jrsoftware.org/isinfo.php"
+    }
+    Invoke-Native $iscc @((Join-Path $PSScriptRoot 'installer.iss')) 'ISCC'
+    Write-Host "Instalador: $(Join-Path $root 'dist\recetarios-mama-setup.exe')"
+}

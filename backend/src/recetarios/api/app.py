@@ -12,7 +12,7 @@ from recetarios.l10n.messages import msg
 from recetarios.storage.db import Database
 from recetarios.storage.images import ImageStore
 
-API_VERSION = "0.1.0"
+API_VERSION = "1.2.0"
 
 
 def create_app(data_dir: Path) -> FastAPI:
