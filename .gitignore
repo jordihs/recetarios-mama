@@ -39,3 +39,6 @@ Thumbs.db
 .vscode/
 .idea/
 *.log
+
+# Source SVG too large for GitHub (127 MB)
+icon/bruixa_icon.svg

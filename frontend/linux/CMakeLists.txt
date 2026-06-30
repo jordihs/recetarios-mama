@@ -126,3 +126,13 @@ if(NOT CMAKE_BUILD_TYPE MATCHES "Debug")
   install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
     COMPONENT Runtime)
 endif()
+
+# Install app icons so the GTK runner can load them at startup.
+install(FILES "${CMAKE_SOURCE_DIR}/../icon/icon.svg"
+  DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
+  RENAME "recetarios-mama.svg"
+  COMPONENT Runtime)
+install(FILES "${CMAKE_SOURCE_DIR}/../icon/icon_256.png"
+  DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
+  RENAME "recetarios-mama.png"
+  COMPONENT Runtime)

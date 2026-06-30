@@ -25,6 +25,28 @@ static void my_application_activate(GApplication* application) {
   GtkWindow* window =
       GTK_WINDOW(gtk_application_window_new(GTK_APPLICATION(application)));
 
+  // Load the app icon from the bundle's data directory.
+  // GTK renders SVG files as vector via librsvg, falling back to the PNG.
+  {
+    gchar* exe = g_file_read_link("/proc/self/exe", nullptr);
+    if (exe) {
+      gchar* dir = g_path_get_dirname(exe);
+      const gchar* candidates[] = {"recetarios-mama.svg", "recetarios-mama.png"};
+      for (const gchar* name : candidates) {
+        gchar* path = g_build_filename(dir, "data", name, nullptr);
+        GError* err = nullptr;
+        if (gtk_window_set_default_icon_from_file(path, &err)) {
+          g_free(path);
+          break;
+        }
+        g_clear_error(&err);
+        g_free(path);
+      }
+      g_free(dir);
+      g_free(exe);
+    }
+  }
+
   // Use a header bar when running in GNOME as this is the common style used
   // by applications and is the setup most users will be using (e.g. Ubuntu
   // desktop).
