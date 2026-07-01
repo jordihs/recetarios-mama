@@ -13,7 +13,13 @@ class ImageStore {
       : _db = appDb.db,
         _imagesDir = p.join(appDb.dataDir, 'images');
 
-  final Database _db;
+  /// Test-only constructor: no database, no real images directory.
+  /// [pathFor] always returns null; [ingest] must not be called.
+  ImageStore.forTest()
+      : _db = null,
+        _imagesDir = '/no-such-dir-test';
+
+  final Database? _db;
   final String _imagesDir;
   Map<String, String>? _cache; // hash → absolute path
 
@@ -49,7 +55,7 @@ class ImageStore {
 
     await File(filePath).writeAsBytes(bytes);
 
-    await _db.insert(
+    await _db!.insert(
       'images',
       {'hash': hash, 'ext': ext, 'width': width, 'height': height},
       conflictAlgorithm: ConflictAlgorithm.ignore,
