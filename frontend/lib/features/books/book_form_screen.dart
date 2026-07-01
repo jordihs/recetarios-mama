@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,10 +15,6 @@ const imagesTypeGroup = XTypeGroup(
   extensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'],
 );
 
-/// Create (bookId == null) or edit (bookId != null) a book.
-///
-/// The whole presentation is one markdown document edited in a single
-/// rich text editor (US2); the note is a separate plain field (FR-004).
 class BookFormScreen extends ConsumerStatefulWidget {
   const BookFormScreen({super.key, this.bookId});
 
@@ -65,7 +63,7 @@ class _BookFormScreenState extends ConsumerState<BookFormScreen> {
     final file = await openFile(acceptedTypeGroups: const [imagesTypeGroup]);
     if (file == null) return;
     final bytes = await file.readAsBytes();
-    final result = await ref.read(apiClientProvider).uploadImage(bytes, file.name);
+    final result = await ref.read(imageStoreProvider).ingest(bytes);
     setState(() => _coverImage = result['hash'] as String);
   }
 
@@ -99,11 +97,9 @@ class _BookFormScreenState extends ConsumerState<BookFormScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final api = ref.watch(apiClientProvider);
+    final imageStore = ref.watch(imageStoreProvider);
     return Scaffold(
       appBar: AppBar(title: Text(widget.bookId == null ? l10n.addBook : l10n.editBook)),
-      // Save/cancel live in a pinned bottom bar (same pattern as the recipe
-      // editor) so they stay reachable however tall the content editor gets.
       bottomNavigationBar: _loading
           ? null
           : Material(
@@ -149,7 +145,7 @@ class _BookFormScreenState extends ConsumerState<BookFormScreen> {
                       const SizedBox(height: 4),
                       MarkdownEditor(
                         initialMarkdown: _content,
-                        api: api,
+                        imageStore: imageStore,
                         onChanged: (value) => _content = value,
                       ),
                       const SizedBox(height: 12),
@@ -177,13 +173,17 @@ class _BookFormScreenState extends ConsumerState<BookFormScreen> {
                         ],
                       ),
                       if (_coverImage != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 12),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(api.imageUrl(_coverImage!), height: 180),
-                          ),
-                        ),
+                        Builder(builder: (context) {
+                          final filePath = imageStore.pathFor(_coverImage!);
+                          if (filePath == null) return const SizedBox.shrink();
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 12),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.file(File(filePath), height: 180),
+                            ),
+                          );
+                        }),
                     ],
                   ),
                 ),

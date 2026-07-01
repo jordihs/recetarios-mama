@@ -4,22 +4,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:recetarios/app/providers.dart';
-import 'package:recetarios/data/api_client.dart';
 import 'package:recetarios/data/models.dart';
 import 'package:recetarios/features/books/book_list_screen.dart';
 import 'package:recetarios/features/chapters/chapter_list_screen.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
 import 'package:recetarios/widgets/item_card.dart';
 
-Widget _wrap(
+import '../../helpers/test_database.dart';
+
+Future<Widget> _wrap(
   Widget child, {
   required Map<String?, List<ItemSummary>> chaptersByParent,
   String bookPresentation = '',
   String chapterPresentation = '',
-}) {
+}) async {
+  final imageStore = await testImageStore();
   return ProviderScope(
     overrides: [
-      apiClientProvider.overrideWithValue(ApiClient('http://127.0.0.1:9')),
+      imageStoreProvider.overrideWithValue(imageStore),
       chapterListProvider.overrideWith(
         (ref, args) async => chaptersByParent[args.parentId] ?? <ItemSummary>[],
       ),
@@ -55,7 +57,7 @@ Widget _wrap(
 
 void main() {
   testWidgets('book with no chapters shows Spanish empty state', (tester) async {
-    await tester.pumpWidget(_wrap(
+    await tester.pumpWidget(await _wrap(
       const ChapterListScreen(bookId: 'book-1'),
       chaptersByParent: const {},
     ));
@@ -64,7 +66,7 @@ void main() {
   });
 
   testWidgets('top-level chapters render as cards', (tester) async {
-    await tester.pumpWidget(_wrap(
+    await tester.pumpWidget(await _wrap(
       const ChapterListScreen(bookId: 'book-1'),
       chaptersByParent: {
         null: [
@@ -80,7 +82,7 @@ void main() {
   });
 
   testWidgets('nested level lists subchapters of the chapter', (tester) async {
-    await tester.pumpWidget(_wrap(
+    await tester.pumpWidget(await _wrap(
       const ChapterListScreen(bookId: 'book-1', chapterId: 'c1'),
       chaptersByParent: {
         'c1': [ItemSummary(id: 'c1-1', title: 'Preparación')],
@@ -94,7 +96,7 @@ void main() {
   testWidgets('book introduction is shown in full above its chapters', (tester) async {
     const intro = 'Primer párrafo de la introducción del libro.\n\n'
         'Segundo párrafo completo, sin recortar.\n';
-    await tester.pumpWidget(_wrap(
+    await tester.pumpWidget(await _wrap(
       const ChapterListScreen(bookId: 'book-1'),
       chaptersByParent: {
         null: [ItemSummary(id: 'c1', title: 'Entrantes')],
@@ -105,12 +107,11 @@ void main() {
 
     expect(find.textContaining('Primer párrafo de la introducción del libro.'), findsOneWidget);
     expect(find.textContaining('Segundo párrafo completo, sin recortar.'), findsOneWidget);
-    // Edit button for the parent book is available from the full view.
     expect(find.byTooltip('Editar libro'), findsOneWidget);
   });
 
   testWidgets('chapter introduction is shown in full above its content', (tester) async {
-    await tester.pumpWidget(_wrap(
+    await tester.pumpWidget(await _wrap(
       const ChapterListScreen(bookId: 'book-1', chapterId: 'c1'),
       chaptersByParent: const {},
       chapterPresentation: 'Introducción completa del capítulo.',

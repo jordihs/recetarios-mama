@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,9 +11,6 @@ import 'package:recetarios/features/recipes/ingredients_editor.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
 import 'package:recetarios/widgets/markdown_editor.dart';
 
-/// Edit-mode form (FR-017/019): every element of the recipe is editable with
-/// section-appropriate editors. Mutates [draft] in place; [onChanged] marks
-/// the draft dirty.
 class RecipeEditForm extends ConsumerWidget {
   const RecipeEditForm({super.key, required this.draft, required this.onChanged});
 
@@ -21,7 +20,7 @@ class RecipeEditForm extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final api = ref.watch(apiClientProvider);
+    final imageStore = ref.watch(imageStoreProvider);
     final theme = Theme.of(context);
 
     return SingleChildScrollView(
@@ -52,7 +51,7 @@ class RecipeEditForm extends ConsumerWidget {
                             await openFile(acceptedTypeGroups: const [imagesTypeGroup]);
                         if (file == null) return;
                         final bytes = await file.readAsBytes();
-                        final result = await api.uploadImage(bytes, file.name);
+                        final result = await imageStore.ingest(bytes);
                         draft.image = result['hash'] as String;
                         onChanged();
                       },
@@ -65,6 +64,18 @@ class RecipeEditForm extends ConsumerWidget {
                         },
                         child: Text(l10n.removeImage),
                       ),
+                    if (draft.image != null)
+                      Builder(builder: (context) {
+                        final filePath = imageStore.pathFor(draft.image!);
+                        if (filePath == null) return const SizedBox.shrink();
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: Image.file(File(filePath), height: 48, fit: BoxFit.cover),
+                          ),
+                        );
+                      }),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -72,7 +83,7 @@ class RecipeEditForm extends ConsumerWidget {
                 const SizedBox(height: 4),
                 MarkdownEditor(
                   initialMarkdown: draft.introduction,
-                  api: api,
+                  imageStore: imageStore,
                   onChanged: (value) {
                     draft.introduction = value;
                     onChanged();
@@ -86,7 +97,7 @@ class RecipeEditForm extends ConsumerWidget {
                 const SizedBox(height: 4),
                 MarkdownEditor(
                   initialMarkdown: draft.preparation,
-                  api: api,
+                  imageStore: imageStore,
                   onChanged: (value) {
                     draft.preparation = value;
                     onChanged();

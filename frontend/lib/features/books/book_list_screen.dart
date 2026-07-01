@@ -12,8 +12,9 @@ import 'package:recetarios/features/transfer/library_transfer_flow.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
 import 'package:recetarios/widgets/item_card.dart';
 
-final booksRepositoryProvider =
-    Provider<BooksRepository>((ref) => BooksRepository(ref.watch(apiClientProvider)));
+final booksRepositoryProvider = Provider<BooksRepository>(
+  (ref) => BooksRepository(ref.watch(repositoryProvider)),
+);
 
 final bookListProvider =
     FutureProvider<List<ItemSummary>>((ref) => ref.watch(booksRepositoryProvider).list());
@@ -90,14 +91,16 @@ class BookListScreen extends ConsumerWidget {
               ),
             );
           }
-          final api = ref.watch(apiClientProvider);
+          final imageStore = ref.watch(imageStoreProvider);
           return ResponsiveCardGrid(
             children: [
               for (var i = 0; i < items.length; i++)
                 ItemCard(
                   title: items[i].title,
                   description: items[i].description,
-                  imageUrl: items[i].image == null ? null : api.imageUrl(items[i].image!),
+                  imageFilePath: items[i].image == null
+                      ? null
+                      : imageStore.pathFor(items[i].image!),
                   onTap: () => context.push('/books/${items[i].id}'),
                   trailing: _BookMenu(item: items[i], index: i, items: items),
                 ),

@@ -1,33 +1,18 @@
-import 'package:recetarios/data/api_client.dart';
+import 'package:recetarios/data/local/local_repository.dart';
 import 'package:recetarios/data/models.dart';
 
 class RecipesRepository {
-  RecipesRepository(this._api);
+  RecipesRepository(this._repo);
 
-  final ApiClient _api;
+  final LocalRepository _repo;
 
-  Future<List<ItemSummary>> list(String chapterId) async {
-    final data = await _api.get('/chapters/$chapterId/recipes') as List;
-    return data.map((e) => ItemSummary.fromJson((e as Map).cast<String, dynamic>())).toList();
-  }
-
-  Future<Recipe> get(String id) async {
-    final data = await _api.get('/recipes/$id');
-    return Recipe.fromJson((data as Map).cast<String, dynamic>());
-  }
-
-  Future<Recipe> create(String chapterId, Map<String, dynamic> body) async {
-    final data = await _api.post('/chapters/$chapterId/recipes', body: body);
-    return Recipe.fromJson((data as Map).cast<String, dynamic>());
-  }
-
-  Future<Recipe> update(String id, Map<String, dynamic> body) async {
-    final data = await _api.put('/recipes/$id', body: body);
-    return Recipe.fromJson((data as Map).cast<String, dynamic>());
-  }
-
-  Future<void> delete(String id) => _api.delete('/recipes/$id');
-
+  Future<List<ItemSummary>> list(String chapterId) => _repo.listRecipes(chapterId);
+  Future<Recipe> get(String id) => _repo.getRecipe(id);
+  Future<Recipe> create(String chapterId, Map<String, dynamic> body) =>
+      _repo.createRecipe(chapterId, body);
+  Future<Recipe> update(String id, Map<String, dynamic> body) =>
+      _repo.updateRecipe(id, body);
+  Future<void> delete(String id) => _repo.deleteRecipe(id);
   Future<void> reorder(String chapterId, List<String> ids) =>
-      _api.put('/recipes/order', body: {'chapter_id': chapterId, 'ids': ids});
+      _repo.reorderRecipes(chapterId, ids);
 }

@@ -3,25 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:recetarios/app/providers.dart';
-import 'package:recetarios/data/api_client.dart';
+import 'package:recetarios/data/local/legacy_importer.dart';
 import 'package:recetarios/features/books/book_list_screen.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
 
 const _jsonTypeGroup = XTypeGroup(label: 'Recetario JSON', extensions: ['json']);
 
-/// Legacy import flow (FR-022/022a): pick file → pre-flight collision check →
-/// replace / keep-both choice → import → Spanish report.
 Future<void> importLegacyFlow(BuildContext context, WidgetRef ref) async {
   final l10n = AppLocalizations.of(context)!;
-  final api = ref.read(apiClientProvider);
+  final importer = ref.read(legacyImporterProvider);
 
   final file = await openFile(acceptedTypeGroups: const [_jsonTypeGroup]);
   if (file == null || !context.mounted) return;
 
   try {
-    final inspection =
-        (await api.post('/import/legacy/inspect', body: {'path': file.path}) as Map)
-            .cast<String, dynamic>();
+    final inspection = await importer.inspect(file.path);
     if (!context.mounted) return;
 
     var onCollision = 'keep_both';
@@ -52,14 +48,10 @@ Future<void> importLegacyFlow(BuildContext context, WidgetRef ref) async {
       onCollision = choice;
     }
 
-    final result = (await api.post('/import/legacy',
-            body: {'path': file.path, 'on_collision': onCollision}) as Map)
-        .cast<String, dynamic>();
+    final report = await importer.run(file.path, onCollision);
     ref.invalidate(bookListProvider);
     if (!context.mounted) return;
 
-    final report = (result['report'] as Map).cast<String, dynamic>();
-    final missing = (report['images_missing'] as List? ?? const []).cast<String>();
     await showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
@@ -70,15 +62,15 @@ Future<void> importLegacyFlow(BuildContext context, WidgetRef ref) async {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(l10n.importReportBody(
-                report['chapters'] as int? ?? 0,
-                report['recipes'] as int? ?? 0,
-                report['images_imported'] as int? ?? 0,
+                report.chapters,
+                report.recipes,
+                report.imagesImported,
               )),
-              if (missing.isNotEmpty) ...[
+              if (report.imagesMissing.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Text(l10n.importReportMissingImages,
                     style: Theme.of(context).textTheme.titleSmall),
-                for (final path in missing) Text('• $path'),
+                for (final path in report.imagesMissing) Text('• $path'),
               ],
             ],
           ),
@@ -91,7 +83,7 @@ Future<void> importLegacyFlow(BuildContext context, WidgetRef ref) async {
         ],
       ),
     );
-  } on ApiException catch (e) {
+  } on LegacyImportException catch (e) {
     if (!context.mounted) return;
     await showDialog<void>(
       context: context,
@@ -106,5 +98,8 @@ Future<void> importLegacyFlow(BuildContext context, WidgetRef ref) async {
         ],
       ),
     );
+  } catch (e) {
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
   }
 }

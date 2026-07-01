@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:file_selector/file_selector.dart';
@@ -6,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:provider/provider.dart';
 
-import 'package:recetarios/data/api_client.dart';
+import 'package:recetarios/data/local/image_store.dart';
 import 'package:recetarios/data/table_data.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
 import 'package:recetarios/widgets/markdown_editor_codecs.dart';
@@ -16,8 +17,6 @@ const _imagesTypeGroup = XTypeGroup(
   label: 'Imágenes',
   extensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'],
 );
-
-final _imageRef = RegExp(r'image://([0-9a-fA-F]{64})');
 
 /// Rich text editor for one markdown document (research R3).
 ///
@@ -31,14 +30,14 @@ class MarkdownEditor extends StatefulWidget {
   const MarkdownEditor({
     super.key,
     required this.initialMarkdown,
-    required this.api,
+    required this.imageStore,
     required this.onChanged,
   });
 
   static const sourceFieldKey = Key('markdown_editor_source_field');
 
   final String initialMarkdown;
-  final ApiClient api;
+  final ImageStore imageStore;
   final ValueChanged<String> onChanged;
 
   @override
@@ -76,49 +75,32 @@ class MarkdownEditorState extends State<MarkdownEditor> {
   }
 
   // ------------------------------------------------------------- conversion
-
-  /// `image://<hash>` → servable URL, so the WYSIWYG can display the image.
-  String _toEditable(String markdown) => markdown.replaceAllMapped(
-        _imageRef,
-        (m) => widget.api.imageUrl(m.group(1)!),
-      );
-
-  /// Servable URL → canonical `image://<hash>`.
-  String _toCanonical(String markdown) => markdown.replaceAllMapped(
-        RegExp(RegExp.escape(widget.api.baseUrl) + r'/images/([0-9a-fA-F]{64})'),
-        (m) => 'image://${m.group(1)!}',
-      );
+  //
+  // With local storage, image://hash URLs stay as-is in the editor document;
+  // no HTTP URL expansion/contraction is needed. The custom image block
+  // renderer in _wysiwyg() handles file loading by hash.
 
   Document _decode(String markdown) {
-    final editable = _toEditable(markdown);
-    final tableMds = _extractTableMarkdowns(editable);
+    final tableMds = _extractTableMarkdowns(markdown);
     final decoded = markdownToDocument(
-      editable,
+      markdown,
       markdownParsers: const [CaptionedImageMarkdownParser()],
     );
 
-    // Annotate each table node with its original canonical markdown.
-    // _encodeNode() returns this verbatim instead of re-encoding through
-    // appflowy's lossy table serialiser (which can't represent image cells).
     var ti = 0;
     final annotated = decoded.root.children.map((node) {
       if (node.type == TableBlockKeys.type && ti < tableMds.length) {
-        final canonical = _toCanonical(tableMds[ti]);
         ti++;
         return node.copyWith(attributes: {
           ...node.attributes,
-          tableMarkdownKey: canonical,
+          tableMarkdownKey: tableMds[ti - 1],
           tableIndexKey: ti,
         });
       }
       return node.deepCopy();
     }).toList();
 
-    // Ensure the document never ends with a table: the placeholder has no
-    // natural "click below" target, so we guarantee at least one paragraph
-    // after the last table for the user to continue typing.
-    if (annotated.isNotEmpty &&
-        annotated.last.type == TableBlockKeys.type) {
+    if (annotated.isNotEmpty && annotated.last.type == TableBlockKeys.type) {
       annotated.add(paragraphNode());
     }
 
@@ -131,9 +113,6 @@ class MarkdownEditorState extends State<MarkdownEditor> {
     return result;
   }
 
-  /// Extracts the raw text of every GFM table block found in [markdown].
-  /// Blocks are separated by blank lines; a block is a table when its first
-  /// line starts with `|` and its second line is a delimiter row (`:?-+:?`).
   List<String> _extractTableMarkdowns(String markdown) {
     final tables = <String>[];
     for (final chunk in markdown.split(RegExp(r'\n{2,}'))) {
@@ -161,14 +140,10 @@ class MarkdownEditorState extends State<MarkdownEditor> {
   }
 
   String _encode(Document document) =>
-      _toCanonical(encodeDocumentToMarkdown(document)).trim();
+      encodeDocumentToMarkdown(document).trim();
 
-  /// True when WYSIWYG decode→encode preserves the document's semantics
-  /// (compared as GFM HTML, so cosmetic syntax differences don't count).
   bool _roundTripsSafely(String markdown) {
-    if (markdown.trim().isEmpty) {
-      return true;
-    }
+    if (markdown.trim().isEmpty) return true;
     try {
       final roundTripped = _encode(_decode(markdown));
       String html(String source) => md
@@ -192,9 +167,7 @@ class MarkdownEditorState extends State<MarkdownEditor> {
 
   void _emitFromEditor() {
     final editor = _editor;
-    if (editor == null) {
-      return;
-    }
+    if (editor == null) return;
     _markdown = _encode(editor.document);
     _sourceController.text = _markdown;
     widget.onChanged(_markdown);
@@ -203,10 +176,7 @@ class MarkdownEditorState extends State<MarkdownEditor> {
   // -------------------------------------------------- table editor callback
 
   Future<void> _openTableEditor(BuildContext ctx, Node tableNode) async {
-    final storedMd =
-        tableNode.attributes[tableMarkdownKey] as String? ?? '';
-    // Compute the 1-based table position from the live document so the dialog
-    // title stays accurate even when tables have been added or removed.
+    final storedMd = tableNode.attributes[tableMarkdownKey] as String? ?? '';
     var index = 0;
     for (final n in (_editor?.document.root.children ?? <Node>[])) {
       if (n.type == TableBlockKeys.type) index++;
@@ -217,7 +187,7 @@ class MarkdownEditorState extends State<MarkdownEditor> {
         ? TableData.blank()
         : TableData.fromMarkdown(storedMd);
     final result =
-        await TableEditorDialog.show(ctx, initial, widget.api, index);
+        await TableEditorDialog.show(ctx, initial, widget.imageStore, index);
     if (result == null || !mounted) return;
     final editor = _editor;
     if (editor == null) return;
@@ -277,19 +247,14 @@ class MarkdownEditorState extends State<MarkdownEditor> {
         : [path.first + 1];
     final tableNodes = _decode('| Columna | Columna |\n| --- | --- |\n|  |  |')
         .root.children.map((n) => n.deepCopy()).toList();
-    // Always follow the table with an empty paragraph so the user has
-    // somewhere to type without needing to switch to source mode.
     final transaction = editor.transaction
       ..insertNodes(insertAt, [...tableNodes, paragraphNode()]);
     await editor.apply(transaction);
   }
 
-  // Public: called from tests with the editor focused — uses current selection.
   Future<void> insertImageReference(String hash, {String caption = ''}) =>
       _doInsertImage(hash, caption: caption, sel: _editor?.selection);
 
-  // Core insertion: uses [sel] so callers can pass a snapshot taken before
-  // any async gap that would clear the editor's focus/selection.
   Future<void> _doInsertImage(
     String hash, {
     String caption = '',
@@ -297,9 +262,6 @@ class MarkdownEditorState extends State<MarkdownEditor> {
   }) async {
     final editor = _editor;
     if (editor == null) return;
-    // Inside a table cell, images can't be block nodes — insert as inline
-    // markdown text in the cell's paragraph delta so the reference stays in
-    // the cell as valid GFM inline-image syntax.
     if (sel != null && _selInTableCell(editor, sel)) {
       final node = editor.getNodeAtPath(sel.end.path);
       if (node == null) return;
@@ -332,13 +294,11 @@ class MarkdownEditorState extends State<MarkdownEditor> {
   Future<void> _pickAndInsertImage() async {
     final editor = _editor;
     if (editor == null) return;
-    // Snapshot selection NOW — the file-picker dialog will cause the editor
-    // to lose focus, clearing editor.selection before we can use it.
     final sel = editor.selection;
     final file = await openFile(acceptedTypeGroups: const [_imagesTypeGroup]);
     if (file == null) return;
     final bytes = await file.readAsBytes();
-    final result = await widget.api.uploadImage(bytes, file.name);
+    final result = await widget.imageStore.ingest(bytes);
     await _doInsertImage(result['hash'] as String, sel: sel);
   }
 
@@ -374,7 +334,6 @@ class MarkdownEditorState extends State<MarkdownEditor> {
                       _pickAndInsertImage),
                 ],
                 const Spacer(),
-                // Unobtrusive source toggle (FR-010): small, end of the bar.
                 Semantics(
                   button: true,
                   label: l10n.editorSource,
@@ -446,14 +405,13 @@ class MarkdownEditorState extends State<MarkdownEditor> {
       ),
       blockComponentBuilders: {
         ...standardBlockComponentBuilderMap,
-        // Replace the stock table renderer with a placeholder; the real
-        // table UI is the dedicated TableEditorDialog (double-click to open).
         TableBlockKeys.type: _TablePlaceholderBlockComponentBuilder(
           onEdit: _openTableEditor,
         ),
+        ImageBlockKeys.type: _LocalImageBlockComponentBuilder(
+          imageStore: widget.imageStore,
+        ),
       },
-      // Intercept Enter on a focused table placeholder before the standard
-      // handler can mutate the table node structure.
       commandShortcutEvents: [
         CommandShortcutEvent(
           key: 'table placeholder enter',
@@ -479,12 +437,203 @@ class MarkdownEditorState extends State<MarkdownEditor> {
 }
 
 // ---------------------------------------------------------------------------
-// Table placeholder block component
+// Local image block component
 // ---------------------------------------------------------------------------
 
-/// Registers our custom table placeholder under the `table` key, replacing
-/// appflowy's stock table renderer. The placeholder is a styled text line that
-/// the user double-clicks to open the [TableEditorDialog].
+class _LocalImageBlockComponentBuilder extends BlockComponentBuilder {
+  _LocalImageBlockComponentBuilder({required this.imageStore});
+
+  final ImageStore imageStore;
+
+  @override
+  BlockComponentWidget build(BlockComponentContext blockComponentContext) {
+    final node = blockComponentContext.node;
+    final url = node.attributes[ImageBlockKeys.url] as String? ?? '';
+    String? filePath;
+    if (url.startsWith('image://')) {
+      filePath = imageStore.pathFor(url.substring('image://'.length));
+    }
+    final caption = node.attributes['alt'] as String? ?? '';
+    return _LocalImageWidget(
+      key: node.key,
+      node: node,
+      configuration: configuration,
+      showActions: showActions(node),
+      actionBuilder: (ctx, state) => actionBuilder(blockComponentContext, state),
+      actionTrailingBuilder: (ctx, state) =>
+          actionTrailingBuilder(blockComponentContext, state),
+      filePath: filePath,
+      caption: caption,
+    );
+  }
+
+  @override
+  BlockComponentValidate get validate => (_) => true;
+}
+
+class _LocalImageWidget extends BlockComponentStatefulWidget {
+  const _LocalImageWidget({
+    super.key,
+    required super.node,
+    super.configuration = const BlockComponentConfiguration(),
+    super.showActions,
+    super.actionBuilder,
+    super.actionTrailingBuilder,
+    this.filePath,
+    this.caption = '',
+  });
+
+  final String? filePath;
+  final String caption;
+
+  @override
+  State<_LocalImageWidget> createState() => _LocalImageWidgetState();
+}
+
+class _LocalImageWidgetState extends State<_LocalImageWidget>
+    with SelectableMixin, BlockComponentConfigurable {
+  @override
+  BlockComponentConfiguration get configuration => widget.configuration;
+
+  @override
+  Node get node => widget.node;
+
+  final _innerKey = GlobalKey();
+  RenderBox? get _renderBox => context.findRenderObject() as RenderBox?;
+
+  @override
+  Widget build(BuildContext context) {
+    final editorState = context.read<EditorState>();
+
+    Widget child = Padding(
+      key: _innerKey,
+      padding: padding,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: widget.filePath != null
+                ? Image.file(
+                    File(widget.filePath!),
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, _, _) => const _BrokenImage(),
+                  )
+                : const _BrokenImage(),
+          ),
+          if (widget.caption.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(widget.caption,
+                  style: Theme.of(context).textTheme.bodySmall),
+            ),
+        ],
+      ),
+    );
+
+    child = BlockSelectionContainer(
+      node: node,
+      delegate: this,
+      listenable: editorState.selectionNotifier,
+      remoteSelection: editorState.remoteSelections,
+      blockColor: editorState.editorStyle.selectionColor,
+      cursorColor: editorState.editorStyle.cursorColor,
+      selectionColor: editorState.editorStyle.selectionColor,
+      supportTypes: const [
+        BlockSelectionType.block,
+        BlockSelectionType.cursor,
+      ],
+      child: child,
+    );
+
+    if (widget.showActions && widget.actionBuilder != null) {
+      child = BlockComponentActionWrapper(
+        node: node,
+        actionBuilder: widget.actionBuilder!,
+        actionTrailingBuilder: widget.actionTrailingBuilder,
+        child: child,
+      );
+    }
+
+    return child;
+  }
+
+  @override
+  Position start() => Position(path: widget.node.path, offset: 0);
+  @override
+  Position end() => Position(path: widget.node.path, offset: 1);
+  @override
+  Position getPositionInOffset(Offset start) => end();
+  @override
+  bool get shouldCursorBlink => false;
+  @override
+  CursorStyle get cursorStyle => CursorStyle.cover;
+
+  @override
+  Rect getBlockRect({bool shiftWithBaseOffset = false}) =>
+      getRectsInSelection(Selection.invalid()).firstOrNull ?? Rect.zero;
+
+  @override
+  Rect? getCursorRectInPosition(
+    Position position, {
+    bool shiftWithBaseOffset = false,
+  }) {
+    if (_renderBox == null) return null;
+    return getRectsInSelection(
+      Selection.collapsed(position),
+      shiftWithBaseOffset: shiftWithBaseOffset,
+    ).firstOrNull;
+  }
+
+  @override
+  List<Rect> getRectsInSelection(
+    Selection selection, {
+    bool shiftWithBaseOffset = false,
+  }) {
+    if (_renderBox == null) return [];
+    final parentBox = context.findRenderObject();
+    final innerBox = _innerKey.currentContext?.findRenderObject();
+    if (parentBox is RenderBox && innerBox is RenderBox) {
+      return [
+        (shiftWithBaseOffset
+                ? innerBox.localToGlobal(Offset.zero, ancestor: parentBox)
+                : Offset.zero) &
+            innerBox.size,
+      ];
+    }
+    return [Offset.zero & _renderBox!.size];
+  }
+
+  @override
+  Selection getSelectionInRange(Offset start, Offset end) => Selection.single(
+        path: widget.node.path,
+        startOffset: 0,
+        endOffset: 1,
+      );
+
+  @override
+  Offset localToGlobal(Offset offset, {bool shiftWithBaseOffset = false}) =>
+      _renderBox!.localToGlobal(offset);
+
+  @override
+  TextDirection textDirection() => TextDirection.ltr;
+}
+
+class _BrokenImage extends StatelessWidget {
+  const _BrokenImage();
+  @override
+  Widget build(BuildContext context) => const SizedBox(
+        width: 60,
+        height: 60,
+        child: ColoredBox(color: Colors.black12, child: Icon(Icons.broken_image)),
+      );
+}
+
+// ---------------------------------------------------------------------------
+// Table placeholder block component (unchanged from original)
+// ---------------------------------------------------------------------------
+
 class _TablePlaceholderBlockComponentBuilder extends BlockComponentBuilder {
   _TablePlaceholderBlockComponentBuilder({required this.onEdit});
 
@@ -506,8 +655,6 @@ class _TablePlaceholderBlockComponentBuilder extends BlockComponentBuilder {
     );
   }
 
-  // Tables always have children (cells), so the stock validate would reject
-  // them. Accept any table node unconditionally.
   @override
   BlockComponentValidate get validate => (_) => true;
 }
@@ -544,9 +691,6 @@ class _TablePlaceholderWidgetState extends State<_TablePlaceholderWidget>
   @override
   Widget build(BuildContext context) {
     final editorState = context.read<EditorState>();
-    // Count 1-based position of this table among all table nodes in the
-    // document — do not rely on the stored tableIndexKey attribute which is
-    // always 1 for newly inserted single-table snippets.
     var index = 0;
     for (final n in editorState.document.root.children) {
       if (n.type == TableBlockKeys.type) index++;
@@ -599,23 +743,18 @@ class _TablePlaceholderWidgetState extends State<_TablePlaceholderWidget>
 
   @override
   Position start() => Position(path: widget.node.path, offset: 0);
-
   @override
   Position end() => Position(path: widget.node.path, offset: 1);
-
   @override
   Position getPositionInOffset(Offset start) => end();
-
   @override
   bool get shouldCursorBlink => false;
-
   @override
   CursorStyle get cursorStyle => CursorStyle.cover;
 
   @override
-  Rect getBlockRect({bool shiftWithBaseOffset = false}) {
-    return getRectsInSelection(Selection.invalid()).firstOrNull ?? Rect.zero;
-  }
+  Rect getBlockRect({bool shiftWithBaseOffset = false}) =>
+      getRectsInSelection(Selection.invalid()).firstOrNull ?? Rect.zero;
 
   @override
   Rect? getCursorRectInPosition(

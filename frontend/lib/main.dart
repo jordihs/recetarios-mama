@@ -1,5 +1,3 @@
-import 'dart:ui' show AppExitResponse;
-
 import 'package:appflowy_editor/appflowy_editor.dart'
     show AppFlowyEditorL10n, AppFlowyEditorLocalizations;
 import 'package:flutter/material.dart';
@@ -7,65 +5,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:recetarios/app/app.dart';
 import 'package:recetarios/app/providers.dart';
-import 'package:recetarios/core/backend.dart';
-import 'package:recetarios/data/api_client.dart';
+import 'package:recetarios/data/local/app_database.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const _BootSplash());
-  // The rich text editor's own UI strings (tooltips, menus) ship per-locale;
-  // Spanish is published as es-VE. The app is Spanish-only (constitution).
   AppFlowyEditorL10n.current =
       await AppFlowyEditorLocalizations.load(const Locale('es', 'VE'));
   try {
-    final connection = await BackendConnection.establish();
-    final api = ApiClient(connection.baseUrl);
-    final lifecycle = _BackendLifecycle(connection);
+    final db = await AppDatabase.open();
     runApp(
       ProviderScope(
-        overrides: [apiClientProvider.overrideWithValue(api)],
-        child: _LifecycleScope(lifecycle: lifecycle, child: RecetariosApp()),
+        overrides: [appDatabaseProvider.overrideWithValue(db)],
+        child: RecetariosApp(),
       ),
     );
-  } catch (_) {
-    runApp(const _BootFailure());
+  } catch (e) {
+    runApp(_BootFailure(error: '$e'));
   }
-}
-
-/// Shuts the backend down when the app window closes.
-class _BackendLifecycle {
-  _BackendLifecycle(this.connection) {
-    _listener = AppLifecycleListener(onExitRequested: () async {
-      await connection.dispose();
-      return AppExitResponse.exit;
-    });
-  }
-
-  final BackendConnection connection;
-  late final AppLifecycleListener _listener;
-
-  void dispose() => _listener.dispose();
-}
-
-class _LifecycleScope extends StatefulWidget {
-  const _LifecycleScope({required this.lifecycle, required this.child});
-
-  final _BackendLifecycle lifecycle;
-  final Widget child;
-
-  @override
-  State<_LifecycleScope> createState() => _LifecycleScopeState();
-}
-
-class _LifecycleScopeState extends State<_LifecycleScope> {
-  @override
-  void dispose() {
-    widget.lifecycle.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => widget.child;
 }
 
 class _BootSplash extends StatelessWidget {
@@ -92,18 +49,19 @@ class _BootSplash extends StatelessWidget {
 }
 
 class _BootFailure extends StatelessWidget {
-  const _BootFailure();
+  const _BootFailure({required this.error});
+  final String error;
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: Center(
           child: Padding(
-            padding: EdgeInsets.all(24),
+            padding: const EdgeInsets.all(24),
             child: Text(
-              'No se ha podido iniciar el servicio de datos. Vuelve a abrir la aplicación.',
+              'No se ha podido abrir la base de datos.\n$error',
               textAlign: TextAlign.center,
             ),
           ),

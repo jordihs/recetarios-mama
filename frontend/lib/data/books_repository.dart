@@ -1,35 +1,25 @@
-import 'package:recetarios/data/api_client.dart';
+import 'package:recetarios/data/local/local_repository.dart';
 import 'package:recetarios/data/models.dart';
 
 class BooksRepository {
-  BooksRepository(this._api);
+  BooksRepository(this._repo);
 
-  final ApiClient _api;
+  final LocalRepository _repo;
 
-  Future<List<ItemSummary>> list() async {
-    final data = await _api.get('/books') as List;
-    return data.map((e) => ItemSummary.fromJson((e as Map).cast<String, dynamic>())).toList();
-  }
-
-  Future<BookDetail> get(String id) async {
-    final data = await _api.get('/books/$id');
-    return BookDetail.fromJson((data as Map).cast<String, dynamic>());
-  }
+  Future<List<ItemSummary>> list() => _repo.listBooks();
+  Future<BookDetail> get(String id) => _repo.getBook(id);
 
   Future<BookDetail> create({
     required String title,
     String? coverImage,
     String presentation = '',
     String? note,
-  }) async {
-    final data = await _api.post('/books', body: {
-      'title': title,
-      'cover_image': coverImage,
-      'presentation': presentation,
-      'note': note,
-    });
-    return BookDetail.fromJson((data as Map).cast<String, dynamic>());
-  }
+  }) => _repo.createBook(
+        title: title,
+        coverImage: coverImage,
+        presentation: presentation,
+        note: note,
+      );
 
   Future<BookDetail> update(
     String id, {
@@ -37,17 +27,14 @@ class BooksRepository {
     String? coverImage,
     String presentation = '',
     String? note,
-  }) async {
-    final data = await _api.put('/books/$id', body: {
-      'title': title,
-      'cover_image': coverImage,
-      'presentation': presentation,
-      'note': note,
-    });
-    return BookDetail.fromJson((data as Map).cast<String, dynamic>());
-  }
+  }) => _repo.updateBook(
+        id,
+        title: title,
+        coverImage: coverImage,
+        presentation: presentation,
+        note: note,
+      );
 
-  Future<void> delete(String id) => _api.delete('/books/$id');
-
-  Future<void> reorder(List<String> ids) => _api.put('/books/order', body: {'ids': ids});
+  Future<void> delete(String id) => _repo.deleteBook(id);
+  Future<void> reorder(List<String> ids) => _repo.reorderBooks(ids);
 }

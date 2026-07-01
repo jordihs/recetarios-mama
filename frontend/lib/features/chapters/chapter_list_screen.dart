@@ -4,16 +4,17 @@ import 'package:go_router/go_router.dart';
 
 import 'package:recetarios/app/providers.dart';
 import 'package:recetarios/data/chapters_repository.dart';
+import 'package:recetarios/data/local/image_store.dart';
 import 'package:recetarios/data/models.dart';
 import 'package:recetarios/features/books/book_list_screen.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
 import 'package:recetarios/widgets/item_card.dart';
 import 'package:recetarios/widgets/markdown_view.dart';
 
-final chaptersRepositoryProvider =
-    Provider<ChaptersRepository>((ref) => ChaptersRepository(ref.watch(apiClientProvider)));
+final chaptersRepositoryProvider = Provider<ChaptersRepository>(
+  (ref) => ChaptersRepository(ref.watch(repositoryProvider)),
+);
 
-/// Sibling chapters of (bookId, parentChapterId?).
 final chapterListProvider =
     FutureProvider.family<List<ItemSummary>, ({String bookId, String? parentId})>(
   (ref, args) =>
@@ -24,19 +25,11 @@ final chapterDetailProvider = FutureProvider.family<ChapterDetail, String>(
   (ref, id) => ref.watch(chaptersRepositoryProvider).get(id),
 );
 
-/// Chapter browser: top level of a book (chapterId == null) or a chapter's
-/// subchapters + recipes (chapterId != null).
-///
-/// The parent item's full presentation content (book or chapter introduction)
-/// is rendered above the listings, with an edit action in the AppBar — the
-/// recipe view is the only place that does not show its parent's description.
 class ChapterListScreen extends ConsumerWidget {
   const ChapterListScreen({super.key, required this.bookId, this.chapterId, this.recipesSection});
 
   final String bookId;
   final String? chapterId;
-
-  /// Injected by the recipes feature: builds the recipe section for a chapter.
   final Widget? recipesSection;
 
   @override
@@ -88,11 +81,9 @@ class ChapterListScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(child: Text('$error')),
         data: (items) {
-          final api = ref.watch(apiClientProvider);
+          final imageStore = ref.watch(imageStoreProvider);
           return CustomScrollView(
             slivers: [
-              // Full introduction of the parent book/chapter (FR-006 companion:
-              // lists show the truncated description; this is the full content).
               if (parentPresentation.isNotEmpty || (parentNote?.isNotEmpty ?? false))
                 SliverToBoxAdapter(
                   child: Center(
@@ -104,9 +95,9 @@ class ChapterListScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (parentPresentation.isNotEmpty)
-                              MarkdownView(markdown: parentPresentation, api: api),
-                            // The note sits at the foot of the content, in the
-                            // recipe-note visual style (FR-004 companion).
+                              MarkdownView(
+                                  markdown: parentPresentation,
+                                  imageStore: imageStore),
                             if (parentNote != null && parentNote.isNotEmpty)
                               Card(
                                 child: Padding(
@@ -140,7 +131,10 @@ class ChapterListScreen extends ConsumerWidget {
                 ),
                 SliverToBoxAdapter(
                   child: _ChapterGrid(
-                      items: items, bookId: bookId, parentId: chapterId, api: api),
+                      items: items,
+                      bookId: bookId,
+                      parentId: chapterId,
+                      imageStore: imageStore),
                 ),
               ] else if (recipesSection == null)
                 SliverToBoxAdapter(
@@ -160,12 +154,17 @@ class ChapterListScreen extends ConsumerWidget {
 }
 
 class _ChapterGrid extends ConsumerWidget {
-  const _ChapterGrid({required this.items, required this.bookId, this.parentId, required this.api});
+  const _ChapterGrid({
+    required this.items,
+    required this.bookId,
+    this.parentId,
+    required this.imageStore,
+  });
 
   final List<ItemSummary> items;
   final String bookId;
   final String? parentId;
-  final dynamic api;
+  final ImageStore imageStore;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -184,7 +183,9 @@ class _ChapterGrid extends ConsumerWidget {
             ItemCard(
               title: items[i].title,
               description: items[i].description,
-              imageUrl: items[i].image == null ? null : api.imageUrl(items[i].image!),
+              imageFilePath: items[i].image == null
+                  ? null
+                  : imageStore.pathFor(items[i].image!),
               onTap: () => context.push('/books/$bookId/chapters/${items[i].id}'),
               trailing: _ChapterMenu(
                   item: items[i], index: i, items: items, bookId: bookId, parentId: parentId),

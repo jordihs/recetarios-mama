@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,11 +11,6 @@ import 'package:recetarios/features/chapters/chapter_list_screen.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
 import 'package:recetarios/widgets/markdown_editor.dart';
 
-/// Create (chapterId == null) or edit a chapter. The parent (book + optional
-/// parent chapter) comes from the navigation context and is not editable here.
-///
-/// The whole presentation is one markdown document edited in a single
-/// rich text editor (US2); the note is a separate plain field (FR-004).
 class ChapterFormScreen extends ConsumerStatefulWidget {
   const ChapterFormScreen({
     super.key,
@@ -72,7 +69,7 @@ class _ChapterFormScreenState extends ConsumerState<ChapterFormScreen> {
     final file = await openFile(acceptedTypeGroups: const [imagesTypeGroup]);
     if (file == null) return;
     final bytes = await file.readAsBytes();
-    final result = await ref.read(apiClientProvider).uploadImage(bytes, file.name);
+    final result = await ref.read(imageStoreProvider).ingest(bytes);
     setState(() => _coverImage = result['hash'] as String);
   }
 
@@ -109,11 +106,9 @@ class _ChapterFormScreenState extends ConsumerState<ChapterFormScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final api = ref.watch(apiClientProvider);
+    final imageStore = ref.watch(imageStoreProvider);
     return Scaffold(
       appBar: AppBar(title: Text(widget.chapterId == null ? l10n.addChapter : l10n.editChapter)),
-      // Save/cancel live in a pinned bottom bar (same pattern as the recipe
-      // editor) so they stay reachable however tall the content editor gets.
       bottomNavigationBar: _loading
           ? null
           : Material(
@@ -156,7 +151,7 @@ class _ChapterFormScreenState extends ConsumerState<ChapterFormScreen> {
                       const SizedBox(height: 4),
                       MarkdownEditor(
                         initialMarkdown: _content,
-                        api: api,
+                        imageStore: imageStore,
                         onChanged: (value) => _content = value,
                       ),
                       const SizedBox(height: 12),
@@ -184,13 +179,17 @@ class _ChapterFormScreenState extends ConsumerState<ChapterFormScreen> {
                         ],
                       ),
                       if (_coverImage != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 12),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(api.imageUrl(_coverImage!), height: 180),
-                          ),
-                        ),
+                        Builder(builder: (context) {
+                          final filePath = imageStore.pathFor(_coverImage!);
+                          if (filePath == null) return const SizedBox.shrink();
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 12),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.file(File(filePath), height: 180),
+                            ),
+                          );
+                        }),
                     ],
                   ),
                 ),

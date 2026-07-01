@@ -3,15 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:recetarios/app/providers.dart';
-import 'package:recetarios/data/api_client.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
 
-final settingsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
-  final data = await ref.watch(apiClientProvider).get('/settings');
-  return (data as Map).cast<String, dynamic>();
-});
+final settingsProvider = FutureProvider<Map<String, String>>(
+  (ref) => ref.watch(settingsStoreProvider).getAll(),
+);
 
-/// Configuration menu (FR-035): persistent default PDF destination folder.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -31,22 +28,13 @@ class SettingsScreen extends ConsumerWidget {
             ListTile(
               leading: const Icon(Icons.folder),
               title: Text(l10n.pdfOutputDir),
-              subtitle: Text(values['pdf_output_dir'] as String? ?? ''),
+              subtitle: Text(values['pdf_output_dir'] ?? ''),
               trailing: FilledButton.tonal(
                 onPressed: () async {
                   final dir = await getDirectoryPath();
                   if (dir == null) return;
-                  try {
-                    await ref
-                        .read(apiClientProvider)
-                        .put('/settings', body: {'pdf_output_dir': dir});
-                    ref.invalidate(settingsProvider);
-                  } on ApiException catch (e) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context)
-                          .showSnackBar(SnackBar(content: Text(e.message)));
-                    }
-                  }
+                  await ref.read(settingsStoreProvider).update({'pdf_output_dir': dir});
+                  ref.invalidate(settingsProvider);
                 },
                 child: Text(l10n.chooseFolder),
               ),

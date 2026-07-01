@@ -1,7 +1,9 @@
+import 'dart:io';
+
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 
-import 'package:recetarios/data/api_client.dart';
+import 'package:recetarios/data/local/image_store.dart';
 import 'package:recetarios/data/table_data.dart';
 import 'package:recetarios/features/books/book_form_screen.dart' show imagesTypeGroup;
 
@@ -13,8 +15,6 @@ sealed class _CellBlock {
   const _CellBlock();
 }
 
-/// A text segment inside a cell.  Owns its [TextEditingController] and
-/// [FocusNode]; call [dispose] when removing the block.
 final class _TextBlock extends _CellBlock {
   _TextBlock([String initial = ''])
       : controller = TextEditingController(text: initial),
@@ -29,7 +29,6 @@ final class _TextBlock extends _CellBlock {
   }
 }
 
-/// An image segment inside a cell.  Immutable; no resources to release.
 final class _ImageBlock extends _CellBlock {
   const _ImageBlock(this.hash, {this.caption = ''});
   final String hash;
@@ -40,10 +39,6 @@ final class _ImageBlock extends _CellBlock {
 // Block ↔ cell-content string conversion
 // ---------------------------------------------------------------------------
 
-/// Parses a flat cell-content string (with real `\n` for newlines, as stored
-/// by [TableData]) into an ordered list of blocks.  Image references are
-/// extracted as [_ImageBlock]s; surrounding text becomes [_TextBlock]s.
-/// The list always ends with a [_TextBlock] so the user has a place to type.
 List<_CellBlock> _parseBlocks(String content) {
   final blocks = <_CellBlock>[];
   final imageRe = RegExp(r'!\[([^\]]*)\]\(image://([0-9a-f]+)\)');
@@ -62,8 +57,6 @@ List<_CellBlock> _parseBlocks(String content) {
   return blocks;
 }
 
-/// Renders blocks back to a flat cell-content string (with real `\n`).
-/// Empty text blocks are omitted; segments are joined with `\n`.
 String _blocksToContent(List<_CellBlock> blocks) {
   final parts = <String>[];
   for (final block in blocks) {
@@ -82,27 +75,22 @@ String _blocksToContent(List<_CellBlock> blocks) {
 // Dialog widget
 // ---------------------------------------------------------------------------
 
-/// Full-screen dialog for editing a GFM table.
-///
-/// Cells are rendered as ordered lists of image thumbnails and text fields,
-/// matching the visual structure the user will see in view mode.  Images can
-/// be inserted after any text block; each image block has a delete button.
 class TableEditorDialog extends StatefulWidget {
   const TableEditorDialog({
     super.key,
     required this.initial,
-    required this.api,
+    required this.imageStore,
     required this.tableIndex,
   });
 
   final TableData initial;
-  final ApiClient api;
+  final ImageStore imageStore;
   final int tableIndex;
 
   static Future<TableData?> show(
     BuildContext context,
     TableData initial,
-    ApiClient api,
+    ImageStore imageStore,
     int tableIndex,
   ) {
     return showDialog<TableData>(
@@ -111,7 +99,7 @@ class TableEditorDialog extends StatefulWidget {
       builder: (ctx) => Dialog.fullscreen(
         child: TableEditorDialog(
           initial: initial,
-          api: api,
+          imageStore: imageStore,
           tableIndex: tableIndex,
         ),
       ),
@@ -123,7 +111,6 @@ class TableEditorDialog extends StatefulWidget {
 }
 
 class _TableEditorDialogState extends State<TableEditorDialog> {
-  // [row][col] → ordered list of content blocks
   late List<List<List<_CellBlock>>> _blocks;
 
   int get _rowCount => _blocks.length;
@@ -140,8 +127,6 @@ class _TableEditorDialogState extends State<TableEditorDialog> {
     _disposeAll(_blocks);
     super.dispose();
   }
-
-  // ---------------------------------------------------------------- helpers
 
   List<List<List<_CellBlock>>> _toBlocks(TableData data) => [
         for (final row in data.cells)
@@ -163,24 +148,18 @@ class _TableEditorDialogState extends State<TableEditorDialog> {
           [for (final cell in row) _blocksToContent(cell)],
       ]);
 
-  /// Flushes current text → applies a structural mutation → rebuilds blocks.
   void _applyStructure(TableData Function(TableData) fn) {
     final old = _blocks;
     final next = _toBlocks(fn(_currentData()));
     setState(() => _blocks = next);
-    // Dispose old blocks after setState so the rebuild uses the new ones.
     _disposeAll(old);
   }
 
-  // ---------------------------------------------------------------- mutations
-
-  /// Uploads a file and inserts an [_ImageBlock] + a new empty [_TextBlock]
-  /// immediately after [blockIdx] in cell ([row], [col]).
   Future<void> _insertImageAfterBlock(int row, int col, int blockIdx) async {
     final file = await openFile(acceptedTypeGroups: const [imagesTypeGroup]);
     if (file == null || !mounted) return;
     final bytes = await file.readAsBytes();
-    final result = await widget.api.uploadImage(bytes, file.name);
+    final result = await widget.imageStore.ingest(bytes);
     if (!mounted) return;
     final hash = result['hash'] as String;
     setState(() {
@@ -192,14 +171,11 @@ class _TableEditorDialogState extends State<TableEditorDialog> {
     setState(() {
       final cell = _blocks[row][col];
       cell.removeAt(blockIdx);
-      // Ensure at least one text block remains so the cell stays editable.
       if (cell.isEmpty || cell.every((b) => b is _ImageBlock)) {
         cell.add(_TextBlock());
       }
     });
   }
-
-  // ---------------------------------------------------------------- build
 
   @override
   Widget build(BuildContext context) {
@@ -222,7 +198,6 @@ class _TableEditorDialogState extends State<TableEditorDialog> {
       ),
       body: Column(
         children: [
-          // Structural toolbar
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: Wrap(
@@ -257,7 +232,6 @@ class _TableEditorDialogState extends State<TableEditorDialog> {
             ),
           ),
           const Divider(height: 1),
-          // Scrollable cell grid
           Expanded(
             child: SingleChildScrollView(
               child: SingleChildScrollView(
@@ -312,6 +286,7 @@ class _TableEditorDialogState extends State<TableEditorDialog> {
 
   Widget _buildBlock(int row, int col, int idx, _CellBlock block, bool isHeader) {
     if (block is _ImageBlock) {
+      final filePath = widget.imageStore.pathFor(block.hash);
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Stack(
@@ -319,19 +294,14 @@ class _TableEditorDialogState extends State<TableEditorDialog> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
-              child: Image.network(
-                widget.api.imageUrl(block.hash),
-                width: 160,
-                fit: BoxFit.contain,
-                errorBuilder: (_, _, _) => const SizedBox(
-                  width: 160,
-                  height: 80,
-                  child: ColoredBox(
-                    color: Colors.black12,
-                    child: Icon(Icons.broken_image),
-                  ),
-                ),
-              ),
+              child: filePath != null
+                  ? Image.file(
+                      File(filePath),
+                      width: 160,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, _, _) => const _BrokenImageCell(),
+                    )
+                  : const _BrokenImageCell(),
             ),
             SizedBox(
               width: 22,
@@ -352,7 +322,6 @@ class _TableEditorDialogState extends State<TableEditorDialog> {
       );
     }
 
-    // Text block: text field + "insert image after this block" button
     final textBlock = block as _TextBlock;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -380,4 +349,17 @@ class _TableEditorDialogState extends State<TableEditorDialog> {
       ],
     );
   }
+}
+
+class _BrokenImageCell extends StatelessWidget {
+  const _BrokenImageCell();
+  @override
+  Widget build(BuildContext context) => const SizedBox(
+        width: 160,
+        height: 80,
+        child: ColoredBox(
+          color: Colors.black12,
+          child: Icon(Icons.broken_image),
+        ),
+      );
 }

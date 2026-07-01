@@ -4,12 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:recetarios/app/providers.dart';
-import 'package:recetarios/data/api_client.dart';
 import 'package:recetarios/data/models.dart';
 import 'package:recetarios/features/recipes/ingredients_editor.dart';
 import 'package:recetarios/features/recipes/recipe_view_screen.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
 import 'package:recetarios/widgets/markdown_editor.dart';
+
+import '../../helpers/test_database.dart';
 
 Recipe _recipe() => Recipe(
       id: 'r1',
@@ -21,10 +22,11 @@ Recipe _recipe() => Recipe(
       preparation: 'Freír.',
     );
 
-Widget _app(Widget child, {Recipe? recipe}) {
+Future<Widget> _app(Widget child, {Recipe? recipe}) async {
+  final imageStore = await testImageStore();
   return ProviderScope(
     overrides: [
-      apiClientProvider.overrideWithValue(ApiClient('http://127.0.0.1:9')),
+      imageStoreProvider.overrideWithValue(imageStore),
       if (recipe != null) recipeDetailProvider.overrideWith((ref, id) async => recipe),
     ],
     child: MaterialApp(
@@ -43,29 +45,26 @@ Widget _app(Widget child, {Recipe? recipe}) {
 
 void main() {
   testWidgets('recipe opens read-only and toggles into edit mode', (tester) async {
-    await tester.pumpWidget(_app(const RecipeViewScreen(recipeId: 'r1'), recipe: _recipe()));
+    await tester.pumpWidget(await _app(const RecipeViewScreen(recipeId: 'r1'), recipe: _recipe()));
     await tester.pumpAndSettle();
 
-    // Read-only: no save/discard buttons, edit toggle present.
     expect(find.text('Guardar'), findsNothing);
     expect(find.byTooltip('Editar'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Editar'));
     await tester.pumpAndSettle();
 
-    // Edit mode: save and discard buttons appear (FR-018).
     expect(find.text('Guardar'), findsOneWidget);
     expect(find.text('Descartar cambios'), findsOneWidget);
   });
 
   testWidgets('discard returns to view mode without keeping draft edits', (tester) async {
-    await tester.pumpWidget(_app(const RecipeViewScreen(recipeId: 'r1'), recipe: _recipe()));
+    await tester.pumpWidget(await _app(const RecipeViewScreen(recipeId: 'r1'), recipe: _recipe()));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byTooltip('Editar'));
     await tester.pumpAndSettle();
 
-    // Modify the title in the draft.
     final titleField = find.widgetWithText(TextFormField, 'Tortilla').first;
     await tester.enterText(titleField, 'Cambiada');
     await tester.pumpAndSettle();
@@ -73,7 +72,6 @@ void main() {
     await tester.tap(find.text('Descartar cambios'));
     await tester.pumpAndSettle();
 
-    // Back in view mode with the original title (AppBar shows saved state).
     expect(find.text('Guardar'), findsNothing);
     expect(find.text('Tortilla'), findsWidgets);
     expect(find.text('Cambiada'), findsNothing);
@@ -81,19 +79,16 @@ void main() {
 
   testWidgets('edit mode uses one rich editor per section', (tester) async {
     final recipe = _recipe();
-    await tester.pumpWidget(_app(const RecipeViewScreen(recipeId: 'r1'), recipe: recipe));
+    await tester.pumpWidget(await _app(const RecipeViewScreen(recipeId: 'r1'), recipe: recipe));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byTooltip('Editar'));
     await tester.pumpAndSettle();
 
-    // Per-paragraph controls are gone (FR-008): one document editor per
-    // section (introduction + preparation), WYSIWYG by default.
     expect(find.text('Añadir párrafo'), findsNothing);
     expect(find.byType(MarkdownEditor), findsNWidgets(2));
     expect(find.textContaining('Freír', findRichText: true), findsWidgets);
 
-    // Save/discard wiring survives the editor swap.
     expect(find.text('Guardar'), findsOneWidget);
     expect(find.text('Descartar cambios'), findsOneWidget);
   });
@@ -101,11 +96,25 @@ void main() {
   testWidgets('ingredients editor adds groups and items', (tester) async {
     final value = IngredientsList(groups: [IngredientGroup(items: ['Huevos'])]);
     var changed = 0;
-    await tester.pumpWidget(_app(Scaffold(
-      body: SingleChildScrollView(
-        child: IngredientsEditor(value: value, onChanged: () => changed++),
+    final imageStore = await testImageStore();
+    await tester.pumpWidget(ProviderScope(
+      overrides: [imageStoreProvider.overrideWithValue(imageStore)],
+      child: MaterialApp(
+        locale: const Locale('es'),
+        supportedLocales: const [Locale('es')],
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: IngredientsEditor(value: value, onChanged: () => changed++),
+          ),
+        ),
       ),
-    )));
+    ));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Añadir ingrediente'));

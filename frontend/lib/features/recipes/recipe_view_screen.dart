@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,9 +17,6 @@ final recipeDetailProvider = FutureProvider.family<Recipe, String>(
   (ref, id) => ref.watch(recipesRepositoryProvider).get(id),
 );
 
-/// Recipe screen: opens read-only (FR-014), toggles into edit mode (FR-017)
-/// with save / discard-changes buttons (FR-018) and an unsaved-changes
-/// navigation guard (FR-021).
 class RecipeViewScreen extends ConsumerStatefulWidget {
   const RecipeViewScreen({
     super.key,
@@ -185,7 +183,6 @@ class _RecipeViewScreenState extends ConsumerState<RecipeViewScreen> {
   }
 }
 
-/// The read-only recipe body: introduction → ingredients → preparation → note.
 class RecipeContentView extends ConsumerWidget {
   const RecipeContentView({super.key, required this.recipe});
 
@@ -194,7 +191,7 @@ class RecipeContentView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context)!;
-    final api = ref.watch(apiClientProvider);
+    final imageStore = ref.watch(imageStoreProvider);
     final theme = Theme.of(context);
 
     return SingleChildScrollView(
@@ -207,16 +204,23 @@ class RecipeContentView extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (recipe.image != null)
-                  Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.network(api.imageUrl(recipe.image!),
-                          height: 260, fit: BoxFit.cover),
-                    ),
-                  ),
+                  Builder(builder: (context) {
+                    final filePath = imageStore.pathFor(recipe.image!);
+                    if (filePath == null) return const SizedBox.shrink();
+                    return Center(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.file(
+                          File(filePath),
+                          height: 260,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    );
+                  }),
                 if (recipe.introduction.isNotEmpty) ...[
                   const SizedBox(height: 16),
-                  MarkdownView(markdown: recipe.introduction, api: api),
+                  MarkdownView(markdown: recipe.introduction, imageStore: imageStore),
                 ],
                 const SizedBox(height: 16),
                 Text(l10n.ingredients, style: theme.textTheme.titleLarge),
@@ -258,7 +262,7 @@ class RecipeContentView extends ConsumerWidget {
                 const SizedBox(height: 16),
                 Text(l10n.preparation, style: theme.textTheme.titleLarge),
                 const SizedBox(height: 8),
-                MarkdownView(markdown: recipe.preparation, api: api),
+                MarkdownView(markdown: recipe.preparation, imageStore: imageStore),
                 if (recipe.note != null && recipe.note!.isNotEmpty) ...[
                   const SizedBox(height: 16),
                   Card(

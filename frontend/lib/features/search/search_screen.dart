@@ -8,7 +8,6 @@ import 'package:recetarios/app/providers.dart';
 import 'package:recetarios/data/models.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
 
-/// Full-text search over the whole library (FR-036..038).
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
 
@@ -43,13 +42,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       });
       return;
     }
-    final data = await ref.read(apiClientProvider).get('/search', query: {'q': query}) as List;
+    final results = await ref.read(repositoryProvider).search(query);
     if (!mounted) return;
     setState(() {
       _query = query;
-      _results = data
-          .map((e) => SearchResult.fromJson((e as Map).cast<String, dynamic>()))
-          .toList();
+      _results = results;
     });
   }
 
@@ -83,8 +80,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               ? Center(
                   child: Padding(
                     padding: const EdgeInsets.all(24),
-                    child:
-                        Text(l10n.searchNoResults(_query), textAlign: TextAlign.center),
+                    child: Text(l10n.searchNoResults(_query), textAlign: TextAlign.center),
                   ),
                 )
               : ListView.builder(

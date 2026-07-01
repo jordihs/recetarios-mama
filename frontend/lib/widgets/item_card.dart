@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 /// Shared card for books, chapters, and recipes: image (optional),
@@ -7,7 +9,7 @@ class ItemCard extends StatelessWidget {
     super.key,
     required this.title,
     this.description = '',
-    this.imageUrl,
+    this.imageFilePath,
     this.onTap,
     this.trailing,
     this.compact = false,
@@ -15,7 +17,7 @@ class ItemCard extends StatelessWidget {
 
   final String title;
   final String description;
-  final String? imageUrl;
+  final String? imageFilePath;
   final VoidCallback? onTap;
   final Widget? trailing;
 
@@ -42,11 +44,11 @@ class ItemCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (imageUrl != null)
+            if (imageFilePath != null)
               AspectRatio(
                 aspectRatio: 16 / 9,
-                child: Image.network(
-                  imageUrl!,
+                child: Image.file(
+                  File(imageFilePath!),
                   fit: BoxFit.cover,
                   errorBuilder: (_, _, _) =>
                       const ColoredBox(color: Colors.black12, child: Icon(Icons.broken_image)),
@@ -74,15 +76,13 @@ class ItemCard extends StatelessWidget {
                     if (description.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Expanded(
-                        child: imageUrl != null
+                        child: imageFilePath != null
                             ? Text(
                                 description,
                                 style: theme.textTheme.bodySmall,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 4,
                               )
-                            // No image: the description gets the image's
-                            // space — as many lines as actually fit (FR-020).
                             : LayoutBuilder(builder: (context, constraints) {
                                 final style = theme.textTheme.bodySmall;
                                 final lineHeight = (style?.fontSize ?? 12) *

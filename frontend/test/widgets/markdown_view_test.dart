@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:recetarios/data/api_client.dart';
 import 'package:recetarios/widgets/markdown_view.dart';
+
+import '../helpers/test_database.dart';
 
 const _hash =
     'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
-Widget _app(String markdown) {
+Future<Widget> _app(String markdown) async {
+  final imageStore = await testImageStore();
   return MaterialApp(
     home: Scaffold(
       body: SingleChildScrollView(
         child: MarkdownView(
           markdown: markdown,
-          api: ApiClient('http://127.0.0.1:9'),
+          imageStore: imageStore,
         ),
       ),
     ),
@@ -26,7 +28,7 @@ void main() {
     const markdown = '| Especie | Foto |\n'
         '| --- | --- |\n'
         '| Níscalo con texto | ![Níscalo](image://$_hash) |\n';
-    await tester.pumpWidget(_app(markdown));
+    await tester.pumpWidget(await _app(markdown));
     await tester.pump();
 
     final cells =

@@ -10,18 +10,16 @@ import 'package:recetarios/features/recipes/recipe_actions.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
 import 'package:recetarios/widgets/item_card.dart';
 
-final recipesRepositoryProvider =
-    Provider<RecipesRepository>((ref) => RecipesRepository(ref.watch(apiClientProvider)));
+final recipesRepositoryProvider = Provider<RecipesRepository>(
+  (ref) => RecipesRepository(ref.watch(repositoryProvider)),
+);
 
 final recipeListProvider = FutureProvider.family<List<ItemSummary>, String>(
   (ref, chapterId) => ref.watch(recipesRepositoryProvider).list(chapterId),
 );
 
-/// Display mode toggle: detailed cards vs titles-only (FR-013). Per chapter.
 final titlesOnlyProvider = StateProvider.family<bool, String>((ref, chapterId) => false);
 
-/// Recipe section of a chapter screen: header with display-mode toggle,
-/// then the recipe cards (detailed) or compact title rows.
 class RecipeListSection extends ConsumerWidget {
   const RecipeListSection({super.key, required this.bookId, required this.chapterId});
 
@@ -127,7 +125,7 @@ class _RecipeGrid extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final api = ref.watch(apiClientProvider);
+    final imageStore = ref.watch(imageStoreProvider);
     return LayoutBuilder(builder: (context, constraints) {
       final columns = (constraints.maxWidth / 280).floor().clamp(1, 6);
       return GridView.count(
@@ -143,7 +141,9 @@ class _RecipeGrid extends ConsumerWidget {
             ItemCard(
               title: items[i].title,
               description: items[i].description,
-              imageUrl: items[i].image == null ? null : api.imageUrl(items[i].image!),
+              imageFilePath: items[i].image == null
+                  ? null
+                  : imageStore.pathFor(items[i].image!),
               onTap: () =>
                   context.push('/books/$bookId/chapters/$chapterId/recipes/${items[i].id}'),
               trailing: _RecipeMenu(item: items[i], index: i, items: items, chapterId: chapterId),

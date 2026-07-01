@@ -3,14 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:recetarios/app/providers.dart';
-import 'package:recetarios/data/api_client.dart';
+import 'package:recetarios/data/local/archive_service.dart';
 import 'package:recetarios/features/books/book_list_screen.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
 
 const _archiveTypeGroup =
     XTypeGroup(label: 'Biblioteca de recetarios', extensions: ['recetarios']);
 
-/// Export the whole library into a single archive file (FR-027).
 Future<void> exportLibraryFlow(BuildContext context, WidgetRef ref) async {
   final l10n = AppLocalizations.of(context)!;
   final location = await getSaveLocation(
@@ -20,20 +19,22 @@ Future<void> exportLibraryFlow(BuildContext context, WidgetRef ref) async {
   if (location == null || !context.mounted) return;
 
   try {
-    await ref.read(apiClientProvider).post('/library/export', body: {'path': location.path});
+    await ref.read(archiveServiceProvider).export(location.path);
     if (context.mounted) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(l10n.exportLibraryDone(location.path))));
     }
-  } on ApiException catch (e) {
+  } on ArchiveException catch (e) {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  } catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
     }
   }
 }
 
-/// Import a library archive, replacing everything after explicit
-/// confirmation (FR-028).
 Future<void> importLibraryFlow(BuildContext context, WidgetRef ref) async {
   final l10n = AppLocalizations.of(context)!;
   final file = await openFile(acceptedTypeGroups: const [_archiveTypeGroup]);
@@ -59,15 +60,13 @@ Future<void> importLibraryFlow(BuildContext context, WidgetRef ref) async {
   if (confirmed != true || !context.mounted) return;
 
   try {
-    await ref
-        .read(apiClientProvider)
-        .post('/library/import', body: {'path': file.path, 'confirm_replace': true});
+    await ref.read(archiveServiceProvider).importReplace(file.path);
     ref.invalidate(bookListProvider);
     if (context.mounted) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(l10n.importLibraryDone)));
     }
-  } on ApiException catch (e) {
+  } on ArchiveException catch (e) {
     if (context.mounted) {
       await showDialog<void>(
         context: context,
@@ -82,6 +81,10 @@ Future<void> importLibraryFlow(BuildContext context, WidgetRef ref) async {
           ],
         ),
       );
+    }
+  } catch (e) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
     }
   }
 }

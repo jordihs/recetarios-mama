@@ -4,17 +4,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:recetarios/app/providers.dart';
-import 'package:recetarios/data/api_client.dart';
 import 'package:recetarios/data/models.dart';
 import 'package:recetarios/features/recipes/recipe_list_section.dart';
 import 'package:recetarios/features/recipes/recipe_view_screen.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
 import 'package:recetarios/widgets/item_card.dart';
 
-Widget _app(Widget child, {List<ItemSummary>? recipes, Recipe? recipe}) {
+import '../../helpers/test_database.dart';
+
+Future<Widget> _app(Widget child, {List<ItemSummary>? recipes, Recipe? recipe}) async {
+  final imageStore = await testImageStore();
   return ProviderScope(
     overrides: [
-      apiClientProvider.overrideWithValue(ApiClient('http://127.0.0.1:9')),
+      imageStoreProvider.overrideWithValue(imageStore),
       if (recipes != null)
         recipeListProvider.overrideWith((ref, chapterId) async => recipes),
       if (recipe != null) recipeDetailProvider.overrideWith((ref, id) async => recipe),
@@ -51,19 +53,17 @@ void main() {
       ItemSummary(id: 'r1', title: 'Tortilla', description: 'Con cebolla'),
       ItemSummary(id: 'r2', title: 'Gazpacho', description: 'Frío'),
     ];
-    await tester.pumpWidget(_app(
+    await tester.pumpWidget(await _app(
       const RecipeListSection(bookId: 'b', chapterId: 'c'),
       recipes: items,
     ));
     await tester.pumpAndSettle();
 
-    // Detailed mode: descriptions visible.
     expect(find.text('Con cebolla'), findsOneWidget);
 
     await tester.tap(find.byType(Switch));
     await tester.pumpAndSettle();
 
-    // Titles-only mode: titles remain, descriptions gone, compact cards used.
     expect(find.text('Tortilla'), findsOneWidget);
     expect(find.text('Con cebolla'), findsNothing);
     final compactCards =
@@ -77,7 +77,7 @@ void main() {
 
   testWidgets('recipe view shows introduction, then ingredients, then preparation',
       (tester) async {
-    await tester.pumpWidget(_app(
+    await tester.pumpWidget(await _app(
       RecipeContentView(recipe: _recipe()),
       recipe: _recipe(),
     ));

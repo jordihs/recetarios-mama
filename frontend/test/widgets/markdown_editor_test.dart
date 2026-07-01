@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:recetarios/data/api_client.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
 import 'package:recetarios/widgets/markdown_editor.dart';
 import 'package:recetarios/widgets/markdown_editor_codecs.dart';
+
+import '../helpers/test_database.dart';
 
 const _hash =
     'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
@@ -28,24 +29,23 @@ Widget _app(Widget child) {
 void main() {
   late String lastMarkdown;
 
-  Widget editor({String initial = ''}) {
+  Future<Widget> editor({String initial = ''}) async {
+    final imageStore = await testImageStore();
     lastMarkdown = initial;
     return _app(MarkdownEditor(
       initialMarkdown: initial,
-      api: ApiClient('http://127.0.0.1:9'),
+      imageStore: imageStore,
       onChanged: (value) => lastMarkdown = value,
     ));
   }
 
   testWidgets('opens in WYSIWYG mode by default with the toolbar', (tester) async {
-    await tester.pumpWidget(editor(initial: 'Hola **mundo**.'));
+    await tester.pumpWidget(await editor(initial: 'Hola **mundo**.'));
     await tester.pumpAndSettle();
 
-    // WYSIWYG surface visible, raw source hidden (FR-010).
     expect(find.byType(AppFlowyEditor), findsOneWidget);
     expect(find.byKey(MarkdownEditor.sourceFieldKey), findsNothing);
 
-    // Toolbar actions present, with Spanish tooltips.
     for (final tooltip in [
       'Negrita',
       'Cursiva',
@@ -57,13 +57,12 @@ void main() {
     ]) {
       expect(find.byTooltip(tooltip), findsOneWidget, reason: tooltip);
     }
-    // Rendered text, not markdown syntax.
     expect(find.textContaining('**'), findsNothing);
   });
 
   testWidgets('source toggle reveals raw markdown and syncs edits back',
       (tester) async {
-    await tester.pumpWidget(editor(initial: 'Texto *original* aquí.'));
+    await tester.pumpWidget(await editor(initial: 'Texto *original* aquí.'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byTooltip('Fuente'));
@@ -80,7 +79,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(lastMarkdown, 'Texto nuevo con **negrita**.');
 
-    // Back to WYSIWYG: the edit survives the round trip.
     await tester.tap(find.byTooltip('Fuente'));
     await tester.pumpAndSettle();
     expect(find.byType(AppFlowyEditor), findsOneWidget);
@@ -88,7 +86,7 @@ void main() {
   });
 
   testWidgets('toolbar formatting produces the expected markdown', (tester) async {
-    await tester.pumpWidget(editor(initial: 'Hola'));
+    await tester.pumpWidget(await editor(initial: 'Hola'));
     await tester.pumpAndSettle();
 
     final state = tester.state<MarkdownEditorState>(find.byType(MarkdownEditor));
@@ -110,12 +108,11 @@ void main() {
 
     await state.toggleBulletedList();
     await tester.pumpAndSettle();
-    // appflowy's encoder emits '* ' bullets; both are valid GFM list markers.
     expect(lastMarkdown.trim(), matches(RegExp(r'^[*-] ')));
   });
 
   testWidgets('image insertion inserts an image:// reference', (tester) async {
-    await tester.pumpWidget(editor(initial: 'Texto.'));
+    await tester.pumpWidget(await editor(initial: 'Texto.'));
     await tester.pumpAndSettle();
 
     final state = tester.state<MarkdownEditorState>(find.byType(MarkdownEditor));
@@ -123,17 +120,13 @@ void main() {
       Position(path: [0], offset: 6),
     );
     await state.insertImageReference(_hash, caption: 'Pie');
-    // Let the editor's 50ms undo-history debounce timer fire.
     await tester.pump(const Duration(milliseconds: 100));
     expect(lastMarkdown, contains('image://$_hash'));
-    // Network images cannot load inside widget tests; drain those errors.
     while (tester.takeException() != null) {}
   });
 
   testWidgets('real-world content opens in WYSIWYG mode (round-trip safe)',
       (tester) async {
-    // Multi-paragraph text, headings, captioned images, galleries, and
-    // lists — the shapes the legacy import actually produces.
     const initial = '## Las setas\n\n'
         'Primer párrafo con **negrita**.\n\n'
         'Segundo párrafo, separado.\n\n'
@@ -141,10 +134,9 @@ void main() {
         '![Una](image://$_hash)\n![Dos](image://$_hash)\n\n'
         '### Subsección\n\n'
         '- uno\n- dos\n';
-    await tester.pumpWidget(editor(initial: initial));
+    await tester.pumpWidget(await editor(initial: initial));
     await tester.pump();
 
-    // WYSIWYG, not the source fallback.
     expect(find.byType(AppFlowyEditor), findsOneWidget);
     expect(find.byKey(MarkdownEditor.sourceFieldKey), findsNothing);
     while (tester.takeException() != null) {}
@@ -155,18 +147,17 @@ void main() {
     const initial = 'Texto.\n\n'
         '![Pie de foto](image://$_hash)\n\n'
         '![Una](image://$_hash)\n![Dos](image://$_hash)';
-    await tester.pumpWidget(editor(initial: initial));
+    await tester.pumpWidget(await editor(initial: initial));
     await tester.pump();
 
     final state = tester.state<MarkdownEditorState>(find.byType(MarkdownEditor));
-    final encoded = encodeDocumentToMarkdown(state.editorState.document)
-        .replaceAll('http://127.0.0.1:9/images/$_hash', 'image://$_hash');
+    final encoded = encodeDocumentToMarkdown(state.editorState.document);
     expect(encoded, initial);
     while (tester.takeException() != null) {}
   });
 
   testWidgets('table insertion produces a GFM table', (tester) async {
-    await tester.pumpWidget(editor(initial: 'Texto.'));
+    await tester.pumpWidget(await editor(initial: 'Texto.'));
     await tester.pumpAndSettle();
 
     final state = tester.state<MarkdownEditorState>(find.byType(MarkdownEditor));
@@ -176,7 +167,6 @@ void main() {
     await state.insertTable();
     await tester.pumpAndSettle();
     expect(lastMarkdown, contains('|'));
-    // GFM delimiter row: any run of dashes between pipes counts.
     expect(lastMarkdown, matches(RegExp(r'\|[\s:]*-+')));
   });
 }

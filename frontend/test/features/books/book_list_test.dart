@@ -4,17 +4,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:recetarios/app/providers.dart';
-import 'package:recetarios/data/api_client.dart';
 import 'package:recetarios/data/models.dart';
 import 'package:recetarios/features/books/book_form_screen.dart';
 import 'package:recetarios/features/books/book_list_screen.dart';
 import 'package:recetarios/l10n/app_localizations.dart';
 import 'package:recetarios/widgets/item_card.dart';
 
-Widget _wrap(Widget child, {List<ItemSummary>? books}) {
+import '../../helpers/test_database.dart';
+
+Future<Widget> _wrap(Widget child, {List<ItemSummary>? books}) async {
+  final imageStore = await testImageStore();
   return ProviderScope(
     overrides: [
-      apiClientProvider.overrideWithValue(ApiClient('http://127.0.0.1:9')),
+      imageStoreProvider.overrideWithValue(imageStore),
       if (books != null) bookListProvider.overrideWith((ref) async => books),
     ],
     child: MaterialApp(
@@ -39,7 +41,7 @@ List<ItemSummary> _books(int count, {String description = ''}) => [
 void main() {
   testWidgets('book card truncates long descriptions with ellipsis', (tester) async {
     final longDescription = 'Una descripción larguísima. ' * 30;
-    await tester.pumpWidget(_wrap(
+    await tester.pumpWidget(await _wrap(
       const BookListScreen(),
       books: _books(1, description: longDescription),
     ));
@@ -55,22 +57,22 @@ void main() {
   testWidgets('grid adapts column count to viewport width', (tester) async {
     Future<int> columnsAt(double width) async {
       await tester.binding.setSurfaceSize(Size(width, 800));
-      await tester.pumpWidget(_wrap(const BookListScreen(), books: _books(8)));
+      await tester.pumpWidget(await _wrap(const BookListScreen(), books: _books(8)));
       await tester.pumpAndSettle();
       final grid = tester.widget<GridView>(find.byType(GridView));
       final delegate = grid.gridDelegate as SliverGridDelegateWithFixedCrossAxisCount;
       return delegate.crossAxisCount;
     }
 
-    final narrow = await columnsAt(360); // phone
-    final wide = await columnsAt(1400); // desktop
+    final narrow = await columnsAt(360);
+    final wide = await columnsAt(1400);
     expect(narrow, 1);
     expect(wide, greaterThanOrEqualTo(4));
     await tester.binding.setSurfaceSize(null);
   });
 
   testWidgets('empty library shows Spanish empty state', (tester) async {
-    await tester.pumpWidget(_wrap(const BookListScreen(), books: <ItemSummary>[]));
+    await tester.pumpWidget(await _wrap(const BookListScreen(), books: <ItemSummary>[]));
     await tester.pumpAndSettle();
     expect(find.textContaining('Todavía no hay libros'), findsOneWidget);
   });
@@ -78,7 +80,7 @@ void main() {
   testWidgets('imageless card shows at least double the description lines',
       (tester) async {
     final longDescription = 'Una descripción larguísima que sigue y sigue. ' * 20;
-    await tester.pumpWidget(_wrap(
+    await tester.pumpWidget(await _wrap(
       const BookListScreen(),
       books: [
         ItemSummary(
@@ -108,15 +110,13 @@ void main() {
     final imageless = descriptionMaxLines('Sin imagen');
     expect(imageless, greaterThanOrEqualTo(2 * withImage),
         reason: 'imageless: $imageless, with image: $withImage');
-    // With-image layout unchanged from feature 002.
     expect(withImage, 4);
   });
 
   testWidgets('book form requires a title', (tester) async {
-    await tester.pumpWidget(_wrap(const BookFormScreen()));
+    await tester.pumpWidget(await _wrap(const BookFormScreen()));
     await tester.pumpAndSettle();
 
-    // Save lives in the pinned bottom bar — visible without scrolling.
     await tester.tap(find.text('Guardar'));
     await tester.pumpAndSettle();
 

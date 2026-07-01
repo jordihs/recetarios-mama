@@ -1,7 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:markdown/markdown.dart' as md;
 
-import 'package:recetarios/data/api_client.dart';
+import 'package:recetarios/data/local/image_store.dart';
 
 /// Read-only renderer for canonical markdown content (CommonMark + GFM
 /// tables). Conventions per the feature 003 data model: `##`/`###` headings,
@@ -9,10 +11,10 @@ import 'package:recetarios/data/api_client.dart';
 /// consecutive images rendered as a grid, optional bold title line above a
 /// table, and `-` bullet lists.
 class MarkdownView extends StatelessWidget {
-  const MarkdownView({super.key, required this.markdown, required this.api});
+  const MarkdownView({super.key, required this.markdown, required this.imageStore});
 
   final String markdown;
-  final ApiClient api;
+  final ImageStore imageStore;
 
   static const _imageUriPrefix = 'image://';
 
@@ -73,7 +75,6 @@ class MarkdownView extends StatelessWidget {
         }
       }
     }
-
     element.children?.forEach(walk);
     return images;
   }
@@ -95,8 +96,6 @@ class MarkdownView extends StatelessWidget {
   TextSpan _inlineSpan(md.Node node, {TextStyle style = const TextStyle()}) {
     if (node is! md.Element) {
       final text = node.textContent;
-      // <br> stored as literal text in a single text node (the markdown package
-      // does not always parse it as inline HTML inside table cells).
       if (text.contains('<br>')) {
         final parts = text.split('<br>');
         return TextSpan(
@@ -116,7 +115,6 @@ class MarkdownView extends StatelessWidget {
       _ => style,
     };
     if (node.tag == 'img') return const TextSpan();
-    // <br> parsed as inline HTML element — render as newline.
     if (node.tag == 'br') return const TextSpan(text: '\n');
     return TextSpan(
       children: [
@@ -140,9 +138,6 @@ class MarkdownView extends StatelessWidget {
     );
   }
 
-  // Extracts the plain text from a cell, excluding image nodes, converting
-  // both <br> element nodes and literal "<br>" text to newlines.  The result
-  // is trimmed so that image-adjacent separators don't leave blank lines.
   String _cellPlainText(md.Element cell) {
     final buf = StringBuffer();
     void walk(md.Node node) {
@@ -159,7 +154,6 @@ class MarkdownView extends StatelessWidget {
         buf.write(node.textContent.replaceAll('<br>', '\n'));
       }
     }
-
     for (final child in cell.children ?? const <md.Node>[]) {
       walk(child);
     }
@@ -196,19 +190,31 @@ class MarkdownView extends StatelessWidget {
     if (!src.startsWith(_imageUriPrefix)) return const SizedBox.shrink();
     final hash = src.substring(_imageUriPrefix.length);
     final caption = image.attributes['alt'] ?? '';
+    final filePath = imageStore.pathFor(hash);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: Image.network(
-            api.imageUrl(hash),
-            fit: BoxFit.contain,
-            semanticLabel: caption.isEmpty ? null : caption,
-            errorBuilder: (_, _, _) =>
-                const ColoredBox(color: Colors.black12, child: Icon(Icons.broken_image)),
-          ),
+          child: filePath != null
+              ? Image.file(
+                  File(filePath),
+                  fit: BoxFit.contain,
+                  semanticLabel: caption.isEmpty ? null : caption,
+                  errorBuilder: (_, _, _) => const ColoredBox(
+                    color: Colors.black12,
+                    child: Icon(Icons.broken_image),
+                  ),
+                )
+              : const SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: ColoredBox(
+                    color: Colors.black12,
+                    child: Icon(Icons.broken_image),
+                  ),
+                ),
         ),
         if (caption.isNotEmpty)
           Padding(
@@ -260,8 +266,10 @@ class MarkdownView extends StatelessWidget {
   Widget _table(BuildContext context, md.Element element) {
     final headerCells = <md.Element>[];
     final bodyRows = <List<md.Element>>[];
-    for (final section in (element.children ?? const <md.Node>[]).whereType<md.Element>()) {
-      for (final row in (section.children ?? const <md.Node>[]).whereType<md.Element>()) {
+    for (final section
+        in (element.children ?? const <md.Node>[]).whereType<md.Element>()) {
+      for (final row
+          in (section.children ?? const <md.Node>[]).whereType<md.Element>()) {
         final cells = (row.children ?? const <md.Node>[])
             .whereType<md.Element>()
             .where((e) => e.tag == 'th' || e.tag == 'td')
@@ -297,7 +305,8 @@ class MarkdownView extends StatelessWidget {
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
               ),
               children: pad([
-                for (final cell in headerCells) _tableCell(context, cell, bold: true),
+                for (final cell in headerCells)
+                  _tableCell(context, cell, bold: true),
               ]),
             ),
           for (final row in bodyRows)
@@ -313,18 +322,10 @@ class MarkdownView extends StatelessWidget {
     final images = _inlineImages(cell);
     final Widget content;
     if (images.isNotEmpty) {
-      // Collect all text from the cell excluding images; <br> (element or
-      // literal) becomes \n, and leading/trailing \n are trimmed so that
-      // image-adjacent separators don't produce blank lines in the view.
       final text = _cellPlainText(cell);
       final textStyle = Theme.of(context).textTheme.bodyMedium?.merge(
             bold ? const TextStyle(fontWeight: FontWeight.bold) : null,
           );
-      // CrossAxisAlignment.stretch ensures Text receives the column's full
-      // width as a tight constraint, preventing text from bleeding outside
-      // the cell when IntrinsicColumnWidth is used.  Images are wrapped in
-      // Align so they stay left-aligned and at most 160 px wide regardless
-      // of the computed column width.
       content = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
